@@ -1,0 +1,9 @@
+{
+  "port" : 9090,
+  "hostname" : "localhost",
+  "environment": "debug",
+  "auth": {
+    "username": "theusername",
+    "password": "thepassword"
+  }
+}
