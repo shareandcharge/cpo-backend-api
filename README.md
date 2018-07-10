@@ -2,6 +2,11 @@
 
 For any questions, please ask :)
 
+## Install Guide
+
+The API is available at: ............
+
+
 ~~~~
 [GIN-debug] GET    /api/v1/                  --> main.HandleIndex (2 handlers)
 [GIN-debug] POST   /api/v1/cpo/create        --> main.HandleCpoCreate (2 handlers)
