@@ -2,9 +2,10 @@
 
 For any questions, please ask :)
 
-## Usage Guide
+## Usage Guide :crystal_ball:
 
-#### The API is available at: 18.195.223.26:9090 on AWS with the instance-id: i-0c20e24f744da7c2a and the name: cpo backend api
+#### The API is available at: 18.195.223.26:9090
+located on AWS with the instance-id: i-0c20e24f744da7c2a and the name: cpo backend api
 
 Quick test: <a href="http://18.195.223.26:9090/api/v1/">Click ME!</a>
 
@@ -18,7 +19,7 @@ Quick test: <a href="http://18.195.223.26:9090/api/v1/">Click ME!</a>
 ~~~~
 
 
-## Install Guide
+## Install Guide :sun_with_face:
 
 1. Get an Ubuntu Instance
 2. Install Golang. Configure Golang's GOROOT, GOPATH.
@@ -41,7 +42,7 @@ go run *.go
 ~~~~
 
 
-## FAQ
+## FAQ :question:
 
 1. I want to run it in the background with logging
 
