@@ -1,0 +1,194 @@
+[
+    {
+        "id": "SC EXAMPLE 1",
+        "type": "ON_STREET",
+        "name": "MW1",
+        "address": "Ruettenscheiderstr. 120",
+        "city": "Essen",
+        "postal_code": "45131",
+        "country": "DE",
+        "coordinates": {
+            "latitude": "51.432870",
+            "longitude": "7.004115"
+        },
+        "evses": [{
+            "uid": "1",
+            "evse_id": "DE-SC-E11",
+            "status": "AVAILABLE",
+            "status_schedule": [],
+            "capabilities": [],
+            "connectors": [{
+                "id": "1",
+                "standard": "IEC_62196_T2",
+                "format": "CABLE",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-03-16T10:10:02Z"
+            }, {
+                "id": "2",
+                "standard": "IEC_62196_T2",
+                "format": "SOCKET",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-03-18T08:12:01Z"
+            }],
+            "physical_reference": "1",
+            "floor_level": "-1",
+             "last_updated": "2015-06-28T08:12:01Z"
+        }, {
+            "uid": "2",
+            "evse_id": "DE-SC-E12",
+            "status": "AVAILABLE",
+            "capabilities": [],
+            "connectors": [{
+                "id": "1",
+                "standard": "IEC_62196_T2",
+                "format": "SOCKET",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-06-29T20:39:09Z"
+            }],
+            "physical_reference": "2",
+            "floor_level": "-2",
+             "last_updated": "2015-06-29T20:39:09Z"
+        }],
+        "operator": {
+            "name": "MotionWerk"
+        },
+        "last_updated": "2015-06-29T20:39:09Z"
+    },
+    {
+        "id": "SC EXAMPLE 2",
+        "type": "ON_STREET",
+        "name": "MW2",
+        "address": "Ruettenscheiderstr. 120",
+        "city": "Essen",
+        "postal_code": "45131",
+        "country": "DE",
+        "coordinates": {
+            "latitude": "51.432945",
+            "longitude": "7.004111"
+        },
+        "evses": [{
+            "uid": "3",
+            "evse_id": "DE-SC-E21",
+            "status": "AVAILABLE",
+            "status_schedule": [],
+            "capabilities": [],
+            "connectors": [{
+                "id": "1",
+                "standard": "IEC_62196_T2",
+                "format": "CABLE",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-03-16T10:10:02Z"
+            }, {
+                "id": "2",
+                "standard": "IEC_62196_T2",
+                "format": "SOCKET",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-03-18T08:12:01Z"
+            }],
+            "physical_reference": "1",
+            "floor_level": "-1",
+             "last_updated": "2015-06-28T08:12:01Z"
+        }, {
+            "uid": "4",
+            "evse_id": "DE-SC-E22",
+            "status": "AVAILABLE",
+            "capabilities": [],
+            "connectors": [{
+                "id": "1",
+                "standard": "IEC_62196_T2",
+                "format": "SOCKET",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-06-29T20:39:09Z"
+            }],
+            "physical_reference": "2",
+            "floor_level": "-2",
+             "last_updated": "2015-06-29T20:39:09Z"
+        }],
+        "operator": {
+            "name": "MotionWerk"
+        },
+        "last_updated": "2015-06-29T20:39:09Z"
+    },
+    {
+        "id": "SC EXAMPLE 3",
+        "type": "ON_STREET",
+        "name": "MW3",
+        "address": "Ruettenscheiderstr. 120",
+        "city": "Essen",
+        "postal_code": "45131",
+        "country": "DE",
+        "coordinates": {
+            "latitude": "51.433039",
+            "longitude": "7.004157"
+        },
+        "evses": [{
+            "uid": "5",
+            "evse_id": "DE-SC-E31",
+            "status": "AVAILABLE",
+            "status_schedule": [],
+            "capabilities": [],
+            "connectors": [{
+                "id": "1",
+                "standard": "IEC_62196_T2",
+                "format": "CABLE",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-03-16T10:10:02Z"
+            }, {
+                "id": "2",
+                "standard": "IEC_62196_T2",
+                "format": "SOCKET",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-03-18T08:12:01Z"
+            }],
+            "physical_reference": "1",
+            "floor_level": "-1",
+             "last_updated": "2015-06-28T08:12:01Z"
+        }, {
+            "uid": "6",
+            "evse_id": "DE-SC-E32",
+            "status": "AVAILABLE",
+            "capabilities": [],
+            "connectors": [{
+                "id": "1",
+                "standard": "IEC_62196_T2",
+                "format": "SOCKET",
+                "power_type": "AC_3_PHASE",
+                "voltage": 220,
+                "amperage": 16,
+                "tariff_id": "1",
+                "last_updated": "2015-06-29T20:39:09Z"
+            }],
+            "physical_reference": "2",
+            "floor_level": "-2",
+             "last_updated": "2015-06-29T20:39:09Z"
+        }],
+        "operator": {
+            "name": "MotionWerk"
+        },
+        "last_updated": "2015-06-29T20:39:09Z"
+    }
+]

@@ -1,0 +1,15 @@
+{
+  "tokenAddress":"0xA4443565f8790E6fd4e88974b490630822A35c14",
+  "locationsPath": "locations.json",
+  "tariffsPath": "tariffs.json",
+  "bridgePath": "@motionwerk/sharecharge-example-bridge",
+  "seed": "health salt town tiger vintage trend cart nation grace mechanic long dial",
+  "stage": "local",
+  "gasPrice": 1,
+  "ethProvider": "http://localhost:8545",
+  "ipfsProvider": {
+    "host": "ipfs.infura.io",
+    "port": "5001",
+    "protocol": "https"
+  }
+}
