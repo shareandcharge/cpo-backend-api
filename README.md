@@ -39,6 +39,31 @@ go run *.go
 ~~~~
 
 
+## FAQ
+
+1. I want to run it in the background with logging
+
+You can use: nohup ./myexecutable &
+
+or
+
+Supervisor. Here's a config file:
+
+~~~~
+[program:myapp]
+command=/home/{{ pillar['username'] }}/bin/myapp
+autostart=true
+autorestart=true
+startretries=10
+user={{ pillar['username'] }}
+directory=/srv/www/myapp/
+environment=MYAPP_SETTINGS="/srv/www/myapp/prod.toml"
+redirect_stderr=true
+stdout_logfile=/var/log/supervisord/myapp.stdout.log
+stdout_logfile_maxbytes=50MB
+stdout_logfile_backups=10
+~~~~
+
 
 #### Licence Mozilla Public License Version 2.0
 
