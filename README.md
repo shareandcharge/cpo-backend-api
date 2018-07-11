@@ -28,6 +28,22 @@ if you get "This site can’t be reached" this means, probably, I stopped it for
 
 1. Get an Ubuntu Instance
 2. Install Golang. Configure Golang's GOROOT, GOPATH.
+
+~~~~
+cd /tmp
+wget -q https://storage.googleapis.com/golang/getgo/installer_linux
+chmod +x installer_linux 
+./installer_linux 
+source $HOME/.bash_profile
+
+echo 'export GOPATH=$HOME/go' >> ~/.bashrc 
+echo 'export PATH=${PATH}:${GOPATH}/bin' >> ~/.bashrc 
+source ~/.bashrc 
+
+go get github.com/golang/example/hello
+test it: ~/go/src/github.com/golang/example/hello$ go run hello.go
+~~~~
+
 3. Under your GOPATH (ex: /home/you/go/)
 
 create the directory ~/go/src/github.com/motionwerkGmbH/
