@@ -4,7 +4,9 @@ For any questions, please ask :)
 
 ## Usage Guide
 
-The API is available at: ............
+#### The API is available at: 18.195.223.26:9090 on AWS with the instance-id: i-0c20e24f744da7c2a and the name: cpo backend api
+
+Quick test: <a href="http://18.195.223.26:9090/api/v1/">Click ME!</a>
 
 
 ~~~~
