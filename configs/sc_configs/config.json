@@ -6,7 +6,7 @@
   "seed": "health salt town tiger vintage trend cart nation grace mechanic long dial",
   "stage": "local",
   "gasPrice": 1,
-  "ethProvider": "http://18.195.117.131:8545",
+  "ethProvider": "http://18.195.241.48:8545",
   "ipfsProvider": {
     "host": "ipfs.infura.io",
     "port": "5001",
