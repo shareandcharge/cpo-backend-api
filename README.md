@@ -9,6 +9,8 @@ located on AWS with the instance-id: i-0c20e24f744da7c2a and the name: cpo backe
 
 Quick test: <a href="http://18.195.223.26:9090/api/v1/">Click ME!</a>
 
+if you get "This site can’t be reached" this means, probably, I stopped it for some reason. Ask me on slack why it's stopped. (Andy) :palm_tree:
+
 
 ~~~~
 [GIN-debug] GET    /api/v1/                  --> main.HandleIndex (2 handlers)
@@ -20,6 +22,9 @@ Quick test: <a href="http://18.195.223.26:9090/api/v1/">Click ME!</a>
 
 
 ## Install Guide :sun_with_face:
+
+### Attention :fire: if you are trying to follow this steps and get stuck at something, it's very important that you update this readme with the fix, so other developers will not encounter the same problem.
+
 
 1. Get an Ubuntu Instance
 2. Install Golang. Configure Golang's GOROOT, GOPATH.
@@ -33,7 +38,19 @@ into that directory run: git clone git@github.com:motionwerkGmbH/cpo-backend-api
 5. chmod +x copy.sh then ./copy.sh
 6. Install all the dependencies of this app with: go get ./...  (it will take ~1 min)
 
-## Running the API Server
+## Configure Share & Charge API
+
+this api is based on share & charge api :), so make sure you have it running on localhost:3000
+
+~~~~
+cd sharecharge-api
+git branch
+npm install
+npm run install
+npm run start
+~~~~
+
+#### Running the API Server
 
 Under the cpo-backend-api folder
 
