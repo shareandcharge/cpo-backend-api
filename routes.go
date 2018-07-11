@@ -20,6 +20,9 @@ func InitializeRoutes() {
 		//used only to delete / reinit the database with default values.
 		v1.DELETE("/s3cr3tReinitf32fdsfsdf98yu32jlkjfsd89yaf98j320j", HandleReinit)
 
+
+		v1.GET("/token/info", HandleTokenInfo)
+
 	}
 
 }

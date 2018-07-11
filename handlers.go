@@ -6,6 +6,7 @@ import (
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"fmt"
 	"log"
+	"encoding/json"
 )
 
 func HandleIndex(c *gin.Context) {
@@ -35,6 +36,14 @@ func HandleCpoInfo(c *gin.Context) {
 		log.Panic(err)
 	}
 	c.JSON(http.StatusOK, cpo)
+}
+
+
+// getting the token info TODO://necessary ?
+func HandleTokenInfo(c *gin.Context) {
+	tokenInfo := tools.GetRequest("http://localhost:3000/api/token/info")
+	out, _ := json.Marshal(tokenInfo)
+	c.JSON(http.StatusOK, out)
 }
 
 // this will TRUNCATE the database.
