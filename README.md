@@ -13,11 +13,16 @@ if you get "This site can’t be reached" this means, probably, I stopped it for
 
 
 ~~~~
-[GIN-debug] GET    /api/v1/                  --> main.HandleIndex (2 handlers)
-[GIN-debug] POST   /api/v1/cpo/create        --> main.HandleCpoCreate (2 handlers)
-[GIN-debug] GET    /api/v1/cpo/info          --> main.HandleCpoInfo (2 handlers)
-[GIN-debug] GET    /api/v1/wallet/info       --> main.HandleWalletInfo (2 handlers)
-[GIN-debug] DELETE /api/v1/s3cr3tReinitf32fdsfsdf98yu32jlkjfsd89yaf98j320j --> main.HandleReinit (2 handlers)
+[GIN-debug] GET    /api/v1/                  --> github.com/motionwerkGmbH/cpo-backend-api/handlers.Index (2 handlers)
+[GIN-debug] DELETE /api/v1/s3cr3tReinitf32fdsfsdf98yu32jlkjfsd89yaf98j320j --> github.com/motionwerkGmbH/cpo-backend-api/handlers.Reinit (2 handlers)
+[GIN-debug] POST   /api/v1/cpo/create        --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoCreate (2 handlers)
+[GIN-debug] GET    /api/v1/cpo/info          --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoInfo (2 handlers)
+[GIN-debug] GET    /api/v1/token/info        --> github.com/motionwerkGmbH/cpo-backend-api/handlers.TokenInfo (2 handlers)
+[GIN-debug] GET    /api/v1/account/info      --> github.com/motionwerkGmbH/cpo-backend-api/handlers.AccountInfo (2 handlers)
+[GIN-debug] GET    /api/v1/account/wallet    --> github.com/motionwerkGmbH/cpo-backend-api/handlers.WalletInfo (2 handlers)
+[GIN-debug] GET    /api/v1/account/history   --> github.com/motionwerkGmbH/cpo-backend-api/handlers.AccountHistory (2 handlers)
+[GIN-debug] GET    /api/v1/account/mnemonic  --> github.com/motionwerkGmbH/cpo-backend-api/handlers.AccountMnemonic (2 handlers)
+[GIN-debug] GET    /api/v1/stations          --> github.com/motionwerkGmbH/cpo-backend-api/handlers.StationsInfo (2 handlers)
 ~~~~
 
 
