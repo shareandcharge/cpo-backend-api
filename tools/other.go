@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 	"context"
+	"math/rand"
 )
 
 //read the config file, helper function
@@ -23,7 +24,7 @@ func ReadConfig(filename string, defaults map[string]interface{}) (*viper.Viper,
 }
 
 //general GET request
-func GetRequest(url string) string {
+func GetRequest(url string) []byte {
 	response, err := http.Get(url)
 	if err != nil {
 		log.Panicf("%s", err)
@@ -33,9 +34,9 @@ func GetRequest(url string) string {
 		if err != nil {
 			log.Panicf("%s", err)
 		}
-		return string(contents)
+		return contents
 	}
-	return ""
+	return nil
 }
 
 
@@ -63,4 +64,15 @@ func GetRequest2(url string) string{
 		return string(b)
 	}
 	return ""
+}
+
+// Generate a Random String of length n
+func RandStringRunes(n int) string {
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ")
+	rand.Seed(time.Now().UnixNano())
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"github.com/gin-gonic/gin"
@@ -9,12 +9,12 @@ import (
 	"encoding/json"
 )
 
-func HandleIndex(c *gin.Context) {
+func Index(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "Look! It's moving. It's alive. It's alive... It's alive, it's moving, it's alive, it's alive, it's alive, it's alive, IT'S ALIVE! (Frankenstein 1931)"})
 }
 
 // handling the wallet creation
-func HandleCpoCreate(c *gin.Context) {
+func CpoCreate(c *gin.Context) {
 
 	t := "INSERT INTO cpo (cpo_id, public_addr, seed, email, password) VALUES (%d, '%s','%s', '%s', '%s')"
 	command := fmt.Sprintf(t, 1, "0x123123123123", "word eye leg ...", "cpo@email.com", "hardpassword")
@@ -23,12 +23,9 @@ func HandleCpoCreate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "wallet creation here."})
 }
 
-// handling the wallet info
-func HandleWalletInfo(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "wallet info here."})
-}
 
-func HandleCpoInfo(c *gin.Context) {
+
+func CpoInfo(c *gin.Context) {
 
 	cpo := tools.CPO{}
 	err := tools.DB.QueryRowx("SELECT * FROM cpo").StructScan(&cpo)
@@ -38,16 +35,26 @@ func HandleCpoInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, cpo)
 }
 
+// getting the token info
+func TokenInfo(c *gin.Context) {
+	type TokenInfo struct {
+		Name    string `json:"name"`
+		Symbol  string `json:"symbol"`
+		Address string `json:"address"`
+		Owner   string `json:"owner"`
+	}
+	body := tools.GetRequest("http://localhost:3000/api/token/info")
 
-// getting the token info TODO://necessary ?
-func HandleTokenInfo(c *gin.Context) {
-	tokenInfo := tools.GetRequest("http://localhost:3000/api/token/info")
-	out, _ := json.Marshal(tokenInfo)
-	c.JSON(http.StatusOK, out)
+	var tokenInfo = new(TokenInfo)
+	err := json.Unmarshal(body, &tokenInfo)
+	if err != nil {
+		log.Panic(err)
+	}
+	c.JSON(http.StatusOK, tokenInfo)
 }
 
 // this will TRUNCATE the database.
-func HandleReinit(c *gin.Context) {
+func Reinit(c *gin.Context) {
 
 	var schema = `
 		DROP TABLE IF EXISTS cpo;
