@@ -3,16 +3,19 @@ package handlers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
+	"io/ioutil"
+	"fmt"
+	"encoding/json"
 )
 
 func StationsInfo(c *gin.Context) {
 
-	type StationInfo struct {
+	type StationInfo []struct {
 		ID          string `json:"id"`
 		Type        string `json:"type"`
 		Name        string `json:"name"`
 		Address     string `json:"address"`
-		Opened      string `json:"opened"`
 		City        string `json:"city"`
 		PostalCode  string `json:"postal_code"`
 		Country     string `json:"country"`
@@ -20,35 +23,44 @@ func StationsInfo(c *gin.Context) {
 			Latitude  string `json:"latitude"`
 			Longitude string `json:"longitude"`
 		} `json:"coordinates"`
+		Evses []struct {
+			UID            string        `json:"uid"`
+			EvseID         string        `json:"evse_id"`
+			Status         string        `json:"status"`
+			StatusSchedule []interface{} `json:"status_schedule,omitempty"`
+			Capabilities   []interface{} `json:"capabilities"`
+			Connectors     []struct {
+				ID          string    `json:"id"`
+				Standard    string    `json:"standard"`
+				Format      string    `json:"format"`
+				PowerType   string    `json:"power_type"`
+				Voltage     int       `json:"voltage"`
+				Amperage    int       `json:"amperage"`
+				TariffID    string    `json:"tariff_id"`
+				LastUpdated time.Time `json:"last_updated"`
+			} `json:"connectors"`
+			PhysicalReference string    `json:"physical_reference"`
+			FloorLevel        string    `json:"floor_level"`
+			LastUpdated       time.Time `json:"last_updated"`
+		} `json:"evses"`
+		Operator struct {
+			Name string `json:"name"`
+		} `json:"operator"`
+		LastUpdated time.Time `json:"last_updated"`
 	}
 
-	var stationInfo StationInfo
-	stationInfo.ID = "SC EXAMPLE 1"
-	stationInfo.Type = "ON_STREET"
-	stationInfo.Name = "MW1"
-	stationInfo.Address = "Ruettenscheiderstr. 120"
-	stationInfo.Opened = "24/7"
-	stationInfo.City = "Essen"
-	stationInfo.PostalCode = "1334 GE"
-	stationInfo.Country = "Germany"
-	stationInfo.Coordinates.Latitude = "51.432870"
-	stationInfo.Coordinates.Longitude = "7.004115"
 
 
-	var stationInfo2 StationInfo
-	stationInfo2.ID = "SC EXAMPLE 2"
-	stationInfo2.Type = "ON_STREET"
-	stationInfo2.Name = "MW2"
-	stationInfo2.Address = "Ruettenscheiderstr. 121"
-	stationInfo2.Opened = "24/7"
-	stationInfo2.City = "Essen"
-	stationInfo2.PostalCode = "1334 GE"
-	stationInfo2.Country = "Germany"
-	stationInfo2.Coordinates.Latitude = "51.433870"
-	stationInfo2.Coordinates.Longitude = "7.003115"
+	b, err := ioutil.ReadFile("./configs/sc_configs/locations.json")
+	if err != nil {
+		fmt.Print(err)
+	}
 
-	var stationsInfos []StationInfo
-	stationsInfos = append(stationsInfos, stationInfo, stationInfo2)
+	locationsString := string(b)
 
-	c.JSON(http.StatusOK, stationsInfos)
+	var dat StationInfo
+
+	json.Unmarshal([]byte(locationsString), &dat)
+
+	c.JSON(http.StatusOK, dat)
 }
