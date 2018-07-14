@@ -30,7 +30,7 @@ func InitializeRoutes() {
 		v1.GET("/account/mnemonic", handlers.AccountMnemonic)
 
 		// Stations // EVSEs // Connectors
-		v1.GET("/stations", handlers.StationsInfo)
+		v1.GET("/locations", handlers.LocationsInfo)
 
 	}
 
