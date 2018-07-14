@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"time"
-	"io/ioutil"
-	"fmt"
+	"github.com/motionwerkGmbH/cpo-backend-api/configs"
+	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"encoding/json"
+	"log"
+	"net/http"
 )
+
 
 func StationsInfo(c *gin.Context) {
 
@@ -49,18 +51,28 @@ func StationsInfo(c *gin.Context) {
 		LastUpdated time.Time `json:"last_updated"`
 	}
 
+	Config := configs.Load()
+	cpoAddress := Config.GetString("cpo_address")
 
+	body := tools.GetRequest("http://localhost:3000/api/store/locations/"+ cpoAddress)
 
-	b, err := ioutil.ReadFile("./configs/sc_configs/locations.json")
+	var stationInfo StationInfo
+	err := json.Unmarshal(body, &stationInfo)
 	if err != nil {
-		fmt.Print(err)
+		log.Panic(err)
 	}
+	c.JSON(http.StatusOK, stationInfo)
 
-	locationsString := string(b)
-
-	var dat StationInfo
-
-	json.Unmarshal([]byte(locationsString), &dat)
-
-	c.JSON(http.StatusOK, dat)
+	//b, err := ioutil.ReadFile("./configs/sc_configs/locations.json")
+	//if err != nil {
+	//	fmt.Print(err)
+	//}
+	//
+	//locationsString := string(b)
+	//
+	//var dat StationInfo
+	//
+	//json.Unmarshal([]byte(locationsString), &dat)
+	//
+	//c.JSON(http.StatusOK, dat)
 }

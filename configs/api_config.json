@@ -2,6 +2,7 @@
   "port" : 9090,
   "hostname" : "localhost",
   "environment": "debug",
+  "cpo_address": "0x4066287f731631eee85e83ef44c016bfcb2a3404",
   "auth": {
     "username": "theusername",
     "password": "thepassword"

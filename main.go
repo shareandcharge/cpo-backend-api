@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"time"
 	"strconv"
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/motionwerkGmbH/cpo-backend-api/configs"
+	"log"
 )
 
 var router *gin.Engine
@@ -15,20 +16,10 @@ var router *gin.Engine
 func main() {
 
 	// Configs
-	config, err := tools.ReadConfig("api_config", map[string]interface{}{
-		"port":     9090,
-		"hostname": "localhost",
-		"auth": map[string]string{
-			"username": "user",
-			"password": "pass",
-		},
-	})
-	if err != nil {
-		panic(fmt.Errorf("Error when reading config: %v\n", err))
-	}
+	Config := configs.Load()
 
 	// Gin Configuration
-	if (config.GetString("environment")) == "debug" {
+	if (Config.GetString("environment")) == "debug" {
 		gin.SetMode(gin.DebugMode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
@@ -41,11 +32,15 @@ func main() {
 	// Establish database connection
 	tools.Connect("_theDb.db")
 
+	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+	log.Println("Running on http://localhost:9090/api/v1/account/info")
+	log.Println("Running on http://18.195.223.26:9090/api/v1/account/info")
+	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 
 	// Serve 'em...
 	server := &http.Server{
-		Addr:           ":" + strconv.Itoa(config.GetInt("port")),
+		Addr:           ":" + strconv.Itoa(Config.GetInt("port")),
 		Handler:        router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
@@ -53,5 +48,6 @@ func main() {
 	}
 	server.SetKeepAlivesEnabled(false)
 	server.ListenAndServe()
+
 
 }
