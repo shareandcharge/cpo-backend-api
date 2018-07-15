@@ -1,14 +1,15 @@
 package main
 
 import (
-	"time"
-	"strconv"
-	"net/http"
+	log "github.com/Sirupsen/logrus"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
-	"log"
+	"github.com/motionwerkGmbH/cpo-backend-api/tools"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 var router *gin.Engine
@@ -27,6 +28,9 @@ func main() {
 	router = gin.New()
 	router.Use(gin.Recovery())
 
+	// allow all origins
+	router.Use(cors.Default())
+
 	InitializeRoutes()
 
 	// Establish database connection
@@ -36,7 +40,6 @@ func main() {
 	log.Println("Running on http://localhost:9090/api/v1/account/info")
 	log.Println("Running on http://18.195.223.26:9090/api/v1/account/info")
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-
 
 	// Serve 'em...
 	server := &http.Server{
@@ -48,6 +51,5 @@ func main() {
 	}
 	server.SetKeepAlivesEnabled(false)
 	server.ListenAndServe()
-
 
 }
