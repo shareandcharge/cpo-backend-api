@@ -49,7 +49,7 @@ func MspInfo(c *gin.Context) {
 
 
 	rows, err := tools.DB.Query("SELECT msp_id FROM msp")
-	tools.ErrorCheck(err, "msp.go", true)
+	tools.ErrorCheck(err, "msp.go", false)
 
 	//check if we already have an MSP registered
 	if rows.Next() {
@@ -59,7 +59,7 @@ func MspInfo(c *gin.Context) {
 	msp := tools.MSP{}
 
 	err = tools.DB.QueryRowx("SELECT * FROM msp LIMIT 1").StructScan(&msp)
-	tools.ErrorCheck(err,"msp.go", true)
+	tools.ErrorCheck(err,"msp.go", false)
 	c.JSON(http.StatusOK, msp)
 }
 
