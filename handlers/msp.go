@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"fmt"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
-	"log"
 )
 
 func MspCreate(c *gin.Context) {
@@ -30,7 +29,7 @@ func MspCreate(c *gin.Context) {
 
 	//check if there is already an msp registered
 	rows, err := tools.DB.Query("SELECT msp_id FROM msp")
-	tools.ErrorCheck(err, "MSP.go", true)
+	tools.ErrorCheck(err, "msp.go", true)
 
 	//check if we already have an MSP registered
 	if rows.Next() {
@@ -48,12 +47,19 @@ func MspCreate(c *gin.Context) {
 //returns the info for the MSP
 func MspInfo(c *gin.Context) {
 
-	msp := tools.MSP{}
-	err := tools.DB.QueryRowx("SELECT * FROM msp LIMIT 1").StructScan(&msp)
-	if err != nil {
-		log.Panic(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "there aren't any msp registered"})
+
+	rows, err := tools.DB.Query("SELECT msp_id FROM msp")
+	tools.ErrorCheck(err, "msp.go", true)
+
+	//check if we already have an MSP registered
+	if rows.Next() {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": "there's already an MSP registered on this backend"})
 	}
+
+	msp := tools.MSP{}
+
+	err = tools.DB.QueryRowx("SELECT * FROM msp LIMIT 1").StructScan(&msp)
+	tools.ErrorCheck(err,"msp.go", true)
 	c.JSON(http.StatusOK, msp)
 }
 
