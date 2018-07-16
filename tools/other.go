@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/viper"
 	"net/http"
 	"io/ioutil"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"time"
 	"context"
 	"math/rand"
@@ -75,4 +75,16 @@ func RandStringRunes(n int) string {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
 	}
 	return string(b)
+}
+
+
+// quick function to check for an error and, optionally terminate the program
+func ErrorCheck(err error, where string, kill bool) {
+	if err != nil {
+		if kill {
+			log.WithError(err).Fatalln("Script Terminated")
+		} else {
+			log.WithError(err).Warnf("@ %s\n", where)
+		}
+	}
 }

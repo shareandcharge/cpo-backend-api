@@ -6,7 +6,7 @@ import (
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"encoding/json"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 )
 

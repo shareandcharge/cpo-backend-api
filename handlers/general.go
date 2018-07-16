@@ -60,10 +60,30 @@ func Reinit(c *gin.Context) {
 		DROP TABLE IF EXISTS cpo;
 		CREATE TABLE cpo (
 			cpo_id    INTEGER PRIMARY KEY,
-    		public_addr VARCHAR(80)  DEFAULT '',
+    		wallet VARCHAR(80)  DEFAULT '',
     		seed  VARCHAR(250)  DEFAULT '',
-			email      VARCHAR(250) DEFAULT '',
-			password   VARCHAR(250) DEFAULT NULL
+			name      VARCHAR(250) DEFAULT '',
+			address_1      VARCHAR(250) DEFAULT '',
+			address_2      VARCHAR(250) DEFAULT '',
+			town      VARCHAR(250) DEFAULT '',
+			postcode      VARCHAR(250) DEFAULT '',
+			mail_address      VARCHAR(250) DEFAULT '',
+			website      VARCHAR(250) DEFAULT '',
+			vat_number      VARCHAR(250) DEFAULT ''
+		);
+	DROP TABLE IF EXISTS msp;
+	CREATE TABLE msp (
+			msp_id    INTEGER PRIMARY KEY,
+    		wallet VARCHAR(80)  DEFAULT '',
+    		seed  VARCHAR(250)  DEFAULT '',
+			name      VARCHAR(250) DEFAULT '',
+			address_1      VARCHAR(250) DEFAULT '',
+			address_2      VARCHAR(250) DEFAULT '',
+			town      VARCHAR(250) DEFAULT '',
+			postcode      VARCHAR(250) DEFAULT '',
+			mail_address      VARCHAR(250) DEFAULT '',
+			website      VARCHAR(250) DEFAULT '',
+			vat_number      VARCHAR(250) DEFAULT ''
 		);
 `
 

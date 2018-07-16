@@ -12,6 +12,22 @@ func InitializeRoutes() {
 		//used only to delete / reinit the database with default values.
 		v1.DELETE("/s3cr3tReinitf32fdsfsdf98yu32jlkjfsd89yaf98j320j", handlers.Reinit)
 
+		//------------------------
+		//-------- MSP -----------
+		//------------------------
+
+		//returns a list of all EV Drivers with their details & balances
+		v1.GET("/msp/drivers", handlers.DriversList)
+
+		//gets all the info about an msp
+		v1.GET("/msp", handlers.MspInfo)
+		//creates in the database a new msp
+		v1.POST("/msp", handlers.MspCreate)
+
+
+		//------------------------
+		//-------- CPO-----------
+		//------------------------
 
 		//CPO Management
 		v1.POST("/cpo/create", handlers.CpoCreate)
@@ -31,6 +47,9 @@ func InitializeRoutes() {
 
 		// Stations // EVSEs // Connectors
 		v1.GET("/locations", handlers.LocationsInfo)
+
+
+
 
 	}
 
