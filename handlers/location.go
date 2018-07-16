@@ -64,6 +64,8 @@ func LocationsInfo(c *gin.Context) {
 	err := json.Unmarshal(body, &stationInfo)
 	if err != nil {
 		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
 	}
 	c.JSON(http.StatusOK, stationInfo)
 
