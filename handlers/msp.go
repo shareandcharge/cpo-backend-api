@@ -52,6 +52,7 @@ func MspInfo(c *gin.Context) {
 	err := tools.DB.QueryRowx("SELECT * FROM msp LIMIT 1").StructScan(&msp)
 	if err != nil {
 		log.Panic(err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "there aren't any msp registered"})
 	}
 	c.JSON(http.StatusOK, msp)
 }
