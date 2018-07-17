@@ -4,42 +4,23 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
-	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"encoding/json"
+	"strconv"
 )
 
 func Index(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "Look! It's moving. It's alive. It's alive... It's alive, it's moving, it's alive, it's alive, it's alive, it's alive, IT'S ALIVE! (Frankenstein 1931)"})
 }
 
-
-//gets the balance for a wallet
-func GetWalletBalance(c *gin.Context){
+//gets the balance for a wallet in Ether (the thing that pays for the gas)
+func GetWalletBalance(c *gin.Context) {
 	//TODO: get the api from Stipa here...
-	c.JSON(http.StatusOK, gin.H{"balance": 18.32131321, "currency":"EV Tokens"})
-}
 
-// handling the wallet creation
-func CpoCreate(c *gin.Context) {
+	addr := c.Param("addr")
+	log.Printf("getting balance for %s", addr)
 
-	t := "INSERT INTO cpo (cpo_id, public_addr, seed, email, password) VALUES (%d, '%s','%s', '%s', '%s')"
-	command := fmt.Sprintf(t, 1, "0x123123123123", "word eye leg ...", "cpo@email.com", "hardpassword")
-	tools.DB.MustExec(command)
-
-	c.JSON(http.StatusOK, gin.H{"status": "wallet creation here."})
-}
-
-
-
-func CpoInfo(c *gin.Context) {
-
-	cpo := tools.CPO{}
-	err := tools.DB.QueryRowx("SELECT * FROM cpo").StructScan(&cpo)
-	if err != nil {
-		log.Panic(err)
-	}
-	c.JSON(http.StatusOK, cpo)
+	c.JSON(http.StatusOK, gin.H{"balance": 18.32131321, "currency": "EV Tokens"})
 }
 
 // getting the token info
@@ -61,6 +42,50 @@ func TokenInfo(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, tokenInfo)
 }
+
+// getting the token info
+func TokenBalance(c *gin.Context) {
+
+	addr := c.Param("addr")
+	log.Printf("getting token balance for %s", addr)
+
+	body := tools.GetRequest("http://localhost:3000/api/token/balance/" + addr)
+
+	log.Printf("Balance is %s", body)
+	balanceFloat, _ := strconv.ParseFloat(string(body), 64)
+	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat})
+
+}
+
+
+// mint the tokens for the EV Driver
+func TokenMint(c *gin.Context) {
+
+	addr := c.Param("addr")
+	amount := c.DefaultQuery("amount", "100")
+	log.Printf("mint tokens for %s with the amount %s", addr, amount)
+
+	amountFloat, _ := strconv.ParseFloat(string(amount), 64)
+	values := map[string]interface{}{"driver": addr, "amount": amountFloat}
+
+	body, err := tools.PostJsonRequest("http://localhost:3000/api/token/mint", values)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	log.Printf(">> WE GOT %s", body)
+
+	//body := tools.GetRequest("http://localhost:3000/api/token/balance/" + addr)
+	//
+	//log.Printf("Balance is %s", body)
+	//balanceFloat, _ := strconv.ParseFloat(string(body), 64)
+	//c.JSON(http.StatusOK, gin.H{"balance": balanceFloat})
+	c.JSON(http.StatusOK, gin.H{"balance": 333})
+}
+
+
 
 // this will TRUNCATE the database.
 func Reinit(c *gin.Context) {
@@ -100,40 +125,3 @@ func Reinit(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": "database truncated."})
 }
-
-//func HandleWriteBlock(c *gin.Context) {
-//	var mess Message
-//	if err := c.MustBindWith(&mess, binding.JSON); err == nil {
-//
-//		//validate your data here
-//		if err := validateTheData(mess.TheData); err != nil {
-//			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-//			return
-//		}
-//
-//		newBlock, er := generateBlock(Blockchain[len(Blockchain)-1], mess.TheData)
-//		if er != nil {
-//			c.JSON(http.StatusInternalServerError, gin.H{"error": er.Error()})
-//			return
-//		}
-//		if isBlockValid(newBlock, Blockchain[len(Blockchain)-1]) {
-//			newBlockchain := append(Blockchain, newBlock)
-//			replaceChain(newBlockchain)
-//			spew.Dump(Blockchain)
-//		}
-//		c.JSON(http.StatusCreated, gin.H{"status": "block " + strconv.Itoa(newBlock.Index) + " added"})
-//
-//
-//
-//
-//	} else {
-//		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-//	}
-//}
-
-//func validateTheData(theData string) error {
-//	if theData == "" {
-//		return errors.New("invalid data")
-//	}
-//	return nil
-//}

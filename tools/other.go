@@ -8,6 +8,8 @@ import (
 	"time"
 	"context"
 	"math/rand"
+	"bytes"
+	"encoding/json"
 )
 
 //read the config file, helper function
@@ -39,12 +41,11 @@ func GetRequest(url string) []byte {
 	return nil
 }
 
-
 //better version //TODO: remove the above version after testing
-func GetRequest2(url string) string{
+func GetRequest2(url string) string {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Panicf("%v", err)
 		return ""
 	}
 
@@ -56,7 +57,7 @@ func GetRequest2(url string) string{
 	client := http.DefaultClient
 	res, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Panicf("%v", err)
 		return ""
 	}
 
@@ -64,6 +65,31 @@ func GetRequest2(url string) string{
 		return string(b)
 	}
 	return ""
+}
+
+//general POST request
+func PostJsonRequest(url string, jsonMap map[string]interface{}) ([]byte, error) {
+
+	jsonValue, err := json.Marshal(jsonMap)
+	if err != nil {
+		log.Panicf("%v", err)
+		return nil, err
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonValue))
+	if err != nil {
+		log.Panicf("%v", err)
+		return nil, err
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		log.Panicf("%v", err)
+		return nil, err
+	}
+
+	return b, nil
 }
 
 // Generate a Random String of length n
@@ -76,7 +102,6 @@ func RandStringRunes(n int) string {
 	}
 	return string(b)
 }
-
 
 // quick function to check for an error and, optionally terminate the program
 func ErrorCheck(err error, where string, kill bool) {

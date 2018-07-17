@@ -12,14 +12,24 @@ func InitializeRoutes() {
 		//used only to delete / reinit the database with default values.
 		v1.DELETE("/s3cr3tReinitf32fdsfsdf98yu32jlkjfsd89yaf98j320j", handlers.Reinit)
 
+		//shows the token info
+		v1.GET("/token/info", handlers.TokenInfo)
+
+		//shows the token balance
+		v1.GET("/token/balance/:addr", handlers.TokenBalance)
+
+		//Tops up the balance of the EV Driver
+		v1.POST("/token/mint/:addr", handlers.TokenMint)
 
 		//displays the mnemonic seed for the msp
 		v1.GET("/wallet/:addr", handlers.GetWalletBalance)
 
+		// Stations // EVSEs // Connectors
+		v1.GET("/locations", handlers.LocationsInfo)
 
-		//------------------------
-		//-------- MSP -----------
-		//------------------------
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~ MSP ~~~~~~~~~~~~~~~~~~~~~~~~~~
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		//returns a list of all EV Drivers with their details & balances
 		v1.GET("/msp/drivers", handlers.DriversList)
@@ -35,32 +45,12 @@ func InitializeRoutes() {
 		//displays the mnemonic seed for the msp
 		v1.GET("/msp/wallet/seed", handlers.MspGetSeed)
 
+		//gets the MSP history of transactions
+		v1.GET("/msp/history", handlers.MSPHistory)
 
-		//------------------------
-		//-------- CPO-----------
-		//------------------------
-
-		//CPO Management
-		v1.POST("/cpo/create", handlers.CpoCreate)
-
-		//CPO info
-		v1.GET("/cpo/info", handlers.CpoInfo)
-		v1.GET("/token/info", handlers.TokenInfo)
-
-
-
-
-		// Account Related
-		v1.GET("/account/info", handlers.AccountInfo)
-		v1.GET("/account/wallet", handlers.WalletInfo)
-		v1.GET("/account/history", handlers.AccountHistory)
-		v1.GET("/account/mnemonic", handlers.AccountMnemonic)
-
-		// Stations // EVSEs // Connectors
-		v1.GET("/locations", handlers.LocationsInfo)
-
-
-
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~ CPO ~~~~~~~~~~~~~~~~~~~~~~~~~~
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	}
 

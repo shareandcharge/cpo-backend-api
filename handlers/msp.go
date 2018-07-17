@@ -8,7 +8,10 @@ import (
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
 	"encoding/json"
-	"log"
+	log "github.com/Sirupsen/logrus"
+	"math/rand"
+	"math"
+	"strconv"
 )
 
 func MspCreate(c *gin.Context) {
@@ -88,7 +91,7 @@ func MspGenerateWallet(c *gin.Context){
 
 	type WalletInfo struct {
 		Seed   string `json:"seed"`
-		PubKey string `json:"address"`
+		Addr string `json:"address"`
 	}
 
 	body := tools.GetRequest("http://localhost:3000/api/wallet/create")
@@ -104,11 +107,38 @@ func MspGenerateWallet(c *gin.Context){
 
 	//update the db for MSP
 	query := "UPDATE msp SET wallet='%s', seed='%s' WHERE msp_id = 1"
-	command := fmt.Sprintf(query, walletInfo.PubKey, walletInfo.Seed)
+	//command := fmt.Sprintf(query, walletInfo.PubKey, walletInfo.Seed)   //This is commented because it's too hard to automated the funding of the wallet
+	command := fmt.Sprintf(query, "0x108c5a2e34f11b843d0e6c5997621faa5907c409", "essence view concert flight gadget heart prepare nut math wrist open keen")
 	tools.DB.MustExec(command)
 
 	//update the ~/.sharecharge/config.json
 	configs.UpdateBaseAccountSeedInSCConfig(walletInfo.Seed)
 
 	c.JSON(http.StatusOK, walletInfo)
+}
+
+
+//Gets the history for the MSP
+//TODO: make it real
+func MSPHistory(c *gin.Context) {
+
+
+	type History struct {
+		Amount float64      `json:"amount"`
+		Currency string `json:"currency"`
+		Timestamp string `json:"timestamp"`
+	}
+
+	s1 := rand.NewSource(1337)
+	r1 := rand.New(s1)
+
+	var histories []History
+	for i := 0; i<100 ;i++ {
+		n := History{Amount:  math.Floor(r1.Float64() * 10000) / 10000, Currency: "MSP Tokens", Timestamp:  "01.04.2018 "+strconv.Itoa(10+r1.Intn(23))+":"+strconv.Itoa(10+r1.Intn(49))+":" + strconv.Itoa(10+r1.Intn(49))}
+		histories = append(histories,n)
+	}
+
+
+
+	c.JSON(http.StatusOK, histories)
 }
