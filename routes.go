@@ -24,6 +24,12 @@ func InitializeRoutes() {
 		//creates in the database a new msp
 		v1.POST("/msp", handlers.MspCreate)
 
+		//generate a new wallet for the msp
+		v1.POST("/msp/wallet/generate", handlers.MspGenerateWallet)
+
+		//displays the mnemonic seed for the msp
+		v1.GET("/msp/wallet/seed", handlers.MspGetSeed)
+
 
 		//------------------------
 		//-------- CPO-----------

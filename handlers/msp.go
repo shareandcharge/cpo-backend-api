@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"fmt"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
+	"github.com/motionwerkGmbH/cpo-backend-api/configs"
 )
 
 func MspCreate(c *gin.Context) {
@@ -62,4 +63,29 @@ func MspInfo(c *gin.Context) {
 
 	tools.DB.QueryRowx("SELECT * FROM msp LIMIT 1").StructScan(&msp)
 	c.JSON(http.StatusOK, msp)
+}
+
+
+//returns the info for the MSP
+func MspGetSeed(c *gin.Context) {
+
+
+	msp := tools.MSP{}
+	tools.DB.QueryRowx("SELECT * FROM msp LIMIT 1").StructScan(&msp)
+
+	if msp.Seed == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "there isn't any seed in the msp account. Maybe you need to create the wallet first ?."})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"seed": msp.Seed})
+}
+
+//generates a new wallet for the msp
+func MspGenerateWallet(c *gin.Context){
+
+	configs.UpdateBaseAccountSeedInSCConfig("seeed ....")
+
+
+	c.JSON(http.StatusOK, gin.H{"status": "wallet generated"})
 }
