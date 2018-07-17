@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
+	"encoding/json"
+	"log"
 )
 
 func MspCreate(c *gin.Context) {
@@ -84,8 +86,29 @@ func MspGetSeed(c *gin.Context) {
 //generates a new wallet for the msp
 func MspGenerateWallet(c *gin.Context){
 
-	configs.UpdateBaseAccountSeedInSCConfig("seeed ....")
+	type WalletInfo struct {
+		Seed   string `json:"seed"`
+		PubKey string `json:"pubKey"`
+	}
 
+	body := tools.GetRequest("http://localhost:3000/api/wallet/create")
+	log.Printf("<- %s", string(body))
 
-	c.JSON(http.StatusOK, gin.H{"status": "wallet generated"})
+	var walletInfo WalletInfo
+	err := json.Unmarshal(body, &walletInfo)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+
+	//update the db for MSP
+	query := "UPDATE msp SET wallet='%s', seed='%s' WHERE msp_id = 1"
+	command := fmt.Sprintf(query, walletInfo.PubKey, walletInfo.Seed)
+	tools.DB.MustExec(command)
+
+	//update the ~/.sharecharge/config.json
+	configs.UpdateBaseAccountSeedInSCConfig(walletInfo.Seed)
+
+	c.JSON(http.StatusOK, walletInfo)
 }
