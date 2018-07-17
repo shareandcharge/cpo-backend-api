@@ -7,7 +7,7 @@ import (
 	"os"
 	"encoding/json"
 	"io/ioutil"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Load() (*viper.Viper) {
@@ -26,8 +26,7 @@ func Load() (*viper.Viper) {
 	return Config
 }
 
-//updats the seed in ~/.sharecharge/config.json
-
+//updats the seed in ~/.sharecharge/config.json. Attention, the username is ubuntu. This will not work locally, unless you're using Ubuntu and have the username "Ubuntu" :)
 func UpdateBaseAccountSeedInSCConfig(seed string){
 
 	type ConfigStruct struct {
@@ -46,23 +45,31 @@ func UpdateBaseAccountSeedInSCConfig(seed string){
 		} `json:"ipfsProvider"`
 	}
 
+	//load the config file
 	jsonFile, err := os.Open("/home/ubuntu/.sharecharge/config.json")
-	// if we os.Open returns an error then handle it
-	if err != nil {
-		fmt.Println(err)
-	}
+	tools.ErrorCheck(err, "config.go", false)
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	log.Printf("%s", byteValue)
+	defer jsonFile.Close()
+
 
 	config := ConfigStruct{}
 	err = json.Unmarshal(byteValue, &config)
 	tools.ErrorCheck(err, "config.go", false)
 
+	// this is the core of the function
+	config.Seed = seed
 
-	fmt.Println("Successfully Opened config.json")
-	log.Printf("%s", config)
-	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
+	newconfigBytes, err := json.Marshal(config)
+	tools.ErrorCheck(err, "config.go", false)
+
+
+	err = ioutil.WriteFile("/home/ubuntu/.sharecharge/config.json", newconfigBytes, 644)
+	tools.ErrorCheck(err, "config.go", false)
+
+	log.Println("Successfully updated the /home/ubuntu/.sharecharge/config.json")
+
+
 
 
 }
