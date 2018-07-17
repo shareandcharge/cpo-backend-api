@@ -12,6 +12,11 @@ func InitializeRoutes() {
 		//used only to delete / reinit the database with default values.
 		v1.DELETE("/s3cr3tReinitf32fdsfsdf98yu32jlkjfsd89yaf98j320j", handlers.Reinit)
 
+
+		//displays the mnemonic seed for the msp
+		v1.GET("/wallet/:addr", handlers.GetWalletBalance)
+
+
 		//------------------------
 		//-------- MSP -----------
 		//------------------------

@@ -13,6 +13,13 @@ func Index(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "Look! It's moving. It's alive. It's alive... It's alive, it's moving, it's alive, it's alive, it's alive, it's alive, IT'S ALIVE! (Frankenstein 1931)"})
 }
 
+
+//gets the balance for a wallet
+func GetWalletBalance(c *gin.Context){
+	//TODO: get the api from Stipa here...
+	c.JSON(http.StatusOK, gin.H{"balance": 18.32131321, "currency":"EV Tokens"})
+}
+
 // handling the wallet creation
 func CpoCreate(c *gin.Context) {
 
