@@ -88,7 +88,7 @@ func MspGenerateWallet(c *gin.Context){
 
 	type WalletInfo struct {
 		Seed   string `json:"seed"`
-		PubKey string `json:"pubKey"`
+		PubKey string `json:"address"`
 	}
 
 	body := tools.GetRequest("http://localhost:3000/api/wallet/create")
