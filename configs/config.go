@@ -46,12 +46,13 @@ func UpdateBaseAccountSeedInSCConfig(seed string){
 		} `json:"ipfsProvider"`
 	}
 
-	jsonFile, err := os.Open("~/.sharecharge/config.json")
+	jsonFile, err := os.Open("/home/ubuntu/.sharecharge/config.json")
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
 	}
 	byteValue, _ := ioutil.ReadAll(jsonFile)
+	log.Printf("%s", byteValue)
 
 	config := ConfigStruct{}
 	err = json.Unmarshal(byteValue, &config)
