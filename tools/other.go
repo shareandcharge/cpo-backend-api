@@ -84,6 +84,8 @@ func PostJsonRequest(url string, jsonMap map[string]interface{}) ([]byte, error)
 
 	b, err := ioutil.ReadAll(resp.Body)
 
+	log.Printf("%s we got ",string(b))
+
 	if err != nil {
 		log.Panicf("%v", err)
 		return nil, err
