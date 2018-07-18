@@ -37,6 +37,7 @@ func MspCreate(c *gin.Context) {
 	//check if there is already an msp registered
 	rows, err := tools.DB.Query("SELECT msp_id FROM msp")
 	tools.ErrorCheck(err, "msp.go", true)
+	defer rows.Close()
 
 	//check if we already have an MSP registered
 	if rows.Next() {
@@ -57,6 +58,7 @@ func MspInfo(c *gin.Context) {
 
 
 	rows, _ := tools.DB.Query("SELECT msp_id FROM msp")
+	defer rows.Close()
 
 	//check if we already have an MSP registered
 	if rows.Next() == false {
@@ -110,8 +112,14 @@ func MspGenerateWallet(c *gin.Context){
 
 	//update the db for MSP
 	query := "UPDATE msp SET wallet='%s', seed='%s' WHERE msp_id = 1"
-	command := fmt.Sprintf(query, walletInfo.Addr, walletInfo.Seed)
-	tools.DB.MustExec(command)
+	rows, err := tools.DB.Queryx(query, walletInfo.Addr, walletInfo.Seed)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+	log.Printf("<- %s", rows)
+
 
 	//update the ~/.sharecharge/config.json
 	configs.UpdateBaseAccountSeedInSCConfig(walletInfo.Seed)

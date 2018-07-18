@@ -68,21 +68,13 @@ func TokenMint(c *gin.Context) {
 	amountFloat, _ := strconv.ParseFloat(string(amount), 64)
 	values := map[string]interface{}{"driver": addr, "amount": amountFloat}
 
-	body, err := tools.PostJsonRequest("http://localhost:3000/api/token/mint", values)
+	_, err := tools.PostJsonRequest("http://localhost:3000/api/token/mint", values)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-
-	log.Printf(">> WE GOT %s", body)
-
-	//body := tools.GetRequest("http://localhost:3000/api/token/balance/" + addr)
-	//
-	//log.Printf("Balance is %s", body)
-	//balanceFloat, _ := strconv.ParseFloat(string(body), 64)
-	//c.JSON(http.StatusOK, gin.H{"balance": balanceFloat})
-	c.JSON(http.StatusOK, gin.H{"balance": 333})
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
 
