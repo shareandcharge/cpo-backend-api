@@ -1,12 +1,12 @@
 {
-  "tokenAddress": "",
+  "tokenAddress": "0x2b813B3A383B83E27dFf73c483E23A43823F5CAd",
   "locationsPath": "locations.json",
   "tariffsPath": "tariffs.json",
   "bridgePath": "@motionwerk/sharecharge-example-bridge",
-  "seed": "zone vocalize cod defy starry morbidity polymer residency net winter cartoon shank",
+  "seed": "giant cost frequent mother thunder under mail trim reform satisfy winner sketch",
   "stage": "pilot",
   "gasPrice": 1,
-  "ethProvider": "http://18.196.120.206:8545",
+  "ethProvider": "http://52.59.207.123:8545",
   "ipfsProvider": {
     "host": "ipfs.infura.io",
     "port": "5001",

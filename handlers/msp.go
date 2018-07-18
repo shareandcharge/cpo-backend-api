@@ -108,7 +108,7 @@ func MspGenerateWallet(c *gin.Context){
 	//update the db for MSP
 	query := "UPDATE msp SET wallet='%s', seed='%s' WHERE msp_id = 1"
 	//command := fmt.Sprintf(query, walletInfo.PubKey, walletInfo.Seed)   //This is commented because it's too hard to automated the funding of the wallet
-	command := fmt.Sprintf(query, "0x108c5a2e34f11b843d0e6c5997621faa5907c409", "essence view concert flight gadget heart prepare nut math wrist open keen")
+	command := fmt.Sprintf(query, "0x3680fc75fccb505d32dd29029c68303bb8b8fbe4", "giant cost frequent mother thunder under mail trim reform satisfy winner sketch")
 	tools.DB.MustExec(command)
 
 	//update the ~/.sharecharge/config.json
