@@ -15,12 +15,15 @@ func Index(c *gin.Context) {
 
 //gets the balance for a wallet in Ether (the thing that pays for the gas)
 func GetWalletBalance(c *gin.Context) {
-	//TODO: get the api from Stipa here...
 
 	addr := c.Param("addr")
-	log.Printf("getting balance for %s", addr)
 
-	c.JSON(http.StatusOK, gin.H{"balance": 18.32131321, "currency": "EV Tokens"})
+	body := tools.GetRequest("http://localhost:3000/api/wallet/balance/" + addr)
+
+	log.Printf("Balance is %s", body)
+	balanceFloat, _ := strconv.ParseFloat(string(body), 64)
+
+	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat, "currency": "EV Tokens"})
 }
 
 // getting the token info

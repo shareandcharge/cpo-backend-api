@@ -21,11 +21,12 @@ func InitializeRoutes() {
 		//Tops up the balance of the EV Driver
 		v1.POST("/token/mint/:addr", handlers.TokenMint)
 
-		//displays the mnemonic seed for the msp
+		//shows the balance in eth of a wallet
 		v1.GET("/wallet/:addr", handlers.GetWalletBalance)
 
 		// Stations // EVSEs // Connectors
 		v1.GET("/locations", handlers.LocationsInfo)
+
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~ MSP ~~~~~~~~~~~~~~~~~~~~~~~~~~
