@@ -107,8 +107,8 @@ func MspGenerateWallet(c *gin.Context){
 		return
 	}
 
-	walletInfo.Addr = "0x3680fc75fccb505d32dd29029c68303bb8b8fbe4" //todo: remove mock
-	walletInfo.Seed = "giant cost frequent mother thunder under mail trim reform satisfy winner sketch" //todo: remove mock
+	walletInfo.Addr = "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365" //todo: remove mock
+	walletInfo.Seed = "moon another kind random mask like swarm type ostrich amused rice castle" //todo: remove mock
 
 	//update the db for MSP
 	query := "UPDATE msp SET wallet='%s', seed='%s' WHERE msp_id = 1"
