@@ -111,14 +111,11 @@ func MspGenerateWallet(c *gin.Context){
 	walletInfo.Seed = "moon another kind random mask like swarm type ostrich amused rice castle" //todo: remove mock
 
 	//update the db for MSP
+
+
 	query := "UPDATE msp SET wallet='%s', seed='%s' WHERE msp_id = 1"
-	rows, err := tools.DB.Queryx(query, walletInfo.Addr, walletInfo.Seed)
-	if err != nil {
-		log.Panic(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
-		return
-	}
-	log.Printf("<- %s", rows)
+	command := fmt.Sprintf(query, walletInfo.Addr, walletInfo.Seed)
+	tools.DB.MustExec(command)
 
 
 	//update the ~/.sharecharge/config.json
