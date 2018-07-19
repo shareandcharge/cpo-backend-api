@@ -18,12 +18,25 @@ func GetWalletBalance(c *gin.Context) {
 
 	addr := c.Param("addr")
 
+	type TBalance struct {
+		Balance string `json:"balance"`
+	}
+
 	body := tools.GetRequest("http://localhost:3000/api/wallet/balance/" + addr)
 
-	log.Printf("Balance is %s", body)
-	balanceFloat, _ := strconv.ParseFloat(string(body), 64)
+	var tBalance = new(TBalance)
+	err := json.Unmarshal(body, &tBalance)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat, "currency": "EV Tokens"})
+	log.Printf("Balance is %s", tBalance.Balance)
+	balanceFloat, _ := strconv.ParseFloat(string(tBalance.Balance), 64)
+
+
+	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat / 1000000000000000000, "currency": "ETH"})
 }
 
 // getting the token info
