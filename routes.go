@@ -31,16 +31,13 @@ func InitializeRoutes() {
 		// Stations // EVSEs // Connectors
 		v1.GET("/locations", handlers.LocationsInfo)
 
-		// Stations // EVSEs // Connectors
+		//returns a list of all EV Drivers with their details & balances
 		v1.GET("/drivers", handlers.GetAllDrivers)
 
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~ MSP ~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-		//returns a list of all EV Drivers with their details & balances
-		v1.GET("/msp/drivers", handlers.DriversList)
 
 		//gets all the info about an msp
 		v1.GET("/msp", handlers.MspInfo)
