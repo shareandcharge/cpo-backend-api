@@ -6,7 +6,11 @@ func InitializeRoutes() {
 
 	v1 := router.Group("/api/v1")
 	{
-		// General
+
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		//~~~~~~~~~~~~~~~~~~~~ GENERAL STUFF ~~~~~~~~~~~~~~~~~~~~~~
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 		v1.GET("/", handlers.Index)
 
 		//used only to delete / reinit the database with default values.
@@ -26,6 +30,9 @@ func InitializeRoutes() {
 
 		// Stations // EVSEs // Connectors
 		v1.GET("/locations", handlers.LocationsInfo)
+
+		// Stations // EVSEs // Connectors
+		v1.GET("/drivers", handlers.GetAllDrivers)
 
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

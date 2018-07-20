@@ -39,6 +39,32 @@ func GetWalletBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat / 1000000000000000000, "currency": "ETH"})
 }
 
+
+//Returns a list of all drivers
+func GetAllDrivers(c *gin.Context){
+
+	driversList, err := tools.ReturnAllDrivers()
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+
+	var mDriversList []tools.Driver
+	for _, driver := range driversList   {
+		driver.Token = "S&C Token" //TODO: attention, it's hardcoded
+
+		body := tools.GetRequest("http://localhost:3000/api/token/balance/" + driver.Address)
+		balanceFloat, _ := strconv.ParseFloat(string(body), 64)
+		driver.Balance = balanceFloat
+
+		mDriversList = append(mDriversList, driver)
+
+	}
+
+	c.JSON(http.StatusOK, mDriversList)
+}
+
 // getting the token info
 func TokenInfo(c *gin.Context) {
 	type TokenInfo struct {
