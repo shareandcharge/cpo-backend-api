@@ -41,6 +41,7 @@ func InitializeRoutes() {
 
 		//gets all the info about an msp
 		v1.GET("/msp", handlers.MspInfo)
+
 		//creates in the database a new msp
 		v1.POST("/msp", handlers.MspCreate)
 
