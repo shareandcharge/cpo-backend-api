@@ -111,6 +111,7 @@ func TokenMint(c *gin.Context) {
 
 	if amountFloat == 0 {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": "the amount doesn't make sense"})
+		return
 	}
 
 	values := map[string]interface{}{"driver": addr, "amount": amountFloat}
