@@ -1,10 +1,13 @@
 {
   "port" : 9090,
-  "hostname" : "localhost",
+  "hostname" : "0.0.0.0",
   "environment": "debug",
-  "cpo_address": "0x4066287f731631eee85e83ef44c016bfcb2a3404",
-  "auth": {
-    "username": "theusername",
-    "password": "thepassword"
+  "msp": {
+    "wallet_address": "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365",
+    "wallet_seed": "moon another kind random mask like swarm type ostrich amused rice castle"
+  },
+  "cpo": {
+    "wallet_address": "0x5c9b043d100a8947e614bbfdd8c6077bc7c456d0",
+    "wallet_seed": "distance hover flock tomorrow fault rain decline magic teach impact cart drum"
   }
 }

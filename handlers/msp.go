@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
-	"encoding/json"
-	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"math"
 	"strconv"
@@ -95,23 +93,22 @@ func MspGenerateWallet(c *gin.Context){
 		Seed   string `json:"seed"`
 		Addr string `json:"address"`
 	}
-
-	body := tools.GetRequest("http://localhost:3000/api/wallet/create")
-	log.Printf("<- %s", string(body))
-
 	var walletInfo WalletInfo
-	err := json.Unmarshal(body, &walletInfo)
-	if err != nil {
-		log.Panic(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
-		return
-	}
 
-	walletInfo.Addr = "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365" //todo: remove mock
-	walletInfo.Seed = "moon another kind random mask like swarm type ostrich amused rice castle" //todo: remove mock
+	//body := tools.GetRequest("http://localhost:3000/api/wallet/create")
+	//log.Printf("<- %s", string(body))
+	//err := json.Unmarshal(body, &walletInfo)
+	//if err != nil {
+	//	log.Panic(err)
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+	//	return
+	//}
+
+	config := configs.Load()
+	walletInfo.Addr = config.GetString("msp.wallet_address")
+	walletInfo.Seed = config.GetString("msp.wallet_seed")
 
 	//update the db for MSP
-
 
 	query := "UPDATE msp SET wallet='%s', seed='%s' WHERE msp_id = 1"
 	command := fmt.Sprintf(query, walletInfo.Addr, walletInfo.Seed)

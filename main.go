@@ -43,7 +43,7 @@ func main() {
 
 	// Serve 'em...
 	server := &http.Server{
-		Addr:           ":" + strconv.Itoa(Config.GetInt("port")),
+		Addr:           Config.GetString("hostname") + ":" + strconv.Itoa(Config.GetInt("port")),
 		Handler:        router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

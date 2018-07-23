@@ -58,6 +58,21 @@ func InitializeRoutes() {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~ CPO ~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+		//gets all the info about an cpo
+		v1.GET("/cpo", handlers.CpoInfo)
+
+		//creates in the database a new cpo
+		v1.POST("/cpo", handlers.CpoCreate)
+
+		//generate a new wallet for the cpo
+		v1.POST("/cpo/wallet/generate", handlers.CpoGenerateWallet)
+
+		//displays the mnemonic seed for the msp
+		v1.GET("/cpo/wallet/seed", handlers.CpoGetSeed)
+
+		//gets the MSP history of transactions
+		v1.GET("/cpo/history", handlers.CpoHistory)
+
 	}
 
 }
