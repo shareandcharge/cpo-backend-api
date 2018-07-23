@@ -108,6 +108,11 @@ func TokenMint(c *gin.Context) {
 	log.Printf("mint tokens for %s with the amount %s", addr, amount)
 
 	amountFloat, _ := strconv.ParseFloat(string(amount), 64)
+
+	if amountFloat == 0 {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": "the amount doesn't make sense"})
+	}
+
 	values := map[string]interface{}{"driver": addr, "amount": amountFloat}
 
 	_, err := tools.PostJsonRequest("http://localhost:3000/api/token/mint", values)
