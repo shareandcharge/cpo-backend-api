@@ -13,16 +13,27 @@ if you get "This site can’t be reached" this means, probably, I stopped it for
 
 
 ~~~~
-[GIN-debug] GET    /api/v1/                  --> github.com/motionwerkGmbH/cpo-backend-api/handlers.Index (2 handlers)
-[GIN-debug] DELETE /api/v1/s3cr3tReinitf32fdsfsdf98yu32jlkjfsd89yaf98j320j --> github.com/motionwerkGmbH/cpo-backend-api/handlers.Reinit (2 handlers)
-[GIN-debug] POST   /api/v1/cpo/create        --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoCreate (2 handlers)
-[GIN-debug] GET    /api/v1/cpo/info          --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoInfo (2 handlers)
-[GIN-debug] GET    /api/v1/token/info        --> github.com/motionwerkGmbH/cpo-backend-api/handlers.TokenInfo (2 handlers)
-[GIN-debug] GET    /api/v1/account/info      --> github.com/motionwerkGmbH/cpo-backend-api/handlers.AccountInfo (2 handlers)
-[GIN-debug] GET    /api/v1/account/wallet    --> github.com/motionwerkGmbH/cpo-backend-api/handlers.WalletInfo (2 handlers)
-[GIN-debug] GET    /api/v1/account/history   --> github.com/motionwerkGmbH/cpo-backend-api/handlers.AccountHistory (2 handlers)
-[GIN-debug] GET    /api/v1/account/mnemonic  --> github.com/motionwerkGmbH/cpo-backend-api/handlers.AccountMnemonic (2 handlers)
-[GIN-debug] GET    /api/v1/stations          --> github.com/motionwerkGmbH/cpo-backend-api/handlers.StationsInfo (2 handlers)
+[GIN-debug] GET    /api/v1/                  --> github.com/motionwerkGmbH/cpo-backend-api/handlers.Index (3 handlers)
+[GIN-debug] DELETE /api/v1/s3cr3tReinitf32fdsfsdf98yu32jlkjfsd89yaf98j320j --> github.com/motionwerkGmbH/cpo-backend-api/handlers.Reinit (3 handlers)
+[GIN-debug] GET    /api/v1/token/info        --> github.com/motionwerkGmbH/cpo-backend-api/handlers.TokenInfo (3 handlers)
+[GIN-debug] GET    /api/v1/token/balance/:addr --> github.com/motionwerkGmbH/cpo-backend-api/handlers.TokenBalance (3 handlers)
+[GIN-debug] POST   /api/v1/token/mint/:addr  --> github.com/motionwerkGmbH/cpo-backend-api/handlers.TokenMint (3 handlers)
+[GIN-debug] GET    /api/v1/wallet/:addr      --> github.com/motionwerkGmbH/cpo-backend-api/handlers.GetWalletBalance (3 handlers)
+[GIN-debug] GET    /api/v1/locations         --> github.com/motionwerkGmbH/cpo-backend-api/handlers.LocationsInfo (3 handlers)
+[GIN-debug] GET    /api/v1/drivers           --> github.com/motionwerkGmbH/cpo-backend-api/handlers.GetAllDrivers (3 handlers)
+[GIN-debug] GET    /api/v1/msp               --> github.com/motionwerkGmbH/cpo-backend-api/handlers.MspInfo (3 handlers)
+[GIN-debug] POST   /api/v1/msp               --> github.com/motionwerkGmbH/cpo-backend-api/handlers.MspCreate (3 handlers)
+[GIN-debug] POST   /api/v1/msp/wallet/generate --> github.com/motionwerkGmbH/cpo-backend-api/handlers.MspGenerateWallet (3 handlers)
+[GIN-debug] GET    /api/v1/msp/wallet/seed   --> github.com/motionwerkGmbH/cpo-backend-api/handlers.MspGetSeed (3 handlers)
+[GIN-debug] GET    /api/v1/msp/history       --> github.com/motionwerkGmbH/cpo-backend-api/handlers.MSPHistory (3 handlers)
+[GIN-debug] GET    /api/v1/cpo               --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoInfo (3 handlers)
+[GIN-debug] POST   /api/v1/cpo               --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoCreate (3 handlers)
+[GIN-debug] POST   /api/v1/cpo/wallet/generate --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoGenerateWallet (3 handlers)
+[GIN-debug] GET    /api/v1/cpo/wallet/seed   --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoGetSeed (3 handlers)
+[GIN-debug] GET    /api/v1/cpo/history       --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoHistory (3 handlers)
+[GIN-debug] PUT    /api/v1/cpo/locations     --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoPutLocations (3 handlers)
+[GIN-debug] POST   /api/v1/cpo/location      --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoPostLocation (3 handlers)
+[GIN-debug] DELETE /api/v1/cpo/location/:locationid --> github.com/motionwerkGmbH/cpo-backend-api/handlers.CpoDeleteLocation (3 handlers)
 ~~~~
 
 
