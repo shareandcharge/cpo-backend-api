@@ -82,27 +82,23 @@ go run *.go
 
 ## FAQ :question:
 
-1. I want to run it in the background with logging
+1. I want to run it in the background
 
-You can use: nohup ./myexecutable &
-
-or
-
+Create the file /var/log/backend.log and give it appropriate permissions
 Supervisor. Here's a config file:
 
 ~~~~
-[program:myapp]
-command=/home/{{ pillar['username'] }}/bin/myapp
+[program:backendapi]
+user=ubuntu
+numprocs=1
+command=/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/backend
+directory=/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/
 autostart=true
 autorestart=true
-startretries=10
-user={{ pillar['username'] }}
-directory=/srv/www/myapp/
-environment=MYAPP_SETTINGS="/srv/www/myapp/prod.toml"
 redirect_stderr=true
-stdout_logfile=/var/log/supervisord/myapp.stdout.log
-stdout_logfile_maxbytes=50MB
-stdout_logfile_backups=10
+stdout_logfile=/var/log/backend.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=1
 ~~~~
 
 

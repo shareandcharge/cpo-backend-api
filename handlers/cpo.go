@@ -142,3 +142,37 @@ func CpoHistory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, histories)
 }
+
+//uploads new locations and re-writes if they already are present
+func CpoPutLocations(c *gin.Context){
+	var stations []tools.Location
+
+	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, stations)
+}
+
+//uploads new location
+func CpoPostLocation(c *gin.Context){
+	var station tools.Location
+
+	if err := c.MustBindWith(&station, binding.JSON); err == nil {
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, station)
+}
+
+//deletes a location
+func CpoDeleteLocation(c *gin.Context) {
+
+	locationid := c.Param("locationid")
+
+	c.JSON(http.StatusBadRequest, gin.H{"error": locationid})
+}

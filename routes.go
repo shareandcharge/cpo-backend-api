@@ -73,6 +73,14 @@ func InitializeRoutes() {
 		//gets the MSP history of transactions
 		v1.GET("/cpo/history", handlers.CpoHistory)
 
+		//upload new locations
+		v1.PUT("/cpo/locations", handlers.CpoPutLocations)
+
+		//add one location
+		v1.POST("/cpo/location", handlers.CpoPostLocation)
+
+		//delete a location
+		v1.DELETE("/cpo/location/:locationid", handlers.CpoDeleteLocation)
 	}
 
 }
