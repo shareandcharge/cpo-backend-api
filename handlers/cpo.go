@@ -115,7 +115,7 @@ func CpoGetSeed(c *gin.Context) {
 	tools.DB.QueryRowx("SELECT * FROM cpo LIMIT 1").StructScan(&cpo)
 
 	if cpo.Seed == "" {
-		c.JSON(http.StatusNotFound, gin.H{"error": "there isn't any seed in the msp account. Maybe you need to create the wallet first ?."})
+		c.JSON(http.StatusNotFound, gin.H{"error": "there isn't any seed in the cpo account. Maybe you need to create the wallet first ?."})
 		return
 	}
 
@@ -138,7 +138,7 @@ func CpoHistory(c *gin.Context) {
 
 	var histories []History
 	for i := 0; i < 100; i++ {
-		n := History{Amount: math.Floor(r1.Float64()*10000) / 10000, Currency: "MSP Tokens", Timestamp: "01.04.2018 " + strconv.Itoa(10+r1.Intn(23)) + ":" + strconv.Itoa(10+r1.Intn(49)) + ":" + strconv.Itoa(10+r1.Intn(49))}
+		n := History{Amount: math.Floor(r1.Float64()*10000) / 10000, Currency: "CPO Tokens", Timestamp: "01.04.2018 " + strconv.Itoa(10+r1.Intn(23)) + ":" + strconv.Itoa(10+r1.Intn(49)) + ":" + strconv.Itoa(10+r1.Intn(49))}
 		histories = append(histories, n)
 	}
 

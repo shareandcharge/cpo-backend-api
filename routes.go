@@ -33,28 +33,6 @@ func InitializeRoutes() {
 
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~ MSP ~~~~~~~~~~~~~~~~~~~~~~~~~~
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-		//gets all the info about an msp
-		v1.GET("/msp", handlers.MspInfo)
-
-		//creates in the database a new msp
-		v1.POST("/msp", handlers.MspCreate)
-
-		//generate a new wallet for the msp
-		v1.POST("/msp/wallet/generate", handlers.MspGenerateWallet)
-
-		//displays the mnemonic seed for the msp
-		v1.GET("/msp/wallet/seed", handlers.MspGetSeed)
-
-		//gets the MSP history of transactions
-		v1.GET("/msp/history", handlers.MSPHistory)
-
-		// Stations // EVSEs // Connectors
-		v1.GET("/msp/locations", handlers.MspGetLocations)
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~ CPO ~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -67,10 +45,10 @@ func InitializeRoutes() {
 		//generate a new wallet for the cpo
 		v1.POST("/cpo/wallet/generate", handlers.CpoGenerateWallet)
 
-		//displays the mnemonic seed for the msp
+		//displays the mnemonic seed for the cpo
 		v1.GET("/cpo/wallet/seed", handlers.CpoGetSeed)
 
-		//gets the MSP history of transactions
+		//gets the CPOF history of transactions
 		v1.GET("/cpo/history", handlers.CpoHistory)
 
 		//upload new locations
