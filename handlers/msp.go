@@ -146,3 +146,23 @@ func MSPHistory(c *gin.Context) {
 
 	c.JSON(http.StatusOK, histories)
 }
+
+//gets all locations of this MSP
+//TODO: FIRST GET ALL CPOS
+func MspGetLocations(c *gin.Context) {
+
+	//config := configs.Load()
+	//cpoAddress := config.GetString("cpo.wallet_address")
+	//body := tools.GetRequest("http://localhost:3000/api/store/locations/"+cpoAddress)
+	//
+	//var stationInfo []tools.Location
+	//err := json.Unmarshal(body, &stationInfo)
+	//if err != nil {
+	//	log.Panic(err)
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+	//	return
+	//}
+	//c.JSON(http.StatusOK, stationInfo)
+	c.JSON(http.StatusInternalServerError, gin.H{"error": "I need to redo this endpoint. Under construction"})
+
+}

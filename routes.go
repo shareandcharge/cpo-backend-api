@@ -28,9 +28,6 @@ func InitializeRoutes() {
 		//shows the balance in eth of a wallet
 		v1.GET("/wallet/:addr", handlers.GetWalletBalance)
 
-		// Stations // EVSEs // Connectors
-		v1.GET("/locations", handlers.LocationsInfo)
-
 		//returns a list of all EV Drivers with their details & balances
 		v1.GET("/drivers", handlers.GetAllDrivers)
 
@@ -54,6 +51,9 @@ func InitializeRoutes() {
 		//gets the MSP history of transactions
 		v1.GET("/msp/history", handlers.MSPHistory)
 
+		// Stations // EVSEs // Connectors
+		v1.GET("/msp/locations", handlers.MspGetLocations)
+
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~ CPO ~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,6 +74,9 @@ func InitializeRoutes() {
 		v1.GET("/cpo/history", handlers.CpoHistory)
 
 		//upload new locations
+		v1.GET("/cpo/locations", handlers.CpoGetLocations)
+
+		//upload new locations
 		v1.PUT("/cpo/locations", handlers.CpoPutLocations)
 
 		//add one location
@@ -81,6 +84,9 @@ func InitializeRoutes() {
 
 		//delete a location
 		v1.DELETE("/cpo/location/:locationid", handlers.CpoDeleteLocation)
+
+		//add one evse
+		v1.POST("/cpo/evse", handlers.CpoPostEvse)
 	}
 
 }

@@ -10,6 +10,8 @@ import (
 	"math/rand"
 	"math"
 	"strconv"
+	"log"
+	"encoding/json"
 )
 
 func CpoCreate(c *gin.Context) {
@@ -143,6 +145,35 @@ func CpoHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, histories)
 }
 
+//=================================
+//=========== LOCATIONS ===========
+//=================================
+
+//gets all locations of this CPO
+func CpoGetLocations(c *gin.Context) {
+
+	config := configs.Load()
+	cpoAddress := config.GetString("cpo.wallet_address")
+	body := tools.GetRequest("http://localhost:3000/api/store/locations/"+cpoAddress)
+
+	var locations []tools.Location
+	err := json.Unmarshal(body, &locations)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+
+	if len(locations) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "there aren't any locations registered with this CPO"})
+		return
+	}
+
+	c.JSON(http.StatusOK, locations)
+
+}
+
+
 //uploads new locations and re-writes if they already are present
 func CpoPutLocations(c *gin.Context){
 	var stations []tools.Location
@@ -176,3 +207,18 @@ func CpoDeleteLocation(c *gin.Context) {
 
 	c.JSON(http.StatusBadRequest, gin.H{"error": locationid})
 }
+
+
+//uploads new location
+func CpoPostEvse(c *gin.Context){
+	var evse tools.Evse
+
+	if err := c.MustBindWith(&evse, binding.JSON); err == nil {
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, evse)
+}
+
