@@ -44,8 +44,8 @@ func main() {
 	server := &http.Server{
 		Addr:           Config.GetString("hostname") + ":" + strconv.Itoa(Config.GetInt("port")),
 		Handler:        router,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
+		ReadTimeout:    200 * time.Second,
+		WriteTimeout:   200 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 	server.SetKeepAlivesEnabled(false)

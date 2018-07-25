@@ -9,7 +9,6 @@ import (
 	"context"
 	"math/rand"
 	"bytes"
-	"encoding/json"
 )
 
 //read the config file, helper function
@@ -52,21 +51,37 @@ func GetRequest(url string) []byte {
 }
 
 //general POST request
-func PostJsonRequest(url string, jsonMap map[string]interface{}) ([]byte, error) {
+func PostRequest(url string, payload []byte) ([]byte, error) {
 
-	jsonValue, err := json.Marshal(jsonMap)
-	if err != nil {
-		log.Panicf("%v", err)
-		return nil, err
-	}
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonValue))
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		log.Panicf("%v", err)
 		return nil, err
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)
+
+	log.Printf("%s we got ",string(b))
+
+	if err != nil {
+		log.Panicf("%v", err)
+		return nil, err
+	}
+
+	return b, nil
+}
+
+// general PUT request
+func PUTRequest(url string, payload []byte) ([]byte, error) {
+
+	req, err := http.NewRequest(http.MethodPut, url,  bytes.NewBuffer(payload))
+	if err != nil {
+		log.Panicf("%v", err)
+		return nil, err
+	}
+
+	b, err := ioutil.ReadAll(req.Body)
 
 	log.Printf("%s we got ",string(b))
 

@@ -184,7 +184,19 @@ func CpoPutLocations(c *gin.Context){
 		return
 	}
 
-	c.JSON(http.StatusOK, stations)
+	jsonValue, err := json.Marshal(stations)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = tools.PUTRequest("http://localhost:3000/api/token/mint", jsonValue)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
 //uploads new location
@@ -197,7 +209,20 @@ func CpoPostLocation(c *gin.Context){
 		return
 	}
 
-	c.JSON(http.StatusOK, station)
+	jsonValue, err := json.Marshal(station)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = tools.PostRequest("http://localhost:3000/api/token/mint", jsonValue)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
 }
 
 //deletes a location

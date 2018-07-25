@@ -116,7 +116,13 @@ func TokenMint(c *gin.Context) {
 
 	values := map[string]interface{}{"driver": addr, "amount": amountFloat}
 
-	_, err := tools.PostJsonRequest("http://localhost:3000/api/token/mint", values)
+	jsonValue, err := json.Marshal(values)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = tools.PostRequest("http://localhost:3000/api/token/mint", jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
