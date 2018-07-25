@@ -25,31 +25,15 @@ func ReadConfig(filename string, defaults map[string]interface{}) (*viper.Viper,
 	return v, err
 }
 
-//general GET request
+// a general get request with 100 seconds timeout
 func GetRequest(url string) []byte {
-	response, err := http.Get(url)
-	if err != nil {
-		log.Panicf("%s", err)
-	} else {
-		defer response.Body.Close()
-		contents, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			log.Panicf("%s", err)
-		}
-		return contents
-	}
-	return nil
-}
-
-//better version //TODO: remove the above version after testing
-func GetRequest2(url string) string {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Panicf("%v", err)
-		return ""
+		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(req.Context(), 1*time.Millisecond)
+	ctx, cancel := context.WithTimeout(req.Context(), 100*time.Second)
 	defer cancel()
 
 	req = req.WithContext(ctx)
@@ -58,13 +42,13 @@ func GetRequest2(url string) string {
 	res, err := client.Do(req)
 	if err != nil {
 		log.Panicf("%v", err)
-		return ""
+		return nil
 	}
 
-	if b, err := ioutil.ReadAll(res.Body); err == nil {
-		return string(b)
+	if contents, err := ioutil.ReadAll(res.Body); err == nil {
+		return contents
 	}
-	return ""
+	return nil
 }
 
 //general POST request
