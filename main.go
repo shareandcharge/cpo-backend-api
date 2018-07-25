@@ -38,7 +38,6 @@ func main() {
 
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 	log.Println("Running on http://localhost:9090/api/v1/account/info")
-	log.Println("Running on http://18.195.223.26:9090/api/v1/account/info")
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 	// Serve 'em...
