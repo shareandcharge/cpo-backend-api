@@ -93,6 +93,35 @@ func PUTRequest(url string, payload []byte) ([]byte, error) {
 	return b, nil
 }
 
+// general DELETE request
+func DELETERequest(url string) ([]byte, error) {
+
+	// Create client
+	client := &http.Client{}
+
+	// Create request
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch Request
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+
+	b, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("%s we got ",string(b))
+	return b, nil
+
+}
+
 // Generate a Random String of length n
 func RandStringRunes(n int) string {
 	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ")

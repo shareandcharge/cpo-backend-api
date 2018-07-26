@@ -230,7 +230,15 @@ func CpoDeleteLocation(c *gin.Context) {
 
 	locationid := c.Param("locationid")
 
-	c.JSON(http.StatusBadRequest, gin.H{"error": locationid})
+
+	_, err := tools.DELETERequest("http://localhost:3000/api/store/locations/"+locationid)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+
 }
 
 
