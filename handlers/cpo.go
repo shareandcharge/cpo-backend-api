@@ -156,7 +156,7 @@ func CpoGetLocations(c *gin.Context) {
 	cpoAddress := config.GetString("cpo.wallet_address")
 	body := tools.GetRequest("http://localhost:3000/api/store/locations/"+cpoAddress)
 
-	var locations []tools.Location
+	var locations []tools.XLocation
 	err := json.Unmarshal(body, &locations)
 	if err != nil {
 		log.Panic(err)
@@ -176,7 +176,7 @@ func CpoGetLocations(c *gin.Context) {
 
 //uploads new locations and re-writes if they already are present
 func CpoPutLocations(c *gin.Context){
-	var stations []tools.Location
+	var stations []tools.XLocation
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
 	} else {
