@@ -48,7 +48,7 @@ func main() {
 		WriteTimeout:   200 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	server.SetKeepAlivesEnabled(false)
+	server.SetKeepAlivesEnabled(true)
 	server.ListenAndServe()
 
 }

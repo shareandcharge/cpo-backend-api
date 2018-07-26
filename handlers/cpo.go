@@ -201,15 +201,15 @@ func CpoPutLocations(c *gin.Context){
 
 //uploads new location
 func CpoPostLocation(c *gin.Context){
-	var station tools.Location
+	var stations []tools.Location
 
-	if err := c.MustBindWith(&station, binding.JSON); err == nil {
+	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	jsonValue, err := json.Marshal(station)
+	jsonValue, err := json.Marshal(stations)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
