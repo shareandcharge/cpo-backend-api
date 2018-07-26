@@ -190,7 +190,7 @@ func CpoPutLocations(c *gin.Context){
 		return
 	}
 
-	_, err = tools.PUTRequest("http://localhost:3000/api/token/mint", jsonValue)
+	_, err = tools.PUTRequest("http://localhost:3000/api/store/locations", jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -215,7 +215,7 @@ func CpoPostLocation(c *gin.Context){
 		return
 	}
 
-	_, err = tools.PostRequest("http://localhost:3000/api/token/mint", jsonValue)
+	_, err = tools.PostRequest("http://localhost:3000/api/store/locations", jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
