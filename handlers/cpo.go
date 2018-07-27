@@ -10,7 +10,7 @@ import (
 	"math/rand"
 	"math"
 	"strconv"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"encoding/json"
 )
 
@@ -190,6 +190,7 @@ func CpoPutLocations(c *gin.Context){
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 
 	_, err = tools.PUTRequest("http://localhost:3000/api/store/locations", jsonValue)
 	if err != nil {

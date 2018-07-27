@@ -50,7 +50,6 @@ func GETRequest(url string) []byte {
 }
 
 //general POST request
-//TODO: if not working check git history
 func POSTRequest(url string, payload []byte) ([]byte, error) {
 
 
@@ -61,6 +60,7 @@ func POSTRequest(url string, payload []byte) ([]byte, error) {
 	}
 
 	if contents, err := ioutil.ReadAll(resp.Body); err == nil {
+		log.Info("POST Request Returned >>> " + string(contents))
 		return contents, nil
 	}
 	return nil, err
@@ -69,13 +69,26 @@ func POSTRequest(url string, payload []byte) ([]byte, error) {
 // general PUT request
 func PUTRequest(url string, payload []byte) ([]byte, error) {
 
-	req, err := http.NewRequest(http.MethodPut, url,  bytes.NewBuffer(payload))
+
+	body := bytes.NewReader(payload)
+
+	req, err := http.NewRequest("PUT", url, body)
 	if err != nil {
 		log.Panicf("%v", err)
 		return nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 
-	if contents, err := ioutil.ReadAll(req.Body); err == nil {
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Panicf("%v", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+
+	if contents, err := ioutil.ReadAll(resp.Body); err == nil {
+		log.Info("PUT Request Returned >>> " + string(contents))
 		return contents, nil
 	}
 	return nil, err
@@ -84,21 +97,23 @@ func PUTRequest(url string, payload []byte) ([]byte, error) {
 // general DELETE request
 func DELETERequest(url string) ([]byte, error) {
 
-	// Create client
-	client := &http.Client{}
-
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
+		log.Panicf("%v", err)
 		return nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		log.Panicf("%v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	if contents, err := ioutil.ReadAll(req.Body); err == nil {
+
+	if contents, err := ioutil.ReadAll(resp.Body); err == nil {
+		log.Info("DELETE Request Returned >>> " + string(contents))
 		return contents, nil
 	}
 	return nil, err
