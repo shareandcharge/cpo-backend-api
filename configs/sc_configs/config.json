@@ -1,5 +1,6 @@
 {
   "tokenAddress": "0xA39A488BEf3EC11be06AA3B24fe8a51c9F899205",
+  "apiKey": "abc",
   "locationsPath": "locations.json",
   "tariffsPath": "tariffs.json",
   "bridgePath": "@motionwerk/sharecharge-example-bridge",
