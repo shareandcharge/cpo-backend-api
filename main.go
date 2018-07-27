@@ -16,10 +16,8 @@ var router *gin.Engine
 
 func main() {
 
-	// Configs
 	Config := configs.Load()
 
-	// Gin Configuration
 	if (Config.GetString("environment")) == "debug" {
 		gin.SetMode(gin.DebugMode)
 	} else {
@@ -37,7 +35,7 @@ func main() {
 	tools.Connect("_theDb.db")
 
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	log.Println("Running on http://localhost:9090/api/v1/account/info")
+	log.Println("~~~~~~~~~~~~~~~~ CPO BACKEND IS RUNNING ~~~~~~~~~~~~~~~~")
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 	// Serve 'em...

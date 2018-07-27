@@ -22,9 +22,10 @@ func GetWalletBalance(c *gin.Context) {
 		Balance string `json:"balance"`
 	}
 
-	body := tools.GetRequest("http://localhost:3000/api/wallet/balance/" + addr)
+	body := tools.GETRequest("http://localhost:3000/api/wallet/balance/" + addr)
 
 	var tBalance = new(TBalance)
+	//var tBalance TBalance  //TODO: check this one
 	err := json.Unmarshal(body, &tBalance)
 	if err != nil {
 		log.Panic(err)
@@ -54,7 +55,7 @@ func GetAllDrivers(c *gin.Context){
 	for _, driver := range driversList   {
 		driver.Token = "S&C Token" //TODO: attention, it's hardcoded
 
-		body := tools.GetRequest("http://localhost:3000/api/token/balance/" + driver.Address)
+		body := tools.GETRequest("http://localhost:3000/api/token/balance/" + driver.Address)
 		balanceFloat, _ := strconv.ParseFloat(string(body), 64)
 		driver.Balance = balanceFloat
 
@@ -73,9 +74,10 @@ func TokenInfo(c *gin.Context) {
 		Address string `json:"address"`
 		Owner   string `json:"owner"`
 	}
-	body := tools.GetRequest("http://localhost:3000/api/token/info")
+	body := tools.GETRequest("http://localhost:3000/api/token/info")
 
 	var tokenInfo = new(TokenInfo)
+	//var tokenInfo TokenInfo  //TODO: check this one
 	err := json.Unmarshal(body, &tokenInfo)
 	if err != nil {
 		log.Panic(err)
@@ -91,7 +93,7 @@ func TokenBalance(c *gin.Context) {
 	addr := c.Param("addr")
 	log.Printf("getting token balance for %s", addr)
 
-	body := tools.GetRequest("http://localhost:3000/api/token/balance/" + addr)
+	body := tools.GETRequest("http://localhost:3000/api/token/balance/" + addr)
 
 	log.Printf("Balance is %s", body)
 	balanceFloat, _ := strconv.ParseFloat(string(body), 64)
@@ -110,7 +112,7 @@ func TokenMint(c *gin.Context) {
 	amountFloat, _ := strconv.ParseFloat(string(amount), 64)
 
 	if amountFloat == 0 {
-		c.JSON(http.StatusNotAcceptable, gin.H{"error": "the amount doesn't make sense"})
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": "the amount is incorrect"})
 		return
 	}
 
@@ -122,7 +124,7 @@ func TokenMint(c *gin.Context) {
 		return
 	}
 
-	_, err = tools.PostRequest("http://localhost:3000/api/token/mint", jsonValue)
+	_, err = tools.POSTRequest("http://localhost:3000/api/token/mint", jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

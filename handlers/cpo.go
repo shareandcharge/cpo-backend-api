@@ -81,7 +81,8 @@ func CpoGenerateWallet(c *gin.Context){
 	}
 	var walletInfo WalletInfo
 
-	//body := tools.GetRequest("http://localhost:3000/api/wallet/create")
+	//Leave this commented code please
+	//body := tools.GETRequest("http://localhost:3000/api/wallet/create")
 	//log.Printf("<- %s", string(body))
 	//err := json.Unmarshal(body, &walletInfo)
 	//if err != nil {
@@ -154,7 +155,7 @@ func CpoGetLocations(c *gin.Context) {
 
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
-	body := tools.GetRequest("http://localhost:3000/api/store/locations/"+cpoAddress)
+	body := tools.GETRequest("http://localhost:3000/api/store/locations/"+cpoAddress)
 
 	var locations []tools.XLocation
 	err := json.Unmarshal(body, &locations)
@@ -215,7 +216,7 @@ func CpoPostLocation(c *gin.Context){
 		return
 	}
 
-	_, err = tools.PostRequest("http://localhost:3000/api/store/locations", jsonValue)
+	_, err = tools.POSTRequest("http://localhost:3000/api/store/locations", jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
