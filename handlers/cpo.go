@@ -176,7 +176,7 @@ func CpoGetLocations(c *gin.Context) {
 
 
 //uploads new locations and re-writes if they already are present
-func CpoPutLocations(c *gin.Context){
+func CpoPutLocation(c *gin.Context){
 	var stations []tools.XLocation
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
