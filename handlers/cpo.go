@@ -12,6 +12,8 @@ import (
 	"strconv"
 	log "github.com/Sirupsen/logrus"
 	"encoding/json"
+	"net/url"
+	"github.com/davecgh/go-spew/spew"
 )
 
 func CpoCreate(c *gin.Context) {
@@ -76,6 +78,81 @@ func CpoInfo(c *gin.Context) {
 // the main function for the wallets section of payment page
 func CpoPaymentWallet(c *gin.Context){
 
+
+
+	type History struct {
+		From      string  `json:"from"`
+		Amount    float64 `json:"amount"`
+		Currency  string  `json:"currency"`
+		Timestamp int64   `json:"timestamp"`
+	}
+	//
+
+	var cDb *tools.CouchDB
+	cDb, err := tools.Database("18.195.242.59", 5984)
+	tools.ErrorCheck(err, "general.go", false)
+
+	err = cDb.SelectDb("blockchain", "admin", "hardpassword1")
+	tools.ErrorCheck(err, "general.go", false)
+
+
+	type FindResponse struct {
+		TotalRows int `json:"total_rows"`
+		Offset    int `json:"offset"`
+		Rows      []struct {
+			ID    string   `json:"id"`
+			Key   []string `json:"key"`
+			Value string   `json:"value"`
+			Doc   struct {
+				ID        string `json:"_id"`
+				Rev       string `json:"_rev"`
+				Block     int    `json:"block"`
+				From      string `json:"from"`
+				To        string `json:"to"`
+				Amount    float64  `json:"amount"`
+				Currency  string `json:"currency"`
+				GasUsed   string `json:"gas_used"`
+				GasPrice  string `json:"gas_price"`
+				Timestamp string `json:"timestamp"`
+			} `json:"doc"`
+		} `json:"rows"`
+	}
+
+	var findResult FindResponse
+	params := url.Values{}
+	var addrx []string
+	config := configs.Load()
+	addrx = append(addrx, config.GetString("cpo.wallet_address"))
+	data, _ := json.Marshal(addrx)
+	params.Set("key", string(data))
+	params.Set("include_docs", "true")
+	params.Set("descending", "true")
+	err = cDb.Db.GetView("doc", "history_of_account", &findResult, &params)
+
+	tools.ErrorCheck(err, "general.go", false)
+
+	if len(findResult.Rows) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "no transactions found for this address"})
+		return
+	}
+
+	var histories []History
+	for _, row := range findResult.Rows {
+		if configs.AddressToName(row.Doc.To) != config.GetString("cpo.wallet_address") {
+
+			if row.Doc.Amount >= 1000000000000000000 {
+				row.Doc.Amount = row.Doc.Amount / 1000000000000000000
+				row.Doc.Currency = "ETH"
+			}
+			n := History{From: configs.AddressToName(row.Doc.From), Amount: row.Doc.Amount, Currency: row.Doc.Currency, Timestamp: tools.HexToInt(row.Doc.Timestamp)}
+			histories = append(histories, n)
+		}
+
+	}
+
+	spew.Dump(histories)
+
+
 	type WalletRecord struct {
 		MspName        string `json:"msp_name"`
 		TotalTransactions    int `json:"total_transactions"`
@@ -84,6 +161,9 @@ func CpoPaymentWallet(c *gin.Context){
 		TokenAddr    string `json:"token_address"`
 	}
 	var walletRecords []WalletRecord
+
+	//total transaction
+
 
 
 	record := WalletRecord{MspName:"Charge & Fuel",  TotalTransactions: 16, Amount: 52, Currency:"C&F Tokens", TokenAddr: "0xA39A488BEf3EC11be06AA3B24fe8a51c9F899205"}
