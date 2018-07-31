@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"strconv"
 	"net/url"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
 )
 
@@ -94,8 +93,6 @@ func GetWalletHistory(c *gin.Context) {
 	params.Set("include_docs", "true")
 	params.Set("descending", "true")
 	err = cDb.Db.GetView("doc", "history_of_account", &findResult, &params)
-
-	spew.Dump(findResult)
 
 	tools.ErrorCheck(err, "general.go", false)
 
