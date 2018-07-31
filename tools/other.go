@@ -8,6 +8,7 @@ import (
 	"time"
 	"context"
 	"bytes"
+	"strconv"
 )
 
 //read the config file, helper function
@@ -129,4 +130,17 @@ func ErrorCheck(err error, where string, kill bool) {
 			log.WithError(err).Warnf("@ %s\n", where)
 		}
 	}
+}
+
+
+//convert hex to int
+func HexToInt(number string) int64 {
+	if number[0:2] == "0x" {
+		number = number[2:]
+	}
+	i, err := strconv.ParseInt(number, 16, 0)
+	if err != nil {
+		panic(err)
+	}
+	return i
 }

@@ -143,6 +143,7 @@ func CpoHistory(c *gin.Context) {
 		histories = append(histories, n)
 	}
 
+
 	c.JSON(http.StatusOK, histories)
 }
 

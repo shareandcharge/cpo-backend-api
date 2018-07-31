@@ -7,6 +7,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"encoding/json"
 	"strconv"
+	"net/url"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/motionwerkGmbH/cpo-backend-api/configs"
 )
 
 func Index(c *gin.Context) {
@@ -36,13 +39,90 @@ func GetWalletBalance(c *gin.Context) {
 	log.Printf("Balance is %s", tBalance.Balance)
 	balanceFloat, _ := strconv.ParseFloat(string(tBalance.Balance), 64)
 
-
 	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat / 1000000000000000000, "currency": "ETH"})
 }
 
+// gets the history of a wallet
+func GetWalletHistory(c *gin.Context) {
+
+	addr := c.Param("addr")
+
+	type History struct {
+		From      string  `json:"from"`
+		Amount    float64 `json:"amount"`
+		Currency  string  `json:"currency"`
+		Timestamp int64   `json:"timestamp"`
+	}
+	//
+
+	var cDb *tools.CouchDB
+	cDb, err := tools.Database("18.195.242.59", 5984)
+	tools.ErrorCheck(err, "general.go", false)
+
+	err = cDb.SelectDb("blockchain", "admin", "hardpassword1")
+	tools.ErrorCheck(err, "general.go", false)
+
+
+	type FindResponse struct {
+		TotalRows int `json:"total_rows"`
+		Offset    int `json:"offset"`
+		Rows      []struct {
+			ID    string   `json:"id"`
+			Key   []string `json:"key"`
+			Value string   `json:"value"`
+			Doc   struct {
+				ID        string `json:"_id"`
+				Rev       string `json:"_rev"`
+				Block     int    `json:"block"`
+				From      string `json:"from"`
+				To        string `json:"to"`
+				Amount    float64  `json:"amount"`
+				Currency  string `json:"currency"`
+				GasUsed   string `json:"gas_used"`
+				GasPrice  string `json:"gas_price"`
+				Timestamp string `json:"timestamp"`
+			} `json:"doc"`
+		} `json:"rows"`
+	}
+
+	var findResult FindResponse
+	params := url.Values{}
+	var addrx []string
+	addrx = append(addrx, addr)
+	data, _ := json.Marshal(addrx)
+	params.Set("key", string(data))
+	params.Set("include_docs", "true")
+	params.Set("descending", "true")
+	err = cDb.Db.GetView("doc", "history_of_account", &findResult, &params)
+
+	spew.Dump(findResult)
+
+	tools.ErrorCheck(err, "general.go", false)
+
+	if len(findResult.Rows) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "no transactions found for this address"})
+		return
+	}
+
+	var histories []History
+	for _, row := range findResult.Rows {
+		if configs.AddressToName(row.Doc.From) != addr {
+
+			if row.Doc.Amount >= 1000000000000000000 {
+				row.Doc.Amount = row.Doc.Amount / 1000000000000000000
+				row.Doc.Currency = "ETH"
+			}
+			n := History{From: configs.AddressToName(row.Doc.From), Amount: row.Doc.Amount, Currency: row.Doc.Currency, Timestamp: tools.HexToInt(row.Doc.Timestamp)}
+			histories = append(histories, n)
+		}
+
+	}
+
+	c.JSON(http.StatusOK, histories)
+}
 
 //Returns a list of all drivers
-func GetAllDrivers(c *gin.Context){
+func GetAllDrivers(c *gin.Context) {
 
 	driversList, err := tools.ReturnAllDrivers()
 	if err != nil {
@@ -52,7 +132,7 @@ func GetAllDrivers(c *gin.Context){
 	}
 
 	var mDriversList []tools.Driver
-	for _, driver := range driversList   {
+	for _, driver := range driversList {
 		driver.Token = "S&C Token" //TODO: attention, it's hardcoded
 
 		body := tools.GETRequest("http://localhost:3000/api/token/balance/" + driver.Address)
@@ -101,7 +181,6 @@ func TokenBalance(c *gin.Context) {
 
 }
 
-
 // mint the tokens for the EV Driver
 func TokenMint(c *gin.Context) {
 
@@ -132,8 +211,6 @@ func TokenMint(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
-
-
 
 // this will TRUNCATE the database.
 func Reinit(c *gin.Context) {
