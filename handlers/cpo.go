@@ -89,7 +89,7 @@ func CpoPaymentWallet(c *gin.Context){
 	//
 
 	var cDb *tools.CouchDB
-	cDb, err := tools.Database("18.195.242.59", 5984)
+	cDb, err := tools.Database("18.197.172.83", 5984)
 	tools.ErrorCheck(err, "general.go", false)
 
 	err = cDb.SelectDb("blockchain", "admin", "hardpassword1")
