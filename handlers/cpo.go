@@ -72,6 +72,48 @@ func CpoInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, cpo)
 }
 
+
+// the main function for the wallets section of payment page
+func CpoPaymentWallet(c *gin.Context){
+
+	type WalletRecord struct {
+		MspName        string `json:"msp_name"`
+		TotalTransactions    int `json:"total_transactions"`
+		Amount    int64 `json:"amount"`
+		Currency        string `json:"currency"`
+		TokenAddr    string `json:"token_address"`
+	}
+	var walletRecords []WalletRecord
+
+
+	record := WalletRecord{MspName:"Charge & Fuel",  TotalTransactions: 16, Amount: 52, Currency:"C&F Tokens", TokenAddr: "0xA39A488BEf3EC11be06AA3B24fe8a51c9F899205"}
+	walletRecords = append(walletRecords, record)
+
+	c.JSON(http.StatusOK, walletRecords)
+}
+
+
+// the records for the particular token
+func CpoPaymentCDR(c *gin.Context){
+
+	type CDRRecord struct {
+		Date        string `json:"date"`
+		DriverName    string `json:"driver_name"`
+		Amount    int64 `json:"amount"`
+		Currency        string `json:"currency"`
+		EvseId        string `json:"evseid"`
+	}
+	var cdrRecords []CDRRecord
+
+	record := CDRRecord{Date:"2018/03/18 18:22:33", DriverName: "Joh Lewis", Amount: 52, Currency:"C&F Tokens", EvseId: "213kdfs93"}
+	cdrRecords = append(cdrRecords, record)
+
+	record = CDRRecord{Date:"2018/03/18 18:32:54", DriverName: "Joh Lewis", Amount: 12, Currency:"C&F Tokens", EvseId: "2321213"}
+	cdrRecords = append(cdrRecords, record)
+
+	c.JSON(http.StatusOK, cdrRecords)
+}
+
 //generates a new wallet for the cpo
 func CpoGenerateWallet(c *gin.Context){
 

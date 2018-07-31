@@ -68,6 +68,14 @@ func InitializeRoutes() {
 
 		//add one evse
 		v1.POST("/cpo/evse", handlers.CpoPostEvse)
+
+		//~~~~ PAYMENTS SECTION ~~~~
+
+		//  my wallet page
+		v1.GET("/cpo/payment/wallet", handlers.CpoPaymentWallet)
+
+		v1.GET("/cpo/payment/cdr/:token", handlers.CpoPaymentCDR)
+
 	}
 
 }
