@@ -4,6 +4,7 @@ import (
 	"github.com/rhinoman/couchdb-go"
 	"time"
 	"encoding/json"
+	"github.com/myesui/uuid"
 )
 
 type CouchDB struct {
@@ -33,7 +34,14 @@ func (d *CouchDB) SelectDb(database string, username string, password string) er
 	return nil
 }
 
-
+// CREATE
+func (d *CouchDB) Insert(payload interface{}) (string, error) {
+	rev, err := d.Db.Save(payload, GetUuid(), "")
+	if err != nil {
+		return "", err
+	}
+	return rev, nil
+}
 
 // QUERY
 // Example:
@@ -61,4 +69,9 @@ func (d *CouchDB) Query(selector string, where interface{}) error {
 	params := couchdb.FindQueryParams{Selector: &selectorObj}
 
 	return d.Db.Find(&where, &params)
+}
+
+func GetUuid() string {
+	theUuid := uuid.NewV4()
+	return uuid.Formatter(theUuid, uuid.FormatHex)
 }

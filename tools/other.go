@@ -9,6 +9,9 @@ import (
 	"context"
 	"bytes"
 	"strconv"
+	"encoding/json"
+	"crypto/sha1"
+	"fmt"
 )
 
 //read the config file, helper function
@@ -53,7 +56,6 @@ func GETRequest(url string) []byte {
 //general POST request
 func POSTRequest(url string, payload []byte) ([]byte, error) {
 
-
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
 		log.Panicf("%v", err)
@@ -70,7 +72,6 @@ func POSTRequest(url string, payload []byte) ([]byte, error) {
 // general PUT request
 func PUTRequest(url string, payload []byte) ([]byte, error) {
 
-
 	body := bytes.NewReader(payload)
 
 	req, err := http.NewRequest("PUT", url, body)
@@ -86,7 +87,6 @@ func PUTRequest(url string, payload []byte) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
 
 	if contents, err := ioutil.ReadAll(resp.Body); err == nil {
 		log.Info("PUT Request Returned >>> " + string(contents))
@@ -112,7 +112,6 @@ func DELETERequest(url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-
 	if contents, err := ioutil.ReadAll(resp.Body); err == nil {
 		log.Info("DELETE Request Returned >>> " + string(contents))
 		return contents, nil
@@ -132,7 +131,6 @@ func ErrorCheck(err error, where string, kill bool) {
 	}
 }
 
-
 //convert hex to int
 func HexToInt(number string) int64 {
 	if number[0:2] == "0x" {
@@ -143,4 +141,18 @@ func HexToInt(number string) int64 {
 		panic(err)
 	}
 	return i
+}
+
+//generate sha1 hash from interface{}
+func GetSha1Hash(payload interface{}) string {
+
+	out, err := json.Marshal(payload)
+	if err != nil {
+		panic(err)
+		return ""
+	}
+
+	algorithm := sha1.New()
+	algorithm.Write(out)
+	return fmt.Sprintf("%x", algorithm.Sum(nil))
 }

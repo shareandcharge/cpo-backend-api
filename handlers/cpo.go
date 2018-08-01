@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"net/url"
 	"github.com/davecgh/go-spew/spew"
+	"time"
 )
 
 func CpoCreate(c *gin.Context) {
@@ -58,7 +59,6 @@ func CpoCreate(c *gin.Context) {
 //returns the info for the CPO
 func CpoInfo(c *gin.Context) {
 
-
 	rows, _ := tools.DB.Query("SELECT cpo_id FROM cpo")
 	defer rows.Close()
 
@@ -74,11 +74,8 @@ func CpoInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, cpo)
 }
 
-
 // the main function for the wallets section of payment page
-func CpoPaymentWallet(c *gin.Context){
-
-
+func CpoPaymentWallet(c *gin.Context) {
 
 	type History struct {
 		From      string  `json:"from"`
@@ -95,25 +92,24 @@ func CpoPaymentWallet(c *gin.Context){
 	err = cDb.SelectDb("blockchain", "admin", "hardpassword1")
 	tools.ErrorCheck(err, "general.go", false)
 
-
 	type FindResponse struct {
 		TotalRows int `json:"total_rows"`
 		Offset    int `json:"offset"`
-		Rows      []struct {
+		Rows []struct {
 			ID    string   `json:"id"`
 			Key   []string `json:"key"`
 			Value string   `json:"value"`
-			Doc   struct {
-				ID        string `json:"_id"`
-				Rev       string `json:"_rev"`
-				Block     int    `json:"block"`
-				From      string `json:"from"`
-				To        string `json:"to"`
-				Amount    float64  `json:"amount"`
-				Currency  string `json:"currency"`
-				GasUsed   string `json:"gas_used"`
-				GasPrice  string `json:"gas_price"`
-				Timestamp string `json:"timestamp"`
+			Doc struct {
+				ID        string  `json:"_id"`
+				Rev       string  `json:"_rev"`
+				Block     int     `json:"block"`
+				From      string  `json:"from"`
+				To        string  `json:"to"`
+				Amount    float64 `json:"amount"`
+				Currency  string  `json:"currency"`
+				GasUsed   string  `json:"gas_used"`
+				GasPrice  string  `json:"gas_price"`
+				Timestamp string  `json:"timestamp"`
 			} `json:"doc"`
 		} `json:"rows"`
 	}
@@ -152,53 +148,187 @@ func CpoPaymentWallet(c *gin.Context){
 
 	spew.Dump(histories)
 
-
 	type WalletRecord struct {
-		MspName        string `json:"msp_name"`
-		TotalTransactions    int `json:"total_transactions"`
-		Amount    int64 `json:"amount"`
-		Currency        string `json:"currency"`
-		TokenAddr    string `json:"token_address"`
+		MspName           string `json:"msp_name"`
+		TotalTransactions int    `json:"total_transactions"`
+		Amount            int64  `json:"amount"`
+		Currency          string `json:"currency"`
+		TokenAddr         string `json:"token_address"`
 	}
 	var walletRecords []WalletRecord
 
 	//total transaction
 
-
-
-	record := WalletRecord{MspName:"Charge & Fuel",  TotalTransactions: 16, Amount: 52, Currency:"C&F Tokens", TokenAddr: "0xA39A488BEf3EC11be06AA3B24fe8a51c9F899205"}
+	record := WalletRecord{MspName: "Charge & Fuel", TotalTransactions: 16, Amount: 52, Currency: "C&F Tokens", TokenAddr: "0xA39A488BEf3EC11be06AA3B24fe8a51c9F899205"}
 	walletRecords = append(walletRecords, record)
 
 	c.JSON(http.StatusOK, walletRecords)
 }
 
+//reimbursements
+// creates a Reimbursement
+func CpoCreateReimbursement(c *gin.Context) {
+
+	//gets the MSP address from url
+	mspAddress := c.Param("msp_address")
+
+	type History struct {
+		From      string  `json:"from"`
+		Amount    float64 `json:"amount"`
+		Currency  string  `json:"currency"`
+		Timestamp int64   `json:"timestamp"`
+	}
+
+	type Reinbursment struct {
+		ReimbursementId string    `json:"reimbursement_id"`
+		From            string    `json:"from"`
+		To              string    `json:"to"`
+		Amount          int64     `json:"amount"`
+		Currency        string    `json:"currency"`
+		CreatedAt       int64     `json:"created_at"`
+		Status          string    `json:"status"`
+		History         []History `json:"history"`
+	}
+
+	var reimbursement Reinbursment
+	config := configs.Load()
+
+	//-------- gets the History of the account
+
+	var cDb *tools.CouchDB
+	cDb, err := tools.Database("18.197.172.83", 5984)
+	tools.ErrorCheck(err, "general.go", false)
+
+	err = cDb.SelectDb("blockchain", "admin", "hardpassword1")
+	tools.ErrorCheck(err, "general.go", false)
+
+	type FindResponse struct {
+		TotalRows int `json:"total_rows"`
+		Offset    int `json:"offset"`
+		Rows []struct {
+			ID    string   `json:"id"`
+			Key   []string `json:"key"`
+			Value string   `json:"value"`
+			Doc struct {
+				ID        string  `json:"_id"`
+				Rev       string  `json:"_rev"`
+				Block     int     `json:"block"`
+				From      string  `json:"from"`
+				To        string  `json:"to"`
+				Amount    float64 `json:"amount"`
+				Currency  string  `json:"currency"`
+				GasUsed   string  `json:"gas_used"`
+				GasPrice  string  `json:"gas_price"`
+				Timestamp string  `json:"timestamp"`
+			} `json:"doc"`
+		} `json:"rows"`
+	}
+
+	var findResult FindResponse
+	params := url.Values{}
+	var addrx []string
+	addrx = append(addrx, config.GetString("cpo.wallet_address"))
+	data, _ := json.Marshal(addrx)
+	params.Set("key", string(data))
+	params.Set("include_docs", "true")
+	params.Set("descending", "true")
+	err = cDb.Db.GetView("doc", "history_of_account", &findResult, &params)
+
+	tools.ErrorCheck(err, "cpo.go", false)
+
+	if len(findResult.Rows) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "no transactions found for this address"})
+		return
+	}
+
+	var histories []History
+	for _, row := range findResult.Rows {
+		if configs.AddressToName(row.Doc.From) != "MSP" {
+
+			if row.Doc.Amount >= 1000000000000000000 {
+				row.Doc.Amount = row.Doc.Amount / 1000000000000000000
+				row.Doc.Currency = "ETH"
+			}
+			n := History{From: configs.AddressToName(row.Doc.From), Amount: row.Doc.Amount, Currency: row.Doc.Currency, Timestamp: tools.HexToInt(row.Doc.Timestamp)}
+			histories = append(histories, n)
+		}
+
+
+	}
+	//================= HISTORY ENDS ==========
+
+
+	err = cDb.SelectDb("reimbursements", "admin", "hardpassword1")
+	tools.ErrorCheck(err, "general.go", false)
+
+	reimbursement.From = config.GetString("cpo.wallet_address")
+	reimbursement.To = mspAddress
+	reimbursement.Amount = 32
+	reimbursement.Currency = "Charge & Fuel Token"
+	reimbursement.CreatedAt = time.Time.Unix(time.Now())
+	reimbursement.Status = "pending"
+	reimbursement.History = histories
+	reimbursement.ReimbursementId = tools.GetSha1Hash(histories)
+
+	// Check if this reimbursement is already present
+
+	type XResponse struct {
+		TotalRows int `json:"total_rows"`
+		Offset    int `json:"offset"`
+		Rows []struct {} `json:"rows"`
+	}
+
+	//calls the unique view in couchdb
+	var xResult XResponse
+	var addry []string
+	xparams := url.Values{}
+	addry = append(addry, reimbursement.ReimbursementId)
+	data, _ = json.Marshal(addry)
+	xparams.Set("key", string(data))
+	err = cDb.Db.GetView("doc", "unique", &xResult, &xparams)
+
+
+	if len(xResult.Rows) != 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "there's already a reimbursement issued for the current transactions."})
+		return
+	}
+
+
+	revId, err := cDb.Insert(reimbursement)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"_revId": revId})
+}
 
 // the records for the particular token
-func CpoPaymentCDR(c *gin.Context){
+func CpoPaymentCDR(c *gin.Context) {
 
 	type CDRRecord struct {
-		Date        string `json:"date"`
-		DriverName    string `json:"driver_name"`
-		Amount    int64 `json:"amount"`
-		Currency        string `json:"currency"`
-		EvseId        string `json:"evseid"`
+		Date       string `json:"date"`
+		DriverName string `json:"driver_name"`
+		Amount     int64  `json:"amount"`
+		Currency   string `json:"currency"`
+		EvseId     string `json:"evseid"`
 	}
 	var cdrRecords []CDRRecord
 
-	record := CDRRecord{Date:"2018/03/18 18:22:33", DriverName: "Joh Lewis", Amount: 52, Currency:"C&F Tokens", EvseId: "213kdfs93"}
+	record := CDRRecord{Date: "2018/03/18 18:22:33", DriverName: "Joh Lewis", Amount: 52, Currency: "C&F Tokens", EvseId: "213kdfs93"}
 	cdrRecords = append(cdrRecords, record)
 
-	record = CDRRecord{Date:"2018/03/18 18:32:54", DriverName: "Joh Lewis", Amount: 12, Currency:"C&F Tokens", EvseId: "2321213"}
+	record = CDRRecord{Date: "2018/03/18 18:32:54", DriverName: "Joh Lewis", Amount: 12, Currency: "C&F Tokens", EvseId: "2321213"}
 	cdrRecords = append(cdrRecords, record)
 
 	c.JSON(http.StatusOK, cdrRecords)
 }
 
 //generates a new wallet for the cpo
-func CpoGenerateWallet(c *gin.Context){
+func CpoGenerateWallet(c *gin.Context) {
 
 	type WalletInfo struct {
-		Seed   string `json:"seed"`
+		Seed string `json:"seed"`
 		Addr string `json:"address"`
 	}
 	var walletInfo WalletInfo
@@ -223,7 +353,6 @@ func CpoGenerateWallet(c *gin.Context){
 	command := fmt.Sprintf(query, walletInfo.Addr, walletInfo.Seed)
 	tools.DB.MustExec(command)
 
-
 	//update the ~/.sharecharge/config.json
 	configs.UpdateBaseAccountSeedInSCConfig(walletInfo.Seed)
 
@@ -232,7 +361,6 @@ func CpoGenerateWallet(c *gin.Context){
 
 //returns the info for the CPO
 func CpoGetSeed(c *gin.Context) {
-
 
 	cpo := tools.CPO{}
 	tools.DB.QueryRowx("SELECT * FROM cpo LIMIT 1").StructScan(&cpo)
@@ -244,8 +372,6 @@ func CpoGetSeed(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"seed": cpo.Seed})
 }
-
-
 
 //Gets the history for the CPO
 func CpoHistory(c *gin.Context) {
@@ -265,7 +391,6 @@ func CpoHistory(c *gin.Context) {
 		histories = append(histories, n)
 	}
 
-
 	c.JSON(http.StatusOK, histories)
 }
 
@@ -278,7 +403,7 @@ func CpoGetLocations(c *gin.Context) {
 
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
-	body := tools.GETRequest("http://localhost:3000/api/store/locations/"+cpoAddress)
+	body := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress)
 
 	var locations []tools.XLocation
 	err := json.Unmarshal(body, &locations)
@@ -297,9 +422,8 @@ func CpoGetLocations(c *gin.Context) {
 
 }
 
-
 //uploads new locations and re-writes if they already are present
-func CpoPutLocation(c *gin.Context){
+func CpoPutLocation(c *gin.Context) {
 	var stations []tools.XLocation
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
@@ -314,7 +438,6 @@ func CpoPutLocation(c *gin.Context){
 		return
 	}
 
-
 	_, err = tools.PUTRequest("http://localhost:3000/api/store/locations", jsonValue)
 	if err != nil {
 		log.Panic(err)
@@ -325,7 +448,7 @@ func CpoPutLocation(c *gin.Context){
 }
 
 //uploads new location
-func CpoPostLocation(c *gin.Context){
+func CpoPostLocation(c *gin.Context) {
 	var stations []tools.Location
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
@@ -355,8 +478,7 @@ func CpoDeleteLocation(c *gin.Context) {
 
 	locationid := c.Param("locationid")
 
-
-	_, err := tools.DELETERequest("http://localhost:3000/api/store/locations/"+locationid)
+	_, err := tools.DELETERequest("http://localhost:3000/api/store/locations/" + locationid)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -366,9 +488,8 @@ func CpoDeleteLocation(c *gin.Context) {
 
 }
 
-
 //uploads new location
-func CpoPostEvse(c *gin.Context){
+func CpoPostEvse(c *gin.Context) {
 	var evse tools.Evse
 
 	if err := c.MustBindWith(&evse, binding.JSON); err == nil {
@@ -379,4 +500,3 @@ func CpoPostEvse(c *gin.Context){
 
 	c.JSON(http.StatusOK, evse)
 }
-
