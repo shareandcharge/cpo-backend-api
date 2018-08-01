@@ -33,6 +33,7 @@ func main() {
 
 	// Establish database connection
 	tools.Connect("_theDb.db")
+	tools.MySQLConnect("blockchain")
 
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 	log.Println("~~~~~~~~~~~~~~~~ CPO BACKEND IS RUNNING ~~~~~~~~~~~~~~~~")

@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"github.com/davecgh/go-spew/spew"
 	"time"
+	"strings"
 )
 
 func CpoCreate(c *gin.Context) {
@@ -179,18 +180,6 @@ func CpoCreateReimbursement(c *gin.Context) {
 		Timestamp int64   `json:"timestamp"`
 	}
 
-	type Reinbursment struct {
-		ReimbursementId string    `json:"reimbursement_id"`
-		From            string    `json:"from"`
-		To              string    `json:"to"`
-		Amount          int64     `json:"amount"`
-		Currency        string    `json:"currency"`
-		CreatedAt       int64     `json:"created_at"`
-		Status          string    `json:"status"`
-		History         []History `json:"history"`
-	}
-
-	var reimbursement Reinbursment
 	config := configs.Load()
 
 	//-------- gets the History of the account
@@ -253,54 +242,26 @@ func CpoCreateReimbursement(c *gin.Context) {
 			histories = append(histories, n)
 		}
 
-
 	}
 	//================= HISTORY ENDS ==========
 
+	historiesBytes, err := json.Marshal(histories)
+	tools.ErrorCheck(err, "cpo.go", false)
 
-	err = cDb.SelectDb("reimbursements", "admin", "hardpassword1")
-	tools.ErrorCheck(err, "general.go", false)
-
-	reimbursement.From = config.GetString("cpo.wallet_address")
-	reimbursement.To = mspAddress
-	reimbursement.Amount = 32
-	reimbursement.Currency = "Charge & Fuel Token"
-	reimbursement.CreatedAt = time.Time.Unix(time.Now())
-	reimbursement.Status = "pending"
-	reimbursement.History = histories
-	reimbursement.ReimbursementId = tools.GetSha1Hash(histories)
-
-	// Check if this reimbursement is already present
-
-	type XResponse struct {
-		TotalRows int `json:"total_rows"`
-		Offset    int `json:"offset"`
-		Rows []struct {} `json:"rows"`
-	}
-
-	//calls the unique view in couchdb
-	var xResult XResponse
-	var addry []string
-	xparams := url.Values{}
-	addry = append(addry, reimbursement.ReimbursementId)
-	data, _ = json.Marshal(addry)
-	xparams.Set("key", string(data))
-	err = cDb.Db.GetView("doc", "unique", &xResult, &xparams)
-
-
-	if len(xResult.Rows) != 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "there's already a reimbursement issued for the current transactions."})
-		return
-	}
-
-
-	revId, err := cDb.Insert(reimbursement)
+	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, history)" +
+		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s')"
+	command := fmt.Sprintf(query, mspAddress, config.GetString("cpo.wallet_address"), 32, "Charge & Fuel Token", "pending", tools.GetSha1Hash(histories), time.Time.Unix(time.Now()), string(historiesBytes))
+	_, err = tools.MDB.Exec(command)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		if  strings.Contains(err.Error(), "Duplicate entry") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "there's already a reimbursement issued for the current transactions."})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{"status": "reimbursement sent"})
 
-	c.JSON(http.StatusOK, gin.H{"_revId": revId})
 }
 
 // the records for the particular token

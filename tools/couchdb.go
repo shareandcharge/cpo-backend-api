@@ -43,7 +43,7 @@ func (d *CouchDB) Insert(payload interface{}) (string, error) {
 	return rev, nil
 }
 
-// QUERY
+// QUERY reimbursement
 // Example:
 //type FindResponse struct {
 //	Docs []TestDocument `json:"docs"`
