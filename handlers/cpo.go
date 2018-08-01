@@ -253,7 +253,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	command := fmt.Sprintf(query, mspAddress, config.GetString("cpo.wallet_address"), 32, "Charge & Fuel Token", "pending", tools.GetSha1Hash(histories), time.Time.Unix(time.Now()), string(historiesBytes))
 	_, err = tools.MDB.Exec(command)
 	if err != nil {
-		if  strings.Contains(err.Error(), "Duplicate entry") {
+		if strings.Contains(err.Error(), "Duplicate entry") {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "there's already a reimbursement issued for the current transactions."})
 			return
 		}
@@ -261,6 +261,64 @@ func CpoCreateReimbursement(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "reimbursement sent"})
+
+}
+
+// Lists all reimbursements
+func CpoGetAllReimbursements(c *gin.Context) {
+
+	config := configs.Load()
+	cpoWallet := config.GetString("cpo.wallet_address")
+
+	type Reimbursement struct {
+		Id              int    `json:"id" db:"id"`
+		MspName         string `json:"msp_name" db:"msp_name"`
+		CpoName         string `json:"cpo_name" db:"cpo_name"`
+		Amount          int    `json:"amount" db:"amount"`
+		Currency        string `json:"currency" db:"currency"`
+		Timestamp       int    `json:"timestamp" db:"timestamp"`
+		Status          string `json:"status" db:"status"`
+		ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
+		History         string `json:"history" db:"history"`
+	}
+	var reimb []Reimbursement
+
+	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ?", cpoWallet)
+	tools.ErrorCheck(err, "cpo.go", false)
+
+	c.JSON(http.StatusOK, reimb)
+}
+
+
+// marks the reimbursement as complete
+func CpoSetReimbursementComplete(c *gin.Context){
+
+	reimbursementId := c.Param("reimbursement_id")
+
+
+	rows, err := tools.MDB.Query("SELECT id FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
+	tools.ErrorCheck(err, "cpo.go", true)
+	defer rows.Close()
+
+	//check if we have a reimbursement with this id present
+	if !rows.Next() {
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": "there's isn't any reimbursement with this id present"})
+		return
+	}
+
+	query := "UPDATE reimbursements SET status='%s' WHERE reimbursement_id = '%s'"
+	command := fmt.Sprintf(query, "complete", reimbursementId)
+	_, err = tools.MDB.Exec(command)
+	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate entry") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "there's already a reimbursement issued for the current transactions."})
+			return
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status":"complete"})
 
 }
 

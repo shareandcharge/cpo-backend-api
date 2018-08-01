@@ -76,7 +76,14 @@ func InitializeRoutes() {
 
 		v1.GET("/cpo/payment/cdr/:token", handlers.CpoPaymentCDR)
 
-		v1.POST("/cpo/payment/create_reimbursement/:msp_address", handlers.CpoCreateReimbursement)
+		//creates new reimbursement
+		v1.POST("/cpo/payment/reimbursement/:msp_address", handlers.CpoCreateReimbursement)
+
+		//lists all reimbursements
+		v1.GET("/cpo/payment/reimbursements", handlers.CpoGetAllReimbursements)
+
+		//sets the reimbursement as completed
+		v1.PUT("/cpo/payment/reimbursement/:reimbursement_id/complete", handlers.CpoSetReimbursementComplete)
 	}
 
 }
