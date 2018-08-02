@@ -35,6 +35,9 @@ func InitializeRoutes() {
 		//shows the history of an wallet
 		v1.GET("/wallet/:addr/history", handlers.GetWalletHistory)
 
+		//shows the history of an wallet
+		v1.GET("/wallet/:addr/history/evcoin", handlers.GetWalletHistoryEVCoin)
+
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~ CPO ~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

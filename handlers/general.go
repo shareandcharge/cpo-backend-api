@@ -62,6 +62,31 @@ func GetWalletHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, histories)
 }
 
+
+// get the history of transaction for ETH (EV Coin)
+func GetWalletHistoryEVCoin(c *gin.Context){
+	addr := c.Param("addr")
+
+	type History struct {
+		Id              int    `json:"id" db:"id"`
+		Block           int    `json:"block" db:"block"`
+		FromAddr        string `json:"from_addr" db:"from_addr"`
+		ToAddr          string `json:"to_addr" db:"to_addr"`
+		Amount          uint64 `json:"amount" db:"amount"`
+		Currency        string `json:"currency" db:"currency"`
+		GasUsed         uint64 `json:"gas_used" db:"gas_used"`
+		GasPrice        uint64 `json:"gas_price" db:"gas_price"`
+		CreatedAt       uint64 `json:"created_at" db:"created_at"`
+		TransactionHash string `json:"transaction_hash" db:"transaction_hash"`
+	}
+	var histories []History
+
+	err := tools.MDB.Select(&histories, "SELECT * FROM ethtosql WHERE to_addr = ? AND currency = ? ORDER BY block DESC", addr, "wei")
+	tools.ErrorCheck(err, "cpo.go", false)
+
+	c.JSON(http.StatusOK, histories)
+}
+
 //Returns a list of all drivers
 func GetAllDrivers(c *gin.Context) {
 
