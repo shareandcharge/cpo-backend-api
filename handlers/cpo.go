@@ -7,9 +7,6 @@ import (
 	"fmt"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
-	"math/rand"
-	"math"
-	"strconv"
 	log "github.com/Sirupsen/logrus"
 	"encoding/json"
 	"strings"
@@ -249,7 +246,7 @@ func CpoSetReimbursementComplete(c *gin.Context) {
 	reimbursementId := c.Param("reimbursement_id")
 
 	rows, err := tools.MDB.Query("SELECT id FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
-	tools.ErrorCheck(err, "cpo.go", true)
+	tools.ErrorCheck(err, "cpo.go", false)
 	defer rows.Close()
 
 	//check if we have a reimbursement with this id present
@@ -277,22 +274,47 @@ func CpoSetReimbursementComplete(c *gin.Context) {
 // the records for the particular token
 func CpoPaymentCDR(c *gin.Context) {
 
-	type CDRRecord struct {
-		Date       string `json:"date"`
-		DriverName string `json:"driver_name"`
-		Amount     int64  `json:"amount"`
-		Currency   string `json:"currency"`
-		EvseId     string `json:"evseid"`
+	//tokenAddress := c.Param("token")
+
+	type CDR struct {
+		EvseID           string `json:"evseId"`
+		ScID             string `json:"scId"`
+		Controller       string `json:"controller"`
+		Start            string `json:"start"`
+		End              string `json:"end"`
+		FinalPrice       string `json:"finalPrice"`
+		TokenContract    string `json:"tokenContract"`
+		ChargingContract string `json:"chargingContract"`
+		TransactionHash  string `json:"transactionHash"`
 	}
-	var cdrRecords []CDRRecord
 
-	record := CDRRecord{Date: "2018/03/18 18:22:33", DriverName: "Joh Lewis", Amount: 52, Currency: "C&F Tokens", EvseId: "213kdfs93"}
-	cdrRecords = append(cdrRecords, record)
+	body := tools.GETRequest("http://localhost:3000/api/cdr/info") //+ ?tokenContract= tokenAddress
 
-	record = CDRRecord{Date: "2018/03/18 18:32:54", DriverName: "Joh Lewis", Amount: 12, Currency: "C&F Tokens", EvseId: "2321213"}
-	cdrRecords = append(cdrRecords, record)
+	var cdrs []CDR
+	err := json.Unmarshal(body, &cdrs)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
 
-	c.JSON(http.StatusOK, cdrRecords)
+	drivers, err := tools.ReturnAllDrivers()
+	tools.ErrorCheck(err, "cpo.go", false)
+
+	var cdrsOutput []CDR
+
+	for _, cdr := range cdrs {
+		for _, driver := range drivers {
+			if driver.Address == cdr.Controller {
+				cdr.Controller = driver.Email
+				break
+			}
+		}
+		cdrsOutput = append(cdrsOutput, cdr)
+	}
+
+	c.JSON(http.StatusOK, cdrsOutput)
+
 }
 
 //generates a new wallet for the cpo
@@ -348,19 +370,24 @@ func CpoGetSeed(c *gin.Context) {
 func CpoHistory(c *gin.Context) {
 
 	type History struct {
-		Amount    float64 `json:"amount"`
-		Currency  string  `json:"currency"`
-		Timestamp string  `json:"timestamp"`
+		Id              int    `json:"id" db:"id"`
+		Block           int    `json:"block" db:"block"`
+		FromAddr        string `json:"from_addr" db:"from_addr"`
+		ToAddr          string `json:"to_addr" db:"to_addr"`
+		Amount          uint64 `json:"amount" db:"amount"`
+		Currency        string `json:"currency" db:"currency"`
+		GasUsed         uint64 `json:"gas_used" db:"gas_used"`
+		GasPrice        uint64 `json:"gas_price" db:"gas_price"`
+		CreatedAt       uint64 `json:"created_at" db:"created_at"`
+		TransactionHash string `json:"transaction_hash" db:"transaction_hash"`
 	}
-
-	s1 := rand.NewSource(1337)
-	r1 := rand.New(s1)
-
 	var histories []History
-	for i := 0; i < 100; i++ {
-		n := History{Amount: math.Floor(r1.Float64()*10000) / 10000, Currency: "CPO Tokens", Timestamp: "01.04.2018 " + strconv.Itoa(10+r1.Intn(23)) + ":" + strconv.Itoa(10+r1.Intn(49)) + ":" + strconv.Itoa(10+r1.Intn(49))}
-		histories = append(histories, n)
-	}
+
+	config := configs.Load()
+	cpoWallet := config.GetString("cpo.wallet_address")
+
+	err := tools.MDB.Select(&histories, "SELECT * FROM ethtosql WHERE to_addr = ? ORDER BY block DESC", cpoWallet)
+	tools.ErrorCheck(err, "cpo.go", false)
 
 	c.JSON(http.StatusOK, histories)
 }
