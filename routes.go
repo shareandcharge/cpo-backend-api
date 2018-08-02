@@ -51,7 +51,7 @@ func InitializeRoutes() {
 		//displays the mnemonic seed for the cpo
 		v1.GET("/cpo/wallet/seed", handlers.CpoGetSeed)
 
-		//gets the CPOF history of transactions
+		//gets the CPO history of transactions
 		v1.GET("/cpo/history", handlers.CpoHistory)
 
 		//upload new locations
@@ -69,10 +69,14 @@ func InitializeRoutes() {
 		//add one evse
 		v1.POST("/cpo/evse", handlers.CpoPostEvse)
 
+		//get history of transactions from msp
+		v1.GET("/cpo/transactions/from_msp", handlers.CpoTransactionFromMsp)
+
 		//~~~~ PAYMENTS SECTION ~~~~
 
 		//  my wallet page
 		v1.GET("/cpo/payment/wallet", handlers.CpoPaymentWallet)
+
 
 		v1.GET("/cpo/payment/cdr/:token", handlers.CpoPaymentCDR)
 

@@ -7,8 +7,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"encoding/json"
 	"strconv"
-	"net/url"
-	"github.com/motionwerkGmbH/cpo-backend-api/configs"
 )
 
 func Index(c *gin.Context) {
@@ -26,8 +24,7 @@ func GetWalletBalance(c *gin.Context) {
 
 	body := tools.GETRequest("http://localhost:3000/api/wallet/balance/" + addr)
 
-	var tBalance = new(TBalance)
-	//var tBalance TBalance  //TODO: check this one
+	var tBalance TBalance
 	err := json.Unmarshal(body, &tBalance)
 	if err != nil {
 		log.Panic(err)
@@ -35,85 +32,32 @@ func GetWalletBalance(c *gin.Context) {
 		return
 	}
 
-	log.Printf("Balance is %s", tBalance.Balance)
 	balanceFloat, _ := strconv.ParseFloat(string(tBalance.Balance), 64)
 
-	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat / 1000000000000000000, "currency": "ETH"})
+	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat / 1000000000000000000, "currency": "EV Coin"})
 }
 
-// gets the history of a wallet
+// gets the all history of a wallet
 func GetWalletHistory(c *gin.Context) {
 
 	addr := c.Param("addr")
 
 	type History struct {
-		From      string  `json:"from"`
-		Amount    float64 `json:"amount"`
-		Currency  string  `json:"currency"`
-		Timestamp int64   `json:"timestamp"`
+		Id              int    `json:"id" db:"id"`
+		Block           int    `json:"block" db:"block"`
+		FromAddr        string `json:"from_addr" db:"from_addr"`
+		ToAddr          string `json:"to_addr" db:"to_addr"`
+		Amount          uint64 `json:"amount" db:"amount"`
+		Currency        string `json:"currency" db:"currency"`
+		GasUsed         uint64 `json:"gas_used" db:"gas_used"`
+		GasPrice        uint64 `json:"gas_price" db:"gas_price"`
+		CreatedAt       uint64 `json:"created_at" db:"created_at"`
+		TransactionHash string `json:"transaction_hash" db:"transaction_hash"`
 	}
-	//
-
-	var cDb *tools.CouchDB
-	cDb, err := tools.Database("18.197.172.83", 5984)
-	tools.ErrorCheck(err, "general.go", false)
-
-	err = cDb.SelectDb("blockchain", "admin", "hardpassword1")
-	tools.ErrorCheck(err, "general.go", false)
-
-
-	type FindResponse struct {
-		TotalRows int `json:"total_rows"`
-		Offset    int `json:"offset"`
-		Rows      []struct {
-			ID    string   `json:"id"`
-			Key   []string `json:"key"`
-			Value string   `json:"value"`
-			Doc   struct {
-				ID        string `json:"_id"`
-				Rev       string `json:"_rev"`
-				Block     int    `json:"block"`
-				From      string `json:"from"`
-				To        string `json:"to"`
-				Amount    float64  `json:"amount"`
-				Currency  string `json:"currency"`
-				GasUsed   string `json:"gas_used"`
-				GasPrice  string `json:"gas_price"`
-				Timestamp string `json:"timestamp"`
-			} `json:"doc"`
-		} `json:"rows"`
-	}
-
-	var findResult FindResponse
-	params := url.Values{}
-	var addrx []string
-	addrx = append(addrx, addr)
-	data, _ := json.Marshal(addrx)
-	params.Set("key", string(data))
-	params.Set("include_docs", "true")
-	params.Set("descending", "true")
-	err = cDb.Db.GetView("doc", "history_of_account", &findResult, &params)
-
-	tools.ErrorCheck(err, "general.go", false)
-
-	if len(findResult.Rows) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "no transactions found for this address"})
-		return
-	}
-
 	var histories []History
-	for _, row := range findResult.Rows {
-		if configs.AddressToName(row.Doc.From) != addr {
 
-			if row.Doc.Amount >= 1000000000000000000 {
-				row.Doc.Amount = row.Doc.Amount / 1000000000000000000
-				row.Doc.Currency = "ETH"
-			}
-			n := History{From: configs.AddressToName(row.Doc.From), Amount: row.Doc.Amount, Currency: row.Doc.Currency, Timestamp: tools.HexToInt(row.Doc.Timestamp)}
-			histories = append(histories, n)
-		}
-
-	}
+	err := tools.MDB.Select(&histories, "SELECT * FROM ethtosql WHERE to_addr = ? ORDER BY block DESC", addr)
+	tools.ErrorCheck(err, "cpo.go", false)
 
 	c.JSON(http.StatusOK, histories)
 }
@@ -130,7 +74,7 @@ func GetAllDrivers(c *gin.Context) {
 
 	var mDriversList []tools.Driver
 	for _, driver := range driversList {
-		driver.Token = "Charge & Fuel Token" //TODO: attention, it's hardcoded
+		driver.Token = "Charge & Fuel Token"
 
 		body := tools.GETRequest("http://localhost:3000/api/token/balance/" + driver.Address)
 		balanceFloat, _ := strconv.ParseFloat(string(body), 64)
