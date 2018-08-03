@@ -145,7 +145,6 @@ func CpoTransactionFromMsp(c *gin.Context) {
 	c.JSON(http.StatusOK, histories)
 }
 
-//reimbursements
 // creates a Reimbursement
 func CpoCreateReimbursement(c *gin.Context) {
 
@@ -188,20 +187,49 @@ func CpoCreateReimbursement(c *gin.Context) {
 	err := tools.MDB.Select(&histories, "SELECT * FROM ethtosql WHERE to_addr = ? ORDER BY block DESC", cpoWallet)
 	tools.ErrorCheck(err, "cpo.go", false)
 
-	historiesBytes, err := json.Marshal(histories)
+
+
+	//is this record already present in some reimbursement ?
+
+	var filteredHistory []History
+
+	for _, h := range histories {
+		rows, err := tools.MDB.Query("SELECT COUNT(*) FROM reimbursements WHERE cdr_records LIKE '%" + h.TransactionHash + "%'")
+		tools.ErrorCheck(err, "cpo.go", false)
+		defer rows.Close()
+		if !rows.Next() {
+			log.Info("adding new transaction to reimbursement")
+			filteredHistory = append(filteredHistory, h)
+		} else {
+			log.Warn("transaction with hash " + h.TransactionHash + " already present in reimbursement")
+		}
+
+	}
+
+	if len(filteredHistory) == 0{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "there are no more records to be used to create new reimbursement."})
+		return
+	}
+
+
+	filteredHistoryBytes, err := json.Marshal(filteredHistory)
 	tools.ErrorCheck(err, "cpo.go", false)
+
+
 
 	//calculate the amount of tokens CPO has
 	var totalAmount uint64
-	for _, h := range histories {
+	for _, h := range filteredHistory {
 		if h.Currency == "Charge & Fuel Token" {
 			totalAmount = totalAmount + h.Amount
 		}
 	}
 
-	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, history)" +
+
+
+	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, cdr_records)" +
 		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s')"
-	command := fmt.Sprintf(query, mspAddress, config.GetString("cpo.wallet_address"), totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(histories), time.Time.Unix(time.Now()), string(historiesBytes))
+	command := fmt.Sprintf(query, mspAddress, config.GetString("cpo.wallet_address"), totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(filteredHistory), time.Time.Unix(time.Now()), string(filteredHistoryBytes))
 	_, err = tools.MDB.Exec(command)
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
@@ -218,6 +246,8 @@ func CpoCreateReimbursement(c *gin.Context) {
 // Lists all reimbursements
 func CpoGetAllReimbursements(c *gin.Context) {
 
+	status := c.Param("status")
+
 	config := configs.Load()
 	cpoWallet := config.GetString("cpo.wallet_address")
 
@@ -230,12 +260,17 @@ func CpoGetAllReimbursements(c *gin.Context) {
 		Timestamp       int    `json:"timestamp" db:"timestamp"`
 		Status          string `json:"status" db:"status"`
 		ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
-		History         string `json:"history" db:"history"`
+		CdrRecords         string `json:"cdr_records" db:"cdr_records"`
 	}
 	var reimb []Reimbursement
 
-	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ?", cpoWallet)
+	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ? AND status = ?", cpoWallet, status)
 	tools.ErrorCheck(err, "cpo.go", false)
+
+	if len(reimb) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not reimbursements with status " + status + " found"})
+		return
+	}
 
 	c.JSON(http.StatusOK, reimb)
 }
@@ -304,14 +339,33 @@ func CpoPaymentCDR(c *gin.Context) {
 	var cdrsOutput []CDR
 
 	for _, cdr := range cdrs {
+
+		//map driver email to address
 		for _, driver := range drivers {
 			if driver.Address == cdr.Controller {
 				cdr.Controller = driver.Email
 				break
 			}
 		}
-		cdrsOutput = append(cdrsOutput, cdr)
+
+		//is this record already present in some reimbursement ?
+		count := 0
+		rows, err := tools.MDB.Query("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'")
+		tools.ErrorCheck(err, "cpo.go", false)
+		defer rows.Close()
+		rows.Scan(&count)
+
+		log.Printf("Coun = %d", count)
+
+		if count == 0 {
+			log.Info("adding new transaction to reimbursement")
+			cdrsOutput = append(cdrsOutput, cdr)
+		} else {
+			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in reimbursement")
+		}
+
 	}
+
 
 	c.JSON(http.StatusOK, cdrsOutput)
 
