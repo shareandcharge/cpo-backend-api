@@ -99,7 +99,7 @@ func GetAllDrivers(c *gin.Context) {
 
 	var mDriversList []tools.Driver
 	for _, driver := range driversList {
-		driver.Token = "Charge & Fuel Token"
+		driver.Token = "Charge&Fuel Token"
 
 		body := tools.GETRequest("http://localhost:3000/api/token/balance/" + driver.Address)
 		balanceFloat, _ := strconv.ParseFloat(string(body), 64)

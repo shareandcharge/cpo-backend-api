@@ -201,7 +201,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 
 	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, history)" +
 		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s')"
-	command := fmt.Sprintf(query, mspAddress, config.GetString("cpo.wallet_address"), totalAmount, "Charge & Fuel Token", "pending", tools.GetSha1Hash(histories), time.Time.Unix(time.Now()), string(historiesBytes))
+	command := fmt.Sprintf(query, mspAddress, config.GetString("cpo.wallet_address"), totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(histories), time.Time.Unix(time.Now()), string(historiesBytes))
 	_, err = tools.MDB.Exec(command)
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
