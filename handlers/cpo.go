@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 	"strconv"
+	"io/ioutil"
 )
 
 func CpoCreate(c *gin.Context) {
@@ -152,8 +153,6 @@ func CpoCreateReimbursement(c *gin.Context) {
 
 	// get the history
 
-
-
 	type CDR struct {
 		EvseID           string `json:"evseId"`
 		ScID             string `json:"scId"`
@@ -193,10 +192,9 @@ func CpoCreateReimbursement(c *gin.Context) {
 			}
 		}
 
-
 		//is this record already present in some reimbursement ?
 		count := 0
-		row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%"+cdr.TransactionHash+"%'")
+		row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'")
 		row.Scan(&count)
 
 		if count == 0 {
@@ -207,8 +205,6 @@ func CpoCreateReimbursement(c *gin.Context) {
 		}
 
 	}
-
-
 
 	if len(cdrsOutput) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "there are no more records to be used to create new reimbursement."})
@@ -222,7 +218,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	var totalAmount uint64
 	for _, h := range cdrsOutput {
 		if h.Currency == "Charge & Fuel Token" {
-			finalPriceInt, err:= strconv.Atoi(h.FinalPrice)
+			finalPriceInt, err := strconv.Atoi(h.FinalPrice)
 			tools.ErrorCheck(err, "cpo.go", false)
 			totalAmount = totalAmount + uint64(finalPriceInt)
 		}
@@ -267,6 +263,11 @@ func CpoGetAllReimbursements(c *gin.Context) {
 
 	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ? AND status = ?", cpoWallet, status)
 	tools.ErrorCheck(err, "cpo.go", false)
+
+	if len(reimb) == 0 {
+		c.JSON(http.StatusOK, []string{})
+		return
+	}
 
 	c.JSON(http.StatusOK, reimb)
 }
@@ -342,9 +343,8 @@ func CpoPaymentCDR(c *gin.Context) {
 			}
 		}
 
-
 		count := 0
-		row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%"+cdr.TransactionHash+"%'")
+		row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'")
 		row.Scan(&count)
 
 		if count == 0 {
@@ -354,6 +354,11 @@ func CpoPaymentCDR(c *gin.Context) {
 			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in some reimbursement")
 		}
 
+	}
+
+	if len(cdrsOutput) == 0 {
+		c.JSON(http.StatusOK, []string{})
+		return
 	}
 
 	c.JSON(http.StatusOK, cdrsOutput)
@@ -433,6 +438,79 @@ func CpoHistory(c *gin.Context) {
 	tools.ErrorCheck(err, "cpo.go", false)
 
 	c.JSON(http.StatusOK, histories)
+}
+
+//=================================
+//========= PDF Generation ========
+//=================================
+
+func CpoReimbursementGenPdf(c *gin.Context) {
+	reimbursement_id := c.Param("reimbursement_id")
+
+	type Reimbursement struct {
+		Id              int    `json:"id" db:"id"`
+		MspName         string `json:"msp_name" db:"msp_name"`
+		CpoName         string `json:"cpo_name" db:"cpo_name"`
+		Amount          int    `json:"amount" db:"amount"`
+		Currency        string `json:"currency" db:"currency"`
+		Timestamp       int    `json:"timestamp" db:"timestamp"`
+		Status          string `json:"status" db:"status"`
+		ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
+		CdrRecords      string `json:"cdr_records" db:"cdr_records"`
+	}
+	var reimb Reimbursement
+
+	err := tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE reimbursement_id = ? LIMIT 1", reimbursement_id).StructScan(&reimb)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	//load the template file
+	b, err := ioutil.ReadFile("configs/invoice_template.html")
+	tools.ErrorCheck(err, "cpo.go", false)
+
+	htmlTemplateRaw := string(b)
+
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromName}}", "ThePhoenixWorks", 2)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", "59-62R Springfield Centre LS28 5LY", 2)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", "19 July 2018 ", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceNumber}}", "000000001", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{clientReference}}", " S&C000001 ", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{purchaseOrder}}", " S&C000001 ", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToName}}", "Volkswagen Financial", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToAddress}}", "Services (UKJ) Limited", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToPerson}}", "Milton Keynes", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToCode}}", "MK15 8HG", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDueDate}}", "02 August 2018 ", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{description}}", "Sum of Tokens received through Share&Charge network ", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{quantity}}", strconv.Itoa(reimb.Amount), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{unit}}", "Tokens", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{price}}", "£ 0,01", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{vat}}", "20%", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{total}}", strconv.Itoa(reimb.Amount), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{subTotal}}", "£ "+strconv.Itoa(reimb.Amount), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{totalVat}}", "£ "+strconv.Itoa(int(float64(reimb.Amount)*float64(0.20))), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{totalAmount}}", "£ "+strconv.Itoa(int(float64(reimb.Amount)*float64(1.20))), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromPhone}}", "0014 882 739 2282", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromMail}}", "accounting@invoice.com", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromWebsite}}", "http://yourwebiste.com", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromBankName}}", "UNICREDIT", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromSortCode}}", "12312", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAccountNumber}}", "123 345 532", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{vatNumber}}", "321ADF23", 1)
+
+	//write it to a file
+	ioutil.WriteFile("static/invoice_1.html", []byte(htmlTemplateRaw), 0644)
+
+	//convert it to pdf
+	err = tools.GeneratePdf("static/invoice_1.html", "static/invoice_1.pdf")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"redirect": "http://{{server_addr}}:{{server_port}}/static/invoice_1.pdf"})
 }
 
 //=================================

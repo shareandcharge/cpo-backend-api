@@ -91,6 +91,9 @@ func InitializeRoutes() {
 
 		//sets the reimbursement as completed
 		v1.PUT("/cpo/payment/reimbursement/:reimbursement_id/complete", handlers.CpoSetReimbursementComplete)
+
+		//generates PDF for reimbursement id
+		v1.GET("/cpo/payment/download_invoice/:reimbursement_id", handlers.CpoReimbursementGenPdf)
 	}
 
 }
