@@ -12,6 +12,8 @@ import (
 	"encoding/json"
 	"crypto/sha1"
 	"fmt"
+	"os/exec"
+	"bufio"
 )
 
 //read the config file, helper function
@@ -155,4 +157,33 @@ func GetSha1Hash(payload interface{}) string {
 	algorithm := sha1.New()
 	algorithm.Write(out)
 	return fmt.Sprintf("%x", algorithm.Sum(nil))
+}
+
+// wkhtmltopdf needs to be installed
+func GeneratePdf(fromFile string, toFile string) error {
+
+	cmd := exec.Command("wkhtmltopdf", fromFile, toFile)
+	cmdReader, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	scanner := bufio.NewScanner(cmdReader)
+	go func() {
+		for scanner.Scan() {
+			log.Printf("%s\n", scanner.Text())
+		}
+	}()
+
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"github.com/gin-gonic/contrib/static"
 )
 
 var router *gin.Engine
@@ -30,6 +31,9 @@ func main() {
 	router.Use(cors.Default())
 
 	InitializeRoutes()
+
+	// Serve static invoices files
+	router.Use(static.Serve("/static", static.LocalFile("./static", true)))
 
 	// Establish database connection
 	tools.Connect("_theDb.db")

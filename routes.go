@@ -87,10 +87,13 @@ func InitializeRoutes() {
 		v1.POST("/cpo/payment/reimbursement/:msp_address", handlers.CpoCreateReimbursement)
 
 		//lists all reimbursements
-		v1.GET("/cpo/payment/reimbursements", handlers.CpoGetAllReimbursements)
+		v1.GET("/cpo/payment/reimbursements/:status", handlers.CpoGetAllReimbursements)
 
 		//sets the reimbursement as completed
 		v1.PUT("/cpo/payment/reimbursement/:reimbursement_id/complete", handlers.CpoSetReimbursementComplete)
+
+		//generates PDF for reimbursement id
+		v1.GET("/cpo/payment/download_invoice/:reimbursement_id", handlers.CpoReimbursementGenPdf)
 	}
 
 }
