@@ -57,17 +57,32 @@ func InitializeRoutes() {
 		//gets the CPO history of transactions
 		v1.GET("/cpo/history", handlers.CpoHistory)
 
-		//upload new locations
+
+		//get locations
 		v1.GET("/cpo/locations", handlers.CpoGetLocations)
 
-		//upload new locations
+		//update locations
 		v1.PUT("/cpo/location", handlers.CpoPutLocation)
 
-		//add one location
+		//add locations
 		v1.POST("/cpo/location", handlers.CpoPostLocation)
 
 		//delete a location
 		v1.DELETE("/cpo/location/:locationid", handlers.CpoDeleteLocation)
+
+
+		//get tariffs
+		v1.GET("/cpo/tariffs", handlers.CpoGetTariffs)
+
+		//update tariff
+		v1.PUT("/cpo/tariff", handlers.CpoPutTariff)
+
+		//add tariff
+		v1.POST("/cpo/tariff", handlers.CpoPostTariff)
+
+		//delete a tariff
+		v1.DELETE("/cpo/tariff/:tariffid", handlers.CpoDeleteTariff)
+
 
 		//add one evse
 		v1.POST("/cpo/evse", handlers.CpoPostEvse)

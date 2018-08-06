@@ -46,3 +46,20 @@ type Location struct {
 	} `json:"coordinates"`
 	Evses []Evse `json:"evses"`
 }
+
+
+type Tariff struct {
+	Num666 struct {
+		ID       string `json:"id"`
+		Currency string `json:"currency"`
+		Elements []struct {
+			PriceComponents struct {
+				Type  string  `json:"type"`
+				Price float64 `json:"price"`
+			} `json:"priceComponents"`
+			Restrictions struct {
+			} `json:"restrictions"`
+		} `json:"elements"`
+		LastUpdated time.Time `json:"last_updated"`
+	} `json:"666"`
+}

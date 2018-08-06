@@ -607,6 +607,106 @@ func CpoDeleteLocation(c *gin.Context) {
 
 }
 
+
+
+//=================================
+//=========== TARIFFS =============
+//=================================
+
+
+//gets all tariffs of this CPO
+func CpoGetTariffs(c *gin.Context) {
+
+	config := configs.Load()
+	cpoAddress := config.GetString("cpo.wallet_address")
+	body := tools.GETRequest("http://localhost:3000/api/store/tariffs/" + cpoAddress)
+
+	var tariffs []tools.Tariff
+	err := json.Unmarshal(body, &tariffs)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+
+	if len(tariffs) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "there aren't any tariffs registered with this CPO"})
+		return
+	}
+
+	c.JSON(http.StatusOK, tariffs)
+
+}
+
+//uploads new tariffs and re-writes if they already are present
+func CpoPutTariff(c *gin.Context) {
+	var stations []tools.Tariff
+
+	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jsonValue, err := json.Marshal(stations)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = tools.PUTRequest("http://localhost:3000/api/store/tariffs", jsonValue)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
+
+//uploads new tariff
+func CpoPostTariff(c *gin.Context) {
+	var stations []tools.Tariff
+
+	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jsonValue, err := json.Marshal(stations)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = tools.POSTRequest("http://localhost:3000/api/store/tariffs", jsonValue)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
+}
+
+//deletes a tariff
+func CpoDeleteTariff(c *gin.Context) {
+
+	tariffid := c.Param("tariffid")
+
+	_, err := tools.DELETERequest("http://localhost:3000/api/store/tariffs/" + tariffid)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+
+}
+
+
+
+
 //uploads new location
 func CpoPostEvse(c *gin.Context) {
 	var evse tools.Evse
