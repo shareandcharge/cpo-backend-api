@@ -59,13 +59,16 @@ func GetWalletHistory(c *gin.Context) {
 
 	for _, tx := range transactions {
 		if tx.Value == "0x0" {
+
 			//we have a contract tx
 
 			var txResponse tools.TxReceiptResponse
 			err := tools.MDB.QueryRowx("SELECT * FROM transaction_receipts WHERE transactionHash = ?", tx.Hash).StructScan(&txResponse)
 			tools.ErrorCheck(err, "cpo.go", false)
-			calculatedGas :=  tools.HexToUInt(txResponse.GasUsed) *  tools.HexToUInt(tx.GasPrice)
-			histories = append(histories, History{Block:tx.BlockNumber,FromAddr:tx.From,ToAddr:tx.To,Amount: calculatedGas, Currency:"wei", CreatedAt: tx.Timestamp, TransactionHash:tx.Hash } )
+
+			//amount = gasUsed * gasPrice
+			calculatedAmount:=  tools.HexToUInt(txResponse.GasUsed) *  tools.HexToUInt(tx.GasPrice)
+			histories = append(histories, History{Block:tx.BlockNumber,FromAddr:tx.From,ToAddr:tx.To,Amount: calculatedAmount, Currency:"wei", CreatedAt: tx.Timestamp, TransactionHash:tx.Hash } )
 
 
 		} else{
