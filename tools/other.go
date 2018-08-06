@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"os/exec"
 	"bufio"
+	"strings"
 )
 
 //read the config file, helper function
@@ -144,6 +145,24 @@ func HexToInt(number string) int64 {
 	}
 	return i
 }
+
+
+//convert int to hex
+func UIntToHex(number uint64) string {
+	return "0x" + strconv.FormatUint(number, 16)
+
+}
+
+//convert hex to int
+func HexToUInt(hexStr string) uint64 {
+	// remove 0x suffix if found in the input string
+	cleaned := strings.Replace(hexStr, "0x", "", -1)
+
+	// base 16 for hexadecimal
+	result, _ := strconv.ParseUint(cleaned, 16, 64)
+	return uint64(result)
+}
+
 
 //generate sha1 hash from interface{}
 func GetSha1Hash(payload interface{}) string {

@@ -66,25 +66,46 @@ func GetWalletHistory(c *gin.Context) {
 // get the history of transaction for ETH (EV Coin)
 func GetWalletHistoryEVCoin(c *gin.Context){
 	addr := c.Param("addr")
-
+	log.Info("querying for %s", addr)
 	type History struct {
-		Id              int    `json:"id" db:"id"`
 		Block           int    `json:"block" db:"block"`
 		FromAddr        string `json:"from_addr" db:"from_addr"`
 		ToAddr          string `json:"to_addr" db:"to_addr"`
 		Amount          uint64 `json:"amount" db:"amount"`
 		Currency        string `json:"currency" db:"currency"`
-		GasUsed         uint64 `json:"gas_used" db:"gas_used"`
-		GasPrice        uint64 `json:"gas_price" db:"gas_price"`
 		CreatedAt       uint64 `json:"created_at" db:"created_at"`
 		TransactionHash string `json:"transaction_hash" db:"transaction_hash"`
 	}
 	var histories []History
 
-	err := tools.MDB.Select(&histories, "SELECT * FROM ethtosql WHERE to_addr = ? AND currency = ? ORDER BY block DESC", addr, "wei")
+	var transactions []tools.TxTransaction
+	err := tools.MDB.Select(&transactions, "SELECT * FROM transactions WHERE (to_addr = ? OR from_addr = ?) ORDER BY blockNumber DESC", addr, addr)
 	tools.ErrorCheck(err, "cpo.go", false)
 
-	c.JSON(http.StatusOK, histories)
+	for _, tx := range transactions {
+		if tx.Value == "0x0" {
+			//we have a contract tx
+
+			var txResponse tools.TxReceiptResponse
+			err := tools.MDB.QueryRowx("SELECT * FROM transaction_receipts WHERE transactionHash = ?", tx.Hash).StructScan(&txResponse)
+			tools.ErrorCheck(err, "cpo.go", false)
+			calculatedGas :=  tools.HexToUInt(txResponse.GasUsed) *  tools.HexToUInt(tx.GasPrice)
+			histories = append(histories, History{Block:tx.BlockNumber,FromAddr:tx.From,ToAddr:tx.To,Amount: calculatedGas, Currency:"wei", CreatedAt: tx.Timestamp, TransactionHash:tx.Hash } )
+
+
+		} else{
+			//we have eth transfer
+			histories = append(histories, History{Block:tx.BlockNumber,FromAddr:tx.From,ToAddr:tx.To,Amount: tools.HexToUInt(tx.Value), Currency:"wei", CreatedAt: tx.Timestamp, TransactionHash:tx.Hash } )
+		}
+	}
+
+	//query1 := "SELECT * FROM transactions WHERE from_addr = "0x7b0f2b531c018d4269a95561cfb4e038a7e3c8dc" OR to_addr="0x7b0f2b531c018d4269a95561cfb4e038a7e3c8dc" ORDER BY timestamp DESC"
+	//if Value = 0x0
+	
+	//query2 := "SELECT * FROM transactions WHERE from_addr = "0x7b0f2b531c018d4269a95561cfb4e038a7e3c8dc" OR to_addr="0x7b0f2b531c018d4269a95561cfb4e038a7e3c8dc" ORDER BY timestamp DESC"
+
+
+	 c.JSON(http.StatusOK, histories)
 }
 
 //Returns a list of all drivers

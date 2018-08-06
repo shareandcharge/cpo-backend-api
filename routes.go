@@ -32,7 +32,7 @@ func InitializeRoutes() {
 		v1.GET("/drivers", handlers.GetAllDrivers)
 
 
-		//shows the history of an wallet
+		//shows the history of an wallet, (for drivers
 		v1.GET("/wallet/:addr/history", handlers.GetWalletHistory)
 
 		//shows the history of an wallet
