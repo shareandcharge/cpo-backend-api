@@ -31,10 +31,6 @@ func InitializeRoutes() {
 		//returns a list of all EV Drivers with their details & balances
 		v1.GET("/drivers", handlers.GetAllDrivers)
 
-
-		//shows the history of an wallet, (for drivers
-		v1.GET("/wallet/:addr/history", handlers.GetWalletHistory)
-
 		//shows the history of an wallet
 		v1.GET("/wallet/:addr/history/evcoin", handlers.GetWalletHistoryEVCoin)
 
@@ -54,10 +50,6 @@ func InitializeRoutes() {
 		//displays the mnemonic seed for the cpo
 		v1.GET("/cpo/wallet/seed", handlers.CpoGetSeed)
 
-		//gets the CPO history of transactions
-		v1.GET("/cpo/history", handlers.CpoHistory)
-
-
 		//get locations
 		v1.GET("/cpo/locations", handlers.CpoGetLocations)
 
@@ -69,7 +61,6 @@ func InitializeRoutes() {
 
 		//delete a location
 		v1.DELETE("/cpo/location/:locationid", handlers.CpoDeleteLocation)
-
 
 		//get tariffs
 		v1.GET("/cpo/tariffs", handlers.CpoGetTariffs)
@@ -83,18 +74,13 @@ func InitializeRoutes() {
 		//delete a tariff
 		v1.DELETE("/cpo/tariff/:tariffid", handlers.CpoDeleteTariff)
 
-
 		//add one evse
 		v1.POST("/cpo/evse", handlers.CpoPostEvse)
-
-		//get history of transactions from msp
-		v1.GET("/cpo/transactions/from_msp", handlers.CpoTransactionFromMsp)
 
 		//~~~~ PAYMENTS SECTION ~~~~
 
 		//  my wallet page
 		v1.GET("/cpo/payment/wallet", handlers.CpoPaymentWallet)
-
 
 		v1.GET("/cpo/payment/cdr/:token", handlers.CpoPaymentCDR)
 

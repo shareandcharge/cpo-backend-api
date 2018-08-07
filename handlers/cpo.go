@@ -13,6 +13,7 @@ import (
 	"time"
 	"strconv"
 	"io/ioutil"
+	"math/rand"
 )
 
 func CpoCreate(c *gin.Context) {
@@ -100,32 +101,6 @@ func CpoPaymentWallet(c *gin.Context) {
 	walletRecords = append(walletRecords, record)
 
 	c.JSON(http.StatusOK, walletRecords)
-}
-
-//see a list of transactions from a particular msp
-func CpoTransactionFromMsp(c *gin.Context) {
-
-	type History struct {
-		Id              int    `json:"id" db:"id"`
-		Block           int    `json:"block" db:"block"`
-		FromAddr        string `json:"from_addr" db:"from_addr"`
-		ToAddr          string `json:"to_addr" db:"to_addr"`
-		Amount          uint64 `json:"amount" db:"amount"`
-		Currency        string `json:"currency" db:"currency"`
-		GasUsed         uint64 `json:"gas_used" db:"gas_used"`
-		GasPrice        uint64 `json:"gas_price" db:"gas_price"`
-		CreatedAt       uint64 `json:"created_at" db:"created_at"`
-		TransactionHash string `json:"transaction_hash" db:"transaction_hash"`
-	}
-	var histories []History
-
-	config := configs.Load()
-	cpoWallet := config.GetString("cpo.wallet_address")
-
-	err := tools.MDB.Select(&histories, "SELECT * FROM ethtosql WHERE to_addr = ? AND currency = ? ORDER BY block DESC", cpoWallet, "Charge & Fuel Token")
-	tools.ErrorCheck(err, "cpo.go", false)
-
-	c.JSON(http.StatusOK, histories)
 }
 
 // creates a Reimbursement
@@ -312,6 +287,8 @@ func CpoPaymentCDR(c *gin.Context) {
 		End              string `json:"end"`
 		FinalPrice       string `json:"finalPrice"`
 		TokenContract    string `json:"tokenContract"`
+		Tariff    string `json:"tariff"`
+		ChargedUnits string `json:"chargedUnits"`
 		ChargingContract string `json:"chargingContract"`
 		TransactionHash  string `json:"transactionHash"`
 		Currency         string `json:"currency"`
@@ -327,21 +304,11 @@ func CpoPaymentCDR(c *gin.Context) {
 		return
 	}
 
-	drivers, err := tools.ReturnAllDrivers()
-	tools.ErrorCheck(err, "cpo.go", false)
-
 	var cdrsOutput []CDR
 
 	for _, cdr := range cdrs {
 
-		//map driver email to address
-		for _, driver := range drivers {
-			cdr.Currency = "Charge & Fuel Token"
-			if driver.Address == cdr.Controller {
-				cdr.Controller = driver.Email
-				break
-			}
-		}
+		cdr.Currency = "Charge & Fuel Token"
 
 		count := 0
 		row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'")
@@ -414,32 +381,6 @@ func CpoGetSeed(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"seed": cpo.Seed})
 }
 
-//Gets the history for the CPO
-func CpoHistory(c *gin.Context) {
-
-	type History struct {
-		Id              int    `json:"id" db:"id"`
-		Block           int    `json:"block" db:"block"`
-		FromAddr        string `json:"from_addr" db:"from_addr"`
-		ToAddr          string `json:"to_addr" db:"to_addr"`
-		Amount          uint64 `json:"amount" db:"amount"`
-		Currency        string `json:"currency" db:"currency"`
-		GasUsed         uint64 `json:"gas_used" db:"gas_used"`
-		GasPrice        uint64 `json:"gas_price" db:"gas_price"`
-		CreatedAt       uint64 `json:"created_at" db:"created_at"`
-		TransactionHash string `json:"transaction_hash" db:"transaction_hash"`
-	}
-	var histories []History
-
-	config := configs.Load()
-	cpoWallet := config.GetString("cpo.wallet_address")
-
-	err := tools.MDB.Select(&histories, "SELECT * FROM ethtosql WHERE to_addr = ? ORDER BY block DESC", cpoWallet)
-	tools.ErrorCheck(err, "cpo.go", false)
-
-	c.JSON(http.StatusOK, histories)
-}
-
 //=================================
 //========= PDF Generation ========
 //=================================
@@ -470,14 +411,21 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	b, err := ioutil.ReadFile("configs/invoice_template.html")
 	tools.ErrorCheck(err, "cpo.go", false)
 
+	cpo := tools.CPO{}
+	tools.DB.QueryRowx("SELECT * FROM cpo LIMIT 1").StructScan(&cpo)
+	rand.Seed(time.Now().UnixNano())
+	randInt1 := strconv.Itoa(rand.Intn(900000))
+	randInt2 := strconv.Itoa(rand.Intn(500000))
+	randInt3 := strconv.Itoa(rand.Intn(200000))
+
 	htmlTemplateRaw := string(b)
 
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromName}}", "ThePhoenixWorks", 2)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", "59-62R Springfield Centre LS28 5LY", 2)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", "19 July 2018 ", 1)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceNumber}}", "000000001", 1)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{clientReference}}", " S&C000001 ", 1)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{purchaseOrder}}", " S&C000001 ", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromName}}", cpo.Name, 2)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", cpo.Address1+" "+cpo.Address2, 2)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", time.Now().Format(time.RFC822), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceNumber}}", randInt1, 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{clientReference}}", "S&C"+randInt2, 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{purchaseOrder}}", "S&C"+randInt3, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToName}}", "Volkswagen Financial", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToAddress}}", "Services (UKJ) Limited", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToPerson}}", "Milton Keynes", 1)
@@ -488,12 +436,12 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{unit}}", "Tokens", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{price}}", "£ 0,01", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{vat}}", "20%", 1)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{total}}", strconv.Itoa(reimb.Amount), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{total}}", fmt.Sprintf("%.4f", float64(reimb.Amount)*0.001), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{subTotal}}", "£ "+strconv.Itoa(reimb.Amount), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{totalVat}}", "£ "+strconv.Itoa(int(float64(reimb.Amount)*float64(0.20))), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{totalAmount}}", "£ "+strconv.Itoa(int(float64(reimb.Amount)*float64(1.20))), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromPhone}}", "0014 882 739 2282", 1)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromMail}}", "accounting@invoice.com", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromMail}}", cpo.MailAddr, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromWebsite}}", "http://yourwebiste.com", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromBankName}}", "UNICREDIT", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromSortCode}}", "12312", 1)
@@ -607,12 +555,9 @@ func CpoDeleteLocation(c *gin.Context) {
 
 }
 
-
-
 //=================================
 //=========== TARIFFS =============
 //=================================
-
 
 //gets all tariffs of this CPO
 func CpoGetTariffs(c *gin.Context) {
@@ -703,9 +648,6 @@ func CpoDeleteTariff(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
 
 }
-
-
-
 
 //uploads new location
 func CpoPostEvse(c *gin.Context) {

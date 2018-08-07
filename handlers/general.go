@@ -37,49 +37,6 @@ func GetWalletBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat / 1000000000000000000, "currency": "EV Coin"})
 }
 
-// gets the all history of a wallet
-func GetWalletHistory(c *gin.Context) {
-
-	addr := c.Param("addr")
-
-	type History struct {
-		Block           int    `json:"block" db:"block"`
-		FromAddr        string `json:"from_addr" db:"from_addr"`
-		ToAddr          string `json:"to_addr" db:"to_addr"`
-		Amount          uint64 `json:"amount" db:"amount"`
-		Currency        string `json:"currency" db:"currency"`
-		CreatedAt       uint64 `json:"created_at" db:"created_at"`
-		TransactionHash string `json:"transaction_hash" db:"transaction_hash"`
-	}
-	var histories []History
-
-	var transactions []tools.TxTransaction
-	err := tools.MDB.Select(&transactions, "SELECT * FROM transactions WHERE (to_addr = ? OR from_addr = ?) ORDER BY blockNumber DESC", addr, addr)
-	tools.ErrorCheck(err, "cpo.go", false)
-
-	for _, tx := range transactions {
-		if tx.Value == "0x0" {
-
-			//we have a contract tx
-
-			var txResponse tools.TxReceiptResponse
-			err := tools.MDB.QueryRowx("SELECT * FROM transaction_receipts WHERE transactionHash = ?", tx.Hash).StructScan(&txResponse)
-			tools.ErrorCheck(err, "cpo.go", false)
-
-			//amount = gasUsed * gasPrice
-			calculatedAmount:=  tools.HexToUInt(txResponse.GasUsed) *  tools.HexToUInt(tx.GasPrice)
-			histories = append(histories, History{Block:tx.BlockNumber,FromAddr:tx.From,ToAddr:tx.To,Amount: calculatedAmount, Currency:"wei", CreatedAt: tx.Timestamp, TransactionHash:tx.Hash } )
-
-
-		} else{
-			//we have eth transfer
-			histories = append(histories, History{Block:tx.BlockNumber,FromAddr:tx.From,ToAddr:tx.To,Amount: tools.HexToUInt(tx.Value), Currency:"wei", CreatedAt: tx.Timestamp, TransactionHash:tx.Hash } )
-		}
-	}
-
-
-	c.JSON(http.StatusOK, histories)
-}
 
 
 // get the history of transaction for ETH (EV Coin)

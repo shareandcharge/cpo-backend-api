@@ -9,8 +9,8 @@
   "gasPrice": 1,
   "ethProvider": "http://18.185.85.20:8545",
   "ipfsProvider": {
-    "host": "ipfs.infura.io",
+    "host": "18.184.248.87",
     "port": "5001",
-    "protocol": "https"
+    "protocol": "http"
   }
 }
