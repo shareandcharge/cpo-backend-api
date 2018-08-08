@@ -569,8 +569,8 @@ func CpoGetTariffs(c *gin.Context) {
 	var tariffs []tools.Tariff
 	err := json.Unmarshal(body, &tariffs)
 	if err != nil {
-		log.Panic(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		log.Warn(err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "there aren't any tariffs registered with this CPO"})
 		return
 	}
 
@@ -637,7 +637,8 @@ func CpoPostTariff(c *gin.Context) {
 //deletes tariffs. All of them!
 func CpoDeleteTariffs(c *gin.Context) {
 
-	_, err := tools.PUTRequest("http://localhost:3000/api/store/tariffs", []byte("[]"))
+
+	_, err := tools.DELETERequest("http://localhost:3000/api/store/tariffs")
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
