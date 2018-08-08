@@ -12,8 +12,9 @@ type Driver struct {
 	Email   string        `bson:"email" json:"email"`
 	About   interface{}   `bson:"about" json:"about"`
 	Address string        `bson:"address" json:"address"`
-	Balance float64 `json:"balance"`
-	Token string `json:"token"`
+	Balance float64       `json:"balance"`
+	Token   string        `json:"token"`
+	Index   int           `json:"index"`
 }
 
 // returns a list of all the users from the mobile app

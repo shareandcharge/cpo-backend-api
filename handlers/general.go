@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"github.com/motionwerkGmbH/cpo-backend-api/tools"
-	log "github.com/Sirupsen/logrus"
 	"encoding/json"
+	log "github.com/Sirupsen/logrus"
+	"github.com/gin-gonic/gin"
+	"github.com/motionwerkGmbH/cpo-backend-api/tools"
+	"net/http"
 	"strconv"
 )
 
@@ -37,10 +37,8 @@ func GetWalletBalance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat / 1000000000000000000, "currency": "EV Coin"})
 }
 
-
-
 // get the history of transaction for ETH (EV Coin)
-func GetWalletHistoryEVCoin(c *gin.Context){
+func GetWalletHistoryEVCoin(c *gin.Context) {
 	addr := c.Param("addr")
 
 	type History struct {
@@ -65,18 +63,16 @@ func GetWalletHistoryEVCoin(c *gin.Context){
 			var txResponse tools.TxReceiptResponse
 			err := tools.MDB.QueryRowx("SELECT * FROM transaction_receipts WHERE transactionHash = ?", tx.Hash).StructScan(&txResponse)
 			tools.ErrorCheck(err, "cpo.go", false)
-			calculatedGas :=  tools.HexToUInt(txResponse.GasUsed) *  tools.HexToUInt(tx.GasPrice)
-			histories = append(histories, History{Block:tx.BlockNumber,FromAddr:tx.From,ToAddr:tx.To,Amount: calculatedGas, Currency:"wei", CreatedAt: tx.Timestamp, TransactionHash:tx.Hash } )
+			calculatedGas := tools.HexToUInt(txResponse.GasUsed) * tools.HexToUInt(tx.GasPrice)
+			histories = append(histories, History{Block: tx.BlockNumber, FromAddr: tx.From, ToAddr: tx.To, Amount: calculatedGas, Currency: "wei", CreatedAt: tx.Timestamp, TransactionHash: tx.Hash})
 
-
-		} else{
+		} else {
 			//we have eth transfer
-			histories = append(histories, History{Block:tx.BlockNumber,FromAddr:tx.From,ToAddr:tx.To,Amount: tools.HexToUInt(tx.Value), Currency:"wei", CreatedAt: tx.Timestamp, TransactionHash:tx.Hash } )
+			histories = append(histories, History{Block: tx.BlockNumber, FromAddr: tx.From, ToAddr: tx.To, Amount: tools.HexToUInt(tx.Value), Currency: "wei", CreatedAt: tx.Timestamp, TransactionHash: tx.Hash})
 		}
 	}
 
-
-	 c.JSON(http.StatusOK, histories)
+	c.JSON(http.StatusOK, histories)
 }
 
 //Returns a list of all drivers
@@ -90,12 +86,13 @@ func GetAllDrivers(c *gin.Context) {
 	}
 
 	var mDriversList []tools.Driver
-	for _, driver := range driversList {
+	for k, driver := range driversList {
 		driver.Token = "Charge&Fuel Token"
 
 		body := tools.GETRequest("http://localhost:3000/api/token/balance/" + driver.Address)
 		balanceFloat, _ := strconv.ParseFloat(string(body), 64)
 		driver.Balance = balanceFloat
+		driver.Index = k
 
 		mDriversList = append(mDriversList, driver)
 
