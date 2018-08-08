@@ -3,7 +3,7 @@
   "hostname" : "0.0.0.0",
   "environment": "debug",
   "cpo": {
-    "wallet_address": "0x7b0f2b531c018d4269a95561cfb4e038a7e3c8dc",
-    "wallet_seed": "clever cake author unhappy decade brick wood ring happy expire race try"
+    "wallet_address": "0x00000000000000000000",
+    "wallet_seed": "clever cake .........................."
   }
 }
