@@ -72,7 +72,7 @@ func InitializeRoutes() {
 		v1.POST("/cpo/tariff", handlers.CpoPostTariff)
 
 		//delete a tariff
-		v1.DELETE("/cpo/tariff/:tariffid", handlers.CpoDeleteTariff)
+		v1.DELETE("/cpo/tariffs", handlers.CpoDeleteTariffs)
 
 		//add one evse
 		v1.POST("/cpo/evse", handlers.CpoPostEvse)

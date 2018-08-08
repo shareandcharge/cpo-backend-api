@@ -564,7 +564,7 @@ func CpoGetTariffs(c *gin.Context) {
 
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
-	body := tools.GETRequest("http://localhost:3000/api/store/tariffs/" + cpoAddress)
+	body := tools.GETRequest("http://localhost:3000/api/store/tariffs/" + cpoAddress+ "?raw=true")
 
 	var tariffs []tools.Tariff
 	err := json.Unmarshal(body, &tariffs)
@@ -585,15 +585,15 @@ func CpoGetTariffs(c *gin.Context) {
 
 //uploads new tariffs and re-writes if they already are present
 func CpoPutTariff(c *gin.Context) {
-	var stations []tools.Tariff
+	var tariffs []tools.Tariff
 
-	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
+	if err := c.MustBindWith(&tariffs, binding.JSON); err == nil {
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	jsonValue, err := json.Marshal(stations)
+	jsonValue, err := json.Marshal(tariffs)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -624,7 +624,7 @@ func CpoPostTariff(c *gin.Context) {
 		return
 	}
 
-	_, err = tools.POSTRequest("http://localhost:3000/api/store/tariffs", jsonValue)
+	_, err = tools.POSTRequest("http://localhost:3000/api/store/tariffs?raw=true", jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -634,12 +634,10 @@ func CpoPostTariff(c *gin.Context) {
 
 }
 
-//deletes a tariff
-func CpoDeleteTariff(c *gin.Context) {
+//deletes tariffs. All of them!
+func CpoDeleteTariffs(c *gin.Context) {
 
-	tariffid := c.Param("tariffid")
-
-	_, err := tools.DELETERequest("http://localhost:3000/api/store/tariffs/" + tariffid)
+	_, err := tools.PUTRequest("http://localhost:3000/api/store/tariffs", []byte("[]"))
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

@@ -2,7 +2,7 @@ package tools
 
 import "time"
 
-//TODO:// not working ? check github history
+
 type XLocation struct {
 	ScID     string   `json:"scId"`
 	Location Location `json:"data"`
@@ -46,20 +46,19 @@ type Location struct {
 	Evses []Evse `json:"evses"`
 }
 
+
+
 type Tariff struct {
-	Num666 struct {
-		ID       string `json:"id"`
-		Currency string `json:"currency"`
-		Elements []struct {
-			PriceComponents struct {
-				Type  string  `json:"type"`
-				Price float64 `json:"price"`
-			} `json:"priceComponents"`
-			Restrictions struct {
-			} `json:"restrictions"`
-		} `json:"elements"`
-		LastUpdated time.Time `json:"last_updated"`
-	} `json:"666"`
+	ID       string `json:"id"`
+	Currency string `json:"currency"`
+	Elements []struct {
+		PriceComponents []struct {
+			Type     string  `json:"type"`
+			Price    float64 `json:"price"`
+			StepSize int     `json:"step_size"`
+		} `json:"price_components"`
+	} `json:"elements"`
+	LastUpdated time.Time `json:"last_updated"`
 }
 
 type TxReceiptResponse struct {
