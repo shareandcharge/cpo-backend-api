@@ -328,6 +328,11 @@ func CpoPaymentCDR(c *gin.Context) {
 		return
 	}
 
+	//reverse the cdrOutput to get the latest on top
+	for i, j := 0, len(cdrsOutput)-1; i < j; i, j = i+1, j-1 {
+		cdrsOutput[i], cdrsOutput[j] = cdrsOutput[j], cdrsOutput[i]
+	}
+
 	c.JSON(http.StatusOK, cdrsOutput)
 
 }
