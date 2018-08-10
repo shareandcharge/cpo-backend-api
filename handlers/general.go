@@ -75,32 +75,6 @@ func GetWalletHistoryEVCoin(c *gin.Context) {
 	c.JSON(http.StatusOK, histories)
 }
 
-//Returns a list of all drivers
-func GetAllDrivers(c *gin.Context) {
-
-	driversList, err := tools.ReturnAllDrivers()
-	if err != nil {
-		log.Panic(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
-		return
-	}
-
-	var mDriversList []tools.Driver
-	for k, driver := range driversList {
-		driver.Token = "Charge&Fuel Token"
-
-		body := tools.GETRequest("http://localhost:3000/api/token/balance/" + driver.Address)
-		balanceFloat, _ := strconv.ParseFloat(string(body), 64)
-		driver.Balance = balanceFloat
-		driver.Index = k
-
-		mDriversList = append(mDriversList, driver)
-
-	}
-
-	c.JSON(http.StatusOK, mDriversList)
-}
-
 // getting the token info
 func TokenInfo(c *gin.Context) {
 	type TokenInfo struct {

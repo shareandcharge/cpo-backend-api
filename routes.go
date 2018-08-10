@@ -28,9 +28,6 @@ func InitializeRoutes() {
 		//shows the balance in eth of a wallet
 		v1.GET("/wallet/:addr", handlers.GetWalletBalance)
 
-		//returns a list of all EV Drivers with their details & balances
-		v1.GET("/drivers", handlers.GetAllDrivers)
-
 		//shows the history of an wallet
 		v1.GET("/wallet/:addr/history/evcoin", handlers.GetWalletHistoryEVCoin)
 
