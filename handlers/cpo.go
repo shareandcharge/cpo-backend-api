@@ -509,7 +509,7 @@ func CpoGetLocations(c *gin.Context) {
 }
 
 //uploads new locations and re-writes if they already are present
-func CpoPutLocation(c *gin.Context) {
+func CpoPutLocations(c *gin.Context) {
 	var stations []tools.XLocation
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
@@ -534,7 +534,7 @@ func CpoPutLocation(c *gin.Context) {
 }
 
 //uploads new location
-func CpoPostLocation(c *gin.Context) {
+func CpoPostLocations(c *gin.Context) {
 	var stations []tools.Location
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
@@ -550,6 +550,57 @@ func CpoPostLocation(c *gin.Context) {
 	}
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/store/locations", jsonValue)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
+}
+
+//uploads 1 location
+func CpoPutLocation(c *gin.Context) {
+	var stations []tools.XLocation
+
+	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jsonValue, err := json.Marshal(stations)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = tools.PUTRequest("http://localhost:3000/api/store/location", jsonValue)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
+
+//uploads 1 location
+func CpoPostLocation(c *gin.Context) {
+	var stations []tools.Location
+
+	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jsonValue, err := json.Marshal(stations)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = tools.POSTRequest("http://localhost:3000/api/store/location", jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
