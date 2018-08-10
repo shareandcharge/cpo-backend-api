@@ -50,9 +50,6 @@ func InitializeRoutes() {
 		//get locations
 		v1.GET("/cpo/locations", handlers.CpoGetLocations)
 
-		//update locations
-		v1.PUT("/cpo/locations", handlers.CpoPutLocations)
-
 		//add locations
 		v1.POST("/cpo/locations", handlers.CpoPostLocations)
 
