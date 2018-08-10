@@ -51,7 +51,6 @@ func GETRequest(url string) []byte {
 	}
 
 	if contents, err := ioutil.ReadAll(res.Body); err == nil {
-		log.Info("GET Request Returned >>> " + string(contents))
 		return contents
 	}
 	return nil

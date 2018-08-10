@@ -486,6 +486,10 @@ func CpoGetLocations(c *gin.Context) {
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
 	body := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress)
+	if body == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
 
 	var locations []tools.XLocation
 	err := json.Unmarshal(body, &locations)
