@@ -1,20 +1,20 @@
 package tools
 
 import (
-	"github.com/spf13/viper"
-	"net/http"
-	"io/ioutil"
-	log "github.com/Sirupsen/logrus"
-	"time"
-	"context"
-	"bytes"
-	"strconv"
-	"encoding/json"
-	"crypto/sha1"
-	"fmt"
-	"os/exec"
 	"bufio"
+	"bytes"
+	"context"
+	"crypto/sha1"
+	"encoding/json"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"github.com/spf13/viper"
+	"io/ioutil"
+	"net/http"
+	"os/exec"
+	"strconv"
 	"strings"
+	"time"
 )
 
 //read the config file, helper function
@@ -51,6 +51,7 @@ func GETRequest(url string) []byte {
 	}
 
 	if contents, err := ioutil.ReadAll(res.Body); err == nil {
+		log.Info("GET Request Returned >>> " + string(contents))
 		return contents
 	}
 	return nil
@@ -146,7 +147,6 @@ func HexToInt(number string) int64 {
 	return i
 }
 
-
 //convert int to hex
 func UIntToHex(number uint64) string {
 	return "0x" + strconv.FormatUint(number, 16)
@@ -162,7 +162,6 @@ func HexToUInt(hexStr string) uint64 {
 	result, _ := strconv.ParseUint(cleaned, 16, 64)
 	return uint64(result)
 }
-
 
 //generate sha1 hash from interface{}
 func GetSha1Hash(payload interface{}) string {

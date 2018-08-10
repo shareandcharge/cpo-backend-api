@@ -1,19 +1,19 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
-	"github.com/gin-gonic/gin/binding"
-	"fmt"
-	"github.com/motionwerkGmbH/cpo-backend-api/tools"
-	"github.com/motionwerkGmbH/cpo-backend-api/configs"
-	log "github.com/Sirupsen/logrus"
 	"encoding/json"
-	"strings"
-	"time"
-	"strconv"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/motionwerkGmbH/cpo-backend-api/configs"
+	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"io/ioutil"
 	"math/rand"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
 )
 
 func CpoCreate(c *gin.Context) {
@@ -278,17 +278,21 @@ func CpoSetReimbursementComplete(c *gin.Context) {
 func CpoPaymentCDR(c *gin.Context) {
 
 	//tokenAddress := c.Param("token")
+	//config := configs.Load()
+	//cpoAddress := config.GetString("cpo.wallet_address")
 
 	type CDR struct {
 		EvseID           string `json:"evseId"`
 		ScID             string `json:"scId"`
+		LocationName     string `json:"location_name"`
+		LocationAddress  string `json:"location_address"`
 		Controller       string `json:"controller"`
 		Start            string `json:"start"`
 		End              string `json:"end"`
 		FinalPrice       string `json:"finalPrice"`
 		TokenContract    string `json:"tokenContract"`
-		Tariff    string `json:"tariff"`
-		ChargedUnits string `json:"chargedUnits"`
+		Tariff           string `json:"tariff"`
+		ChargedUnits     string `json:"chargedUnits"`
 		ChargingContract string `json:"chargingContract"`
 		TransactionHash  string `json:"transactionHash"`
 		Currency         string `json:"currency"`
@@ -316,6 +320,12 @@ func CpoPaymentCDR(c *gin.Context) {
 
 		if count == 0 {
 			log.Info("we have an unprocessed transaction hash " + cdr.TransactionHash)
+
+			//get the location name & address
+			//body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + fmt.Sprintf("0x%x", cdr.EvseID))
+			//var locations []tools.XLocation
+			//err := json.Unmarshal(body, &locations)
+
 			cdrsOutput = append(cdrsOutput, cdr)
 		} else {
 			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in some reimbursement")
@@ -569,7 +579,7 @@ func CpoGetTariffs(c *gin.Context) {
 
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
-	body := tools.GETRequest("http://localhost:3000/api/store/tariffs/" + cpoAddress+ "?raw=true")
+	body := tools.GETRequest("http://localhost:3000/api/store/tariffs/" + cpoAddress + "?raw=true")
 
 	var tariffs []tools.Tariff
 	err := json.Unmarshal(body, &tariffs)
@@ -641,7 +651,6 @@ func CpoPostTariff(c *gin.Context) {
 
 //deletes tariffs. All of them!
 func CpoDeleteTariffs(c *gin.Context) {
-
 
 	_, err := tools.DELETERequest("http://localhost:3000/api/store/tariffs")
 	if err != nil {
