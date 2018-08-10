@@ -536,7 +536,7 @@ func CpoPostLocations(c *gin.Context) {
 
 //uploads 1 location
 func CpoPutLocation(c *gin.Context) {
-	var stations []tools.XLocation
+	var stations tools.XLocation
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
 	} else {
@@ -561,7 +561,7 @@ func CpoPutLocation(c *gin.Context) {
 
 //uploads 1 location
 func CpoPostLocation(c *gin.Context) {
-	var stations []tools.Location
+	var stations tools.Location
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
 	} else {
