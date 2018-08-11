@@ -34,11 +34,11 @@ func ReadConfig(filename string, defaults map[string]interface{}) (*viper.Viper,
 func GETRequest(url string) []byte {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Panicf("%v", err)
+		log.Warnf("%v", err)
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(req.Context(), 200*time.Second)
+	ctx, cancel := context.WithTimeout(req.Context(), 100*time.Second)
 	defer cancel()
 
 	req = req.WithContext(ctx)
@@ -46,7 +46,7 @@ func GETRequest(url string) []byte {
 	client := http.DefaultClient
 	res, err := client.Do(req)
 	if err != nil {
-		log.Panicf("%v", err)
+		log.Warnf("%v", err)
 		return nil
 	}
 

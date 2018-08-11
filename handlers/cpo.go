@@ -108,6 +108,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 
 	//gets the MSP address from url
 	mspAddress := c.Param("msp_address")
+	tokenContract := c.DefaultQuery("tokenContract", "")
 
 	config := configs.Load()
 	cpoWallet := config.GetString("cpo.wallet_address")
@@ -141,7 +142,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 		Currency         string `json:"currency"`
 	}
 
-	body := tools.GETRequest("http://localhost:3000/api/cdr/info") //+ ?tokenContract= tokenAddress
+	body := tools.GETRequest("http://localhost:3000/api/cdr/info")
 
 	var cdrs []CDR
 	err := json.Unmarshal(body, &cdrs)
@@ -151,32 +152,28 @@ func CpoCreateReimbursement(c *gin.Context) {
 		return
 	}
 
-	drivers, err := tools.ReturnAllDrivers()
-	tools.ErrorCheck(err, "cpo.go", false)
-
 	var cdrsOutput []CDR
 
 	for _, cdr := range cdrs {
 
-		//map driver email to address
-		for _, driver := range drivers {
-			cdr.Currency = "Charge & Fuel Token"
-			if driver.Address == cdr.Controller {
-				cdr.Controller = driver.Email
-				break
+		cdr.Currency = "Charge & Fuel Token"
+
+		//TODO: removeme when fixing filtering by token contract is fixed
+		if cdr.TokenContract == tokenContract {
+
+			//is this record already present in some reimbursement ?
+			count := 0
+			row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'")
+			row.Scan(&count)
+
+			if count == 0 {
+				log.Info("we have an unprocessed transaction: " + cdr.TransactionHash)
+				cdrsOutput = append(cdrsOutput, cdr)
+			} else {
+				log.Warn("transaction with hash " + cdr.TransactionHash + " already present in a reimbursement")
 			}
-		}
-
-		//is this record already present in some reimbursement ?
-		count := 0
-		row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'")
-		row.Scan(&count)
-
-		if count == 0 {
-			log.Info("we have an unprocessed transaction: " + cdr.TransactionHash)
-			cdrsOutput = append(cdrsOutput, cdr)
 		} else {
-			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in a reimbursement")
+			log.Warnf("tx doesn't have the required token contract")
 		}
 
 	}
@@ -219,6 +216,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 func CpoGetAllReimbursements(c *gin.Context) {
 
 	status := c.Param("status")
+	reimbursementId := c.DefaultQuery("reimbursement_id", "1")
 
 	config := configs.Load()
 	cpoWallet := config.GetString("cpo.wallet_address")
@@ -236,7 +234,7 @@ func CpoGetAllReimbursements(c *gin.Context) {
 	}
 	var reimb []Reimbursement
 
-	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ? AND status = ?", cpoWallet, status)
+	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE id = ? AND cpo_name = ? AND status = ?", reimbursementId, cpoWallet, status)
 	tools.ErrorCheck(err, "cpo.go", false)
 
 	if len(reimb) == 0 {
@@ -277,7 +275,7 @@ func CpoSetReimbursementComplete(c *gin.Context) {
 // the records for the particular token
 func CpoPaymentCDR(c *gin.Context) {
 
-	//tokenAddress := c.Param("token")
+	tokenAddress := c.Param("token")
 	//config := configs.Load()
 	//cpoAddress := config.GetString("cpo.wallet_address")
 
@@ -313,7 +311,7 @@ func CpoPaymentCDR(c *gin.Context) {
 	for _, cdr := range cdrs {
 
 		cdr.Currency = "Charge & Fuel Token"
-
+		//
 		count := 0
 		row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'")
 		row.Scan(&count)
@@ -321,12 +319,24 @@ func CpoPaymentCDR(c *gin.Context) {
 		if count == 0 {
 			log.Info("we have an unprocessed transaction hash " + cdr.TransactionHash)
 
-			//get the location name & address
-			//body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + fmt.Sprintf("0x%x", cdr.EvseID))
-			//var locations []tools.XLocation
-			//err := json.Unmarshal(body, &locations)
+			//TODO: removeme when fixing filtering by token contract is fixed
+			if cdr.TokenContract == tokenAddress {
 
-			cdrsOutput = append(cdrsOutput, cdr)
+				//get the location name & address
+				//body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + fmt.Sprintf("0x%x", cdr.EvseID))
+				//if body != nil {
+				//	log.Info("Body %s", string(body))
+				//	//var locations []tools.XLocation
+				//	//err := json.Unmarshal(body, &locations)
+				//
+				//	cdrsOutput = append(cdrsOutput, cdr)
+				//}
+
+				cdrsOutput = append(cdrsOutput, cdr)
+
+			} else {
+				log.Warn("tx has another contract than the one requested")
+			}
 		} else {
 			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in some reimbursement")
 		}
