@@ -216,7 +216,6 @@ func CpoCreateReimbursement(c *gin.Context) {
 func CpoGetAllReimbursements(c *gin.Context) {
 
 	status := c.Param("status")
-	reimbursementId := c.DefaultQuery("reimbursement_id", "1")
 
 	config := configs.Load()
 	cpoWallet := config.GetString("cpo.wallet_address")
@@ -234,7 +233,7 @@ func CpoGetAllReimbursements(c *gin.Context) {
 	}
 	var reimb []Reimbursement
 
-	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE id = ? AND cpo_name = ? AND status = ?", reimbursementId, cpoWallet, status)
+	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ? AND status = ?", cpoWallet, status)
 	tools.ErrorCheck(err, "cpo.go", false)
 
 	if len(reimb) == 0 {
@@ -249,6 +248,8 @@ func CpoGetAllReimbursements(c *gin.Context) {
 func CpoSetReimbursementComplete(c *gin.Context) {
 
 	reimbursementId := c.Param("reimbursement_id")
+	reimbursementStatus := c.Param("status")
+
 
 	rows, err := tools.MDB.Query("SELECT id FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
 	tools.ErrorCheck(err, "cpo.go", false)
@@ -261,7 +262,7 @@ func CpoSetReimbursementComplete(c *gin.Context) {
 	}
 
 	query := "UPDATE reimbursements SET status='%s' WHERE reimbursement_id = '%s'"
-	command := fmt.Sprintf(query, "complete", reimbursementId)
+	command := fmt.Sprintf(query, reimbursementStatus, reimbursementId)
 	_, err = tools.MDB.Exec(command)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
