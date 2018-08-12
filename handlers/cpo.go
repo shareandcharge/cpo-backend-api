@@ -548,6 +548,7 @@ func CpoPostLocations(c *gin.Context) {
 //uploads 1 location
 func CpoPutLocation(c *gin.Context) {
 	var stations tools.XLocation
+	scId := c.Param("scid")
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
 	} else {
@@ -561,7 +562,7 @@ func CpoPutLocation(c *gin.Context) {
 		return
 	}
 
-	_, err = tools.PUTRequest("http://localhost:3000/api/store/location", jsonValue)
+	_, err = tools.PUTRequest("http://localhost:3000/api/store/location/"+scId, jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
