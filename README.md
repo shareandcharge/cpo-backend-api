@@ -4,7 +4,7 @@ For any questions, please ask :)
 
 ## REST endpoints list :crystal_ball:
 
-Please ask me (Andy) for the latest POSTMAN collection
+I suggest you to use POSTMAN. Please ask me (Andy) for the latest POSTMAN collections
 
 
 ## Install Guide :sun_with_face:
@@ -32,7 +32,12 @@ test it: ~/go/src/github.com/golang/example/hello$ go run hello.go
 
 3. Under your GOPATH (ex: /home/you/go/)
 
-create the directory ~/go/src/github.com/motionwerkGmbH/
+create the directory 
+
+~~~~
+cd ~
+mkdir go src github.com motionwerkGmbH
+~~~~
 
 into that directory run: git clone git@github.com:motionwerkGmbH/cpo-backend-api.git (remember to have this command work, you need to add your ssh key into github)
 
