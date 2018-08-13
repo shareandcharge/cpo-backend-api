@@ -487,16 +487,16 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{vatNumber}}", "321ADF23", 1)
 
 	//write it to a file
-	ioutil.WriteFile("static/invoice_1.html", []byte(htmlTemplateRaw), 0644)
+	ioutil.WriteFile("static/invoice_"+reimbursement_id+".html", []byte(htmlTemplateRaw), 0644)
 
 	//convert it to pdf
-	err = tools.GeneratePdf("static/invoice_1.html", "static/invoice_1.pdf")
+	err = tools.GeneratePdf("static/invoice_"+reimbursement_id+".html", "static/invoice_"+reimbursement_id+".pdf")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"redirect": "http://{{server_addr}}:{{server_port}}/static/invoice_1.pdf"})
+	c.JSON(http.StatusOK, gin.H{"redirect": "http://{{server_addr}}:{{server_port}}/static/invoice_"+reimbursement_id+".pdf"})
 }
 
 //=================================
