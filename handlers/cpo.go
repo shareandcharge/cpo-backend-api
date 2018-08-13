@@ -244,8 +244,11 @@ func CpoGetAllReimbursements(c *gin.Context) {
 	c.JSON(http.StatusOK, reimb)
 }
 
+
+
+
 // marks the reimbursement as complete
-func CpoSetReimbursementComplete(c *gin.Context) {
+func CpoSetReimbursementStatus(c *gin.Context) {
 
 	reimbursementId := c.Param("reimbursement_id")
 	reimbursementStatus := c.Param("status")
@@ -269,7 +272,16 @@ func CpoSetReimbursementComplete(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "complete"})
+	if reimbursementStatus == "complete" {
+		_, err := tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/10", nil)
+		if err != nil {
+			log.Panic(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": reimbursementStatus + " and 10 tokens transferred to the MSP address"})
 
 }
 

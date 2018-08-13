@@ -82,6 +82,7 @@ func InitializeRoutes() {
 		//  my wallet page
 		v1.GET("/cpo/payment/wallet", handlers.CpoPaymentWallet)
 
+		// the records for the particular token
 		v1.GET("/cpo/payment/cdr/:token", handlers.CpoPaymentCDR)
 
 		//creates new reimbursement
@@ -91,7 +92,7 @@ func InitializeRoutes() {
 		v1.GET("/cpo/payment/reimbursements/:status", handlers.CpoGetAllReimbursements)
 
 		//sets the reimbursement as completed
-		v1.PUT("/cpo/payment/reimbursement/:reimbursement_id/:status", handlers.CpoSetReimbursementComplete)
+		v1.PUT("/cpo/payment/reimbursement/:reimbursement_id/:status", handlers.CpoSetReimbursementStatus)
 
 		//generates PDF for reimbursement id
 		v1.GET("/cpo/payment/download_invoice/:reimbursement_id", handlers.CpoReimbursementGenPdf)
