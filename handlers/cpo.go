@@ -221,6 +221,7 @@ func CpoGetAllReimbursements(c *gin.Context) {
 	cpoWallet := config.GetString("cpo.wallet_address")
 
 	type Reimbursement struct {
+		Index           int    `json:"index"`
 		Id              int    `json:"id" db:"id"`
 		MspName         string `json:"msp_name" db:"msp_name"`
 		CpoName         string `json:"cpo_name" db:"cpo_name"`
@@ -236,23 +237,25 @@ func CpoGetAllReimbursements(c *gin.Context) {
 	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ? AND status = ?", cpoWallet, status)
 	tools.ErrorCheck(err, "cpo.go", false)
 
+	var output []Reimbursement
+	for k, reim := range reimb {
+		reim.Index = k
+		output = append(output, reim)
+	}
+
 	if len(reimb) == 0 {
 		c.JSON(http.StatusOK, []string{})
 		return
 	}
 
-	c.JSON(http.StatusOK, reimb)
+	c.JSON(http.StatusOK, output)
 }
-
-
-
 
 // marks the reimbursement as complete
 func CpoSetReimbursementStatus(c *gin.Context) {
 
 	reimbursementId := c.Param("reimbursement_id")
 	reimbursementStatus := c.Param("status")
-
 
 	rows, err := tools.MDB.Query("SELECT id FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
 	tools.ErrorCheck(err, "cpo.go", false)
@@ -496,7 +499,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"redirect": "http://{{server_addr}}:{{server_port}}/static/invoice_"+reimbursement_id+".pdf"})
+	c.JSON(http.StatusOK, gin.H{"redirect": "http://{{server_addr}}:{{server_port}}/static/invoice_" + reimbursement_id + ".pdf"})
 }
 
 //=================================
