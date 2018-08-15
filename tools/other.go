@@ -1,8 +1,7 @@
 package tools
 
 import (
-	"bufio"
-	"bytes"
+		"bytes"
 	"context"
 	"crypto/sha1"
 	"encoding/json"
@@ -15,7 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-)
+	)
 
 //read the config file, helper function
 func ReadConfig(filename string, defaults map[string]interface{}) (*viper.Viper, error) {
@@ -177,31 +176,19 @@ func GetSha1Hash(payload interface{}) string {
 }
 
 // wkhtmltopdf needs to be installed
-func GeneratePdf(fromFile string, toFile string) error {
+func GeneratePdf(cmd string) error {
 
-	cmd := exec.Command("wkhtmltopdf", fromFile, toFile)
-	cmdReader, err := cmd.StdoutPipe()
+	fmt.Println("command is ",cmd)
+	// splitting head => g++ parts => rest of the command
+	parts := strings.Fields(cmd)
+	head := parts[0]
+	parts = parts[1:]
+	out, err := exec.Command(head,parts...).Output()
 	if err != nil {
 		log.Warnf(err.Error())
+		return err
 	}
-
-	scanner := bufio.NewScanner(cmdReader)
-	go func() {
-		for scanner.Scan() {
-			log.Printf("%s\n", scanner.Text())
-		}
-	}()
-
-	err = cmd.Start()
-	if err != nil {
-		log.Warnf(err.Error())
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		log.Warnf(err.Error())
-	}
-
+	fmt.Printf("%s", out)
 	return nil
 }
 
