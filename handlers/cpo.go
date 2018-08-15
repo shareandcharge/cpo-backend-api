@@ -196,9 +196,12 @@ func CpoCreateReimbursement(c *gin.Context) {
 		}
 	}
 
-	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, cdr_records, txs_number)" +
-		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s',%d)"
-	command := fmt.Sprintf(query, mspAddress, cpoWallet, totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(cdrsOutput), time.Time.Unix(time.Now()), string(cdrsOutputBytes), len(cdrsOutput))
+	//get the external ip of the server
+	external_ip := tools.GetExternalIp()
+
+	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, cdr_records, txs_number, server_addr)" +
+		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s',%d,'%s')"
+	command := fmt.Sprintf(query, mspAddress, cpoWallet, totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(cdrsOutput), time.Time.Unix(time.Now()), string(cdrsOutputBytes), len(cdrsOutput), string(external_ip)+":9090/api/v1")
 	_, err = tools.MDB.Exec(command)
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
@@ -292,8 +295,8 @@ func CpoSetReimbursementStatus(c *gin.Context) {
 func CpoPaymentCDR(c *gin.Context) {
 
 	tokenAddress := c.Param("token")
-	//config := configs.Load()
-	//cpoAddress := config.GetString("cpo.wallet_address")
+	config := configs.Load()
+	cpoAddress := config.GetString("cpo.wallet_address")
 
 	type CDR struct {
 		EvseID           string `json:"evseId"`
@@ -339,14 +342,21 @@ func CpoPaymentCDR(c *gin.Context) {
 			if cdr.TokenContract == tokenAddress {
 
 				//get the location name & address
-				//body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + fmt.Sprintf("0x%x", cdr.EvseID))
-				//if body != nil {
-				//	log.Info("Body %s", string(body))
-				//	//var locations []tools.XLocation
-				//	//err := json.Unmarshal(body, &locations)
-				//
-				//	cdrsOutput = append(cdrsOutput, cdr)
-				//}
+				body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + fmt.Sprintf("0x%x", cdr.EvseID))
+				if body != nil {
+					log.Info("Body %s", string(body))
+					var locations []tools.XLocation
+					err := json.Unmarshal(body, &locations)
+					if err != nil {
+						log.Warnf(err.Error())
+					}else{
+						log.Info(">>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<")
+						log.Info(locations)
+						log.Info(">>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<")
+					}
+
+					cdrsOutput = append(cdrsOutput, cdr)
+				}
 
 				cdrsOutput = append(cdrsOutput, cdr)
 

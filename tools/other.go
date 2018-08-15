@@ -204,3 +204,30 @@ func GeneratePdf(fromFile string, toFile string) error {
 
 	return nil
 }
+
+
+// return the external ip
+func GetExternalIp() []byte {
+	req, err := http.NewRequest("GET", "http://ipecho.net/plain", nil)
+	if err != nil {
+		log.Warnf("%v", err)
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(req.Context(), 20*time.Second)
+	defer cancel()
+
+	req = req.WithContext(ctx)
+
+	client := http.DefaultClient
+	res, err := client.Do(req)
+	if err != nil {
+		log.Warnf("%v", err)
+		return nil
+	}
+
+	if contents, err := ioutil.ReadAll(res.Body); err == nil {
+		return contents
+	}
+	return nil
+}
