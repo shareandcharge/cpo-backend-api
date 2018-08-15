@@ -197,11 +197,11 @@ func CpoCreateReimbursement(c *gin.Context) {
 	}
 
 	//get the external ip of the server
-	external_ip := tools.GetExternalIp()
+	externalIp := "http://" + string(tools.GetExternalIp()) + ":9090/api/v1"
 
 	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, cdr_records, txs_number, server_addr)" +
 		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s',%d,'%s')"
-	command := fmt.Sprintf(query, mspAddress, cpoWallet, totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(cdrsOutput), time.Time.Unix(time.Now()), string(cdrsOutputBytes), len(cdrsOutput), string(external_ip)+":9090/api/v1")
+	command := fmt.Sprintf(query, mspAddress, cpoWallet, totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(cdrsOutput), time.Time.Unix(time.Now()), string(cdrsOutputBytes), len(cdrsOutput), externalIp)
 	_, err = tools.MDB.Exec(command)
 	if err != nil {
 		if strings.Contains(err.Error(), "Duplicate entry") {
