@@ -182,7 +182,7 @@ func GeneratePdf(fromFile string, toFile string) error {
 	cmd := exec.Command("wkhtmltopdf", fromFile, toFile)
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
-		return err
+		log.Warnf(err.Error())
 	}
 
 	scanner := bufio.NewScanner(cmdReader)
@@ -194,12 +194,12 @@ func GeneratePdf(fromFile string, toFile string) error {
 
 	err = cmd.Start()
 	if err != nil {
-		return err
+		log.Warnf(err.Error())
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		return err
+		log.Warnf(err.Error())
 	}
 
 	return nil
