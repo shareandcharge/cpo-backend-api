@@ -467,7 +467,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 
 	cpo := tools.CPO{}
 	tools.DB.QueryRowx("SELECT * FROM cpo LIMIT 1").StructScan(&cpo)
-	log.Info(">> CPO : >>> ")
+
 	log.Info(cpo)
 	rand.Seed(time.Now().UnixNano())
 	randInt1 := strconv.Itoa(rand.Intn(900000))
@@ -504,9 +504,6 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAccountNumber}}", "123 345 532", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{vatNumber}}", "321ADF23", 1)
 
-	log.Info(">>> html templATE")
-
-	log.Info(htmlTemplateRaw)
 
 	//write it to a file
 	ioutil.WriteFile("static/invoice_"+reimbursementId+".html", []byte(htmlTemplateRaw), 0644)
