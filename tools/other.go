@@ -176,10 +176,10 @@ func GetSha1Hash(payload interface{}) string {
 }
 
 // wkhtmltopdf needs to be installed
-func GeneratePdf(cmd string) error {
+func GeneratePdf(reimbursementId string) error {
 
 
-	output, err := exec.Command(cmd).CombinedOutput()
+	output, err := exec.Command("wkhtmltopdf", "home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/invoice_"+reimbursementId+".html", "home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/invoice_"+reimbursementId+".pdf").CombinedOutput()
 	if err != nil {
 		log.Warnf(err.Error())
 	}
