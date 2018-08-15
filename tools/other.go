@@ -178,17 +178,12 @@ func GetSha1Hash(payload interface{}) string {
 // wkhtmltopdf needs to be installed
 func GeneratePdf(cmd string) error {
 
-	log.Info("command is ",cmd)
-	// splitting head => g++ parts => rest of the command
-	parts := strings.Fields(cmd)
-	head := parts[0]
-	parts = parts[1:]
-	out, err := exec.Command(head,parts...).Output()
+
+	output, err := exec.Command(cmd).CombinedOutput()
 	if err != nil {
 		log.Warnf(err.Error())
-		return err
 	}
-	fmt.Printf("%s", out)
+	log.Info(string(output))
 	return nil
 }
 
