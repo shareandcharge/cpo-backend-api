@@ -179,7 +179,7 @@ func GetSha1Hash(payload interface{}) string {
 func GeneratePdf(reimbursementId string) error {
 
 
-	output, err := exec.Command("xvfb-run", "wkhtmltopdf", "home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/invoice_"+reimbursementId+".html", "home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/invoice_"+reimbursementId+".pdf").CombinedOutput()
+	output, err := exec.Command("wkhtmltopdf", "home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/invoice_"+reimbursementId+".html", "home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/invoice_"+reimbursementId+".pdf").CombinedOutput()
 	if err != nil {
 		log.Warnf(err.Error())
 	}
