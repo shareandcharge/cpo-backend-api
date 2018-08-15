@@ -178,7 +178,7 @@ func GetSha1Hash(payload interface{}) string {
 // wkhtmltopdf needs to be installed
 func GeneratePdf(cmd string) error {
 
-	fmt.Println("command is ",cmd)
+	log.Info("command is ",cmd)
 	// splitting head => g++ parts => rest of the command
 	parts := strings.Fields(cmd)
 	head := parts[0]
