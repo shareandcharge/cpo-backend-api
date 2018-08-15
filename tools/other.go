@@ -14,7 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	)
+	"bufio"
+)
 
 //read the config file, helper function
 func ReadConfig(filename string, defaults map[string]interface{}) (*viper.Viper, error) {
@@ -176,14 +177,31 @@ func GetSha1Hash(payload interface{}) string {
 }
 
 // wkhtmltopdf needs to be installed
-func GeneratePdf(reimbursementId string) error {
+func GeneratePdf(fromFile string, toFile string) error {
 
-
-	output, err := exec.Command("xvfb-run", "wkhtmltopdf", "home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/invoice_"+reimbursementId+".html", "home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/invoice_"+reimbursementId+".pdf").CombinedOutput()
+	cmd := exec.Command("wkhtmltopdf", fromFile, toFile)
+	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Warnf(err.Error())
+		return err
 	}
-	log.Info(string(output))
+
+	scanner := bufio.NewScanner(cmdReader)
+	go func() {
+		for scanner.Scan() {
+			log.Printf("%s\n", scanner.Text())
+		}
+	}()
+
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
