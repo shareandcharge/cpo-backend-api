@@ -507,6 +507,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 
 	//write it to a file
 	ioutil.WriteFile("static/invoice_"+reimbursementId+".html", []byte(htmlTemplateRaw), 0644)
+	time.Sleep(time.Second * 1)
 
 	//convert it to pdf
 	log.Info("trying to convert it to pdf.........")
