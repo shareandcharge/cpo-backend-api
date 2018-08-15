@@ -437,7 +437,7 @@ func CpoGetSeed(c *gin.Context) {
 //=================================
 
 func CpoReimbursementGenPdf(c *gin.Context) {
-	reimbursementId := c.Param("reimbursementId")
+	reimbursementId := c.Param("reimbursement_id")
 	log.Info("Trying to generate PDF with reimbursement id " + reimbursementId)
 
 	type Reimbursement struct {
