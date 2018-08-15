@@ -510,7 +510,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 
 	//convert it to pdf
 	//convert it to pdf
-	err = tools.GeneratePdf("static/invoice_"+reimbursementId+".html", "static/invoice_"+reimbursementId+".pdf")
+	err = tools.GeneratePdf("http://localhost:9090/static/invoice_"+reimbursementId+".html", "static/invoice_"+reimbursementId+".pdf")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
