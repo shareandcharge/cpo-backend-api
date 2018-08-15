@@ -467,6 +467,8 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 
 	cpo := tools.CPO{}
 	tools.DB.QueryRowx("SELECT * FROM cpo LIMIT 1").StructScan(&cpo)
+	log.Info(">> CPO : >>> ")
+	log.Info(cpo)
 	rand.Seed(time.Now().UnixNano())
 	randInt1 := strconv.Itoa(rand.Intn(900000))
 	randInt2 := strconv.Itoa(rand.Intn(500000))
