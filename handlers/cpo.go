@@ -504,7 +504,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAccountNumber}}", "123 345 532", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{vatNumber}}", "321ADF23", 1)
 
-	reimbursementId = "1"
+
 	//write it to a file
 	ioutil.WriteFile("static/invoice_"+reimbursementId+".html", []byte(htmlTemplateRaw), 0644)
 	time.Sleep(time.Second * 1)
@@ -513,7 +513,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	log.Info("trying to convert it to pdf.........")
 	err = tools.GeneratePdf("static/invoice_"+reimbursementId+".html", "static/invoice_"+reimbursementId+".pdf")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
