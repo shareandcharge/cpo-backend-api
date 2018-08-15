@@ -449,6 +449,8 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 		Status          string `json:"status" db:"status"`
 		ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
 		CdrRecords      string `json:"cdr_records" db:"cdr_records"`
+		ServerAddr      string `json:"server_addr" db:"server_addr"`
+		TxNumber      string `json:"txs_number" db:"txs_number"`
 	}
 	var reimb Reimbursement
 
