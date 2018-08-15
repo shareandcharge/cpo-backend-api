@@ -437,7 +437,8 @@ func CpoGetSeed(c *gin.Context) {
 //=================================
 
 func CpoReimbursementGenPdf(c *gin.Context) {
-	reimbursement_id := c.Param("reimbursement_id")
+	reimbursementId := c.Param("reimbursementId")
+	log.Info("Trying to generate PDF with reimbursement id " + reimbursementId)
 
 	type Reimbursement struct {
 		Id              int    `json:"id" db:"id"`
@@ -447,16 +448,16 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 		Currency        string `json:"currency" db:"currency"`
 		Timestamp       int    `json:"timestamp" db:"timestamp"`
 		Status          string `json:"status" db:"status"`
-		ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
+		ReimbursementId string `json:"reimbursementId" db:"reimbursementId"`
 		CdrRecords      string `json:"cdr_records" db:"cdr_records"`
 		ServerAddr      string `json:"server_addr" db:"server_addr"`
 		TxNumber      string `json:"txs_number" db:"txs_number"`
 	}
 	var reimb Reimbursement
 
-	err := tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE reimbursement_id = ? LIMIT 1", reimbursement_id).StructScan(&reimb)
+	err := tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE reimbursement_id = ? LIMIT 1", reimbursementId).StructScan(&reimb)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -502,16 +503,16 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{vatNumber}}", "321ADF23", 1)
 
 	//write it to a file
-	ioutil.WriteFile("static/invoice_"+reimbursement_id+".html", []byte(htmlTemplateRaw), 0644)
+	ioutil.WriteFile("static/invoice_"+reimbursementId+".html", []byte(htmlTemplateRaw), 0644)
 
 	//convert it to pdf
-	err = tools.GeneratePdf("static/invoice_"+reimbursement_id+".html", "static/invoice_"+reimbursement_id+".pdf")
+	err = tools.GeneratePdf("static/invoice_"+reimbursementId+".html", "static/invoice_"+reimbursementId+".pdf")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"redirect": "http://{{server_addr}}:{{server_port}}/static/invoice_" + reimbursement_id + ".pdf"})
+	c.JSON(http.StatusOK, gin.H{"redirect": "http://{{server_addr}}:{{server_port}}/static/invoice_" + reimbursementId + ".pdf"})
 }
 
 //=================================
