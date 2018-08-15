@@ -197,7 +197,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	}
 
 	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, cdr_records, txs_number)" +
-		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s')"
+		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s',%d)"
 	command := fmt.Sprintf(query, mspAddress, cpoWallet, totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(cdrsOutput), time.Time.Unix(time.Now()), string(cdrsOutputBytes), len(cdrsOutput))
 	_, err = tools.MDB.Exec(command)
 	if err != nil {
