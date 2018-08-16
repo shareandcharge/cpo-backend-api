@@ -11,8 +11,8 @@ var MDB *sqlx.DB
 func MySQLConnect(dbName string) {
 
 	//hardcoded, for now
-	MDB, err := sqlx.Connect("mysql", "andy:hardpassword1@(18.197.172.83:3306)/"+dbName)
-	ErrorCheck(err, "mysql_database.go", true)
+	MDB = sqlx.MustConnect("mysql", "andy:hardpassword1@(18.197.172.83:3306)/blockchain")
+
 
 	//some benchmark should be done here
 	MDB.SetMaxOpenConns(300)
