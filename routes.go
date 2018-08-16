@@ -6,10 +6,7 @@ func InitializeRoutes() {
 
 	v1 := router.Group("/api/v1")
 	{
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~ GENERAL STUFF ~~~~~~~~~~~~~~~~~~~~~~
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		v1.GET("/", handlers.Index)
 
@@ -31,9 +28,7 @@ func InitializeRoutes() {
 		//shows the history of an wallet
 		v1.GET("/wallet/:addr/history/evcoin", handlers.GetWalletHistoryEVCoin)
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~ CPO ~~~~~~~~~~~~~~~~~~~~~~~~~~
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		//gets all the info about an cpo
 		v1.GET("/cpo", handlers.CpoInfo)
@@ -77,7 +72,7 @@ func InitializeRoutes() {
 		//add one evse
 		v1.POST("/cpo/evse", handlers.CpoPostEvse)
 
-		//~~~~ PAYMENTS SECTION ~~~~
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~ CPO PAYMENT ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		//  my wallet page
 		v1.GET("/cpo/payment/wallet", handlers.CpoPaymentWallet)

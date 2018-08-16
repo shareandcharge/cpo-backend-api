@@ -28,7 +28,7 @@ func Load() (*viper.Viper) {
 }
 
 
-//updats the seed in ~/.sharecharge/config.json. Attention, the username is ubuntu. This will not work locally, unless have linux & the username "Ubuntu" :)
+//updates the seed in ~/.sharecharge/config.json. Attention, the username is ubuntu. This will not work locally, unless have linux & the username "Ubuntu" :)
 func UpdateBaseAccountSeedInSCConfig(seed string){
 
 	type ConfigStruct struct {

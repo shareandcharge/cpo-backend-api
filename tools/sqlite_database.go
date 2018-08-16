@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"time"
+	"github.com/motionwerkGmbH/msp-backend-api/tools"
 )
 
 type CPO struct {
@@ -24,7 +25,8 @@ type CPO struct {
 var DB *sqlx.DB
 
 func Connect(dbName string) {
-	DB = sqlx.MustConnect("sqlite3", dbName)
+	DB, err := sqlx.Connect("sqlite3", dbName)
+	tools.ErrorCheck(err, "sqlite_database.go", true)
 
 	//some benchmark should be done here
 	DB.SetMaxOpenConns(300)

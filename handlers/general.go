@@ -13,7 +13,7 @@ func Index(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "Look! It's moving. It's alive. It's alive... It's alive, it's moving, it's alive, it's alive, it's alive, it's alive, IT'S ALIVE! (Frankenstein 1931)"})
 }
 
-//gets the balance for a wallet in Ether (the thing that pays for the gas)
+//gets the balance for a wallet in Ether (EV Coin) (the thing that pays for the gas)
 func GetWalletBalance(c *gin.Context) {
 
 	addr := c.Param("addr")
@@ -27,17 +27,17 @@ func GetWalletBalance(c *gin.Context) {
 	var tBalance TBalance
 	err := json.Unmarshal(body, &tBalance)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
 		return
 	}
 
 	balanceFloat, _ := strconv.ParseFloat(string(tBalance.Balance), 64)
-
 	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat / 1000000000000000000, "currency": "EV Coin"})
 }
 
 // get the history of transaction for ETH (EV Coin)
+//TODO: refactor this not to use mysql, but the FATDB
 func GetWalletHistoryEVCoin(c *gin.Context) {
 	addr := c.Param("addr")
 
@@ -96,7 +96,7 @@ func TokenInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, tokenInfo)
 }
 
-// getting the token info
+// getting the token balance for an /:addr
 func TokenBalance(c *gin.Context) {
 
 	addr := c.Param("addr")
@@ -104,13 +104,13 @@ func TokenBalance(c *gin.Context) {
 
 	body := tools.GETRequest("http://localhost:3000/api/token/balance/" + addr)
 
-	log.Printf("Balance is %s", body)
+	log.Info("Balance for %s is %s", addr, body)
 	balanceFloat, _ := strconv.ParseFloat(string(body), 64)
 	c.JSON(http.StatusOK, gin.H{"balance": balanceFloat})
 
 }
 
-// mint the tokens for the EV Driver
+// mint the tokens for the EV Driver /:addr?amount=100
 func TokenMint(c *gin.Context) {
 
 	addr := c.Param("addr")
@@ -118,14 +118,12 @@ func TokenMint(c *gin.Context) {
 	log.Printf("mint tokens for %s with the amount %s", addr, amount)
 
 	amountFloat, _ := strconv.ParseFloat(string(amount), 64)
-
 	if amountFloat == 0 {
 		c.JSON(http.StatusNotAcceptable, gin.H{"error": "the amount is incorrect"})
 		return
 	}
 
 	values := map[string]interface{}{"driver": addr, "amount": amountFloat}
-
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -161,7 +159,12 @@ func Reinit(c *gin.Context) {
 		);
 `
 
-	tools.DB.MustExec(schema)
-
+	_, err := tools.DB.Exec(schema)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	
 	c.JSON(http.StatusOK, gin.H{"status": "database truncated."})
 }

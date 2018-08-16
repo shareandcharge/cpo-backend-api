@@ -113,20 +113,6 @@ func CpoCreateReimbursement(c *gin.Context) {
 	config := configs.Load()
 	cpoWallet := config.GetString("cpo.wallet_address")
 
-	//-------- gets the History of the account
-
-	type Reimbursement struct {
-		Id              int    `json:"id" db:"id"`
-		MspName         string `json:"msp_name" db:"msp_name"`
-		CpoName         string `json:"cpo_name" db:"cpo_name"`
-		Amount          int    `json:"amount" db:"amount"`
-		Currency        string `json:"currency" db:"currency"`
-		Timestamp       int    `json:"timestamp" db:"timestamp"`
-		Status          string `json:"status" db:"status"`
-		ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
-		History         string `json:"history" db:"history"`
-	}
-
 	// get the history
 
 	type CDR struct {
@@ -223,24 +209,13 @@ func CpoGetAllReimbursements(c *gin.Context) {
 	config := configs.Load()
 	cpoWallet := config.GetString("cpo.wallet_address")
 
-	type Reimbursement struct {
-		Index           int    `json:"index"`
-		Id              int    `json:"id" db:"id"`
-		MspName         string `json:"msp_name" db:"msp_name"`
-		CpoName         string `json:"cpo_name" db:"cpo_name"`
-		Amount          int    `json:"amount" db:"amount"`
-		Currency        string `json:"currency" db:"currency"`
-		Timestamp       int    `json:"timestamp" db:"timestamp"`
-		Status          string `json:"status" db:"status"`
-		ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
-		CdrRecords      string `json:"cdr_records" db:"cdr_records"`
-	}
-	var reimb []Reimbursement
+
+	var reimb []tools.Reimbursement
 
 	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ? AND status = ?", cpoWallet, status)
 	tools.ErrorCheck(err, "cpo.go", false)
 
-	var output []Reimbursement
+	var output []tools.Reimbursement
 	for k, reim := range reimb {
 		reim.Index = k
 		output = append(output, reim)
@@ -439,20 +414,7 @@ func CpoGetSeed(c *gin.Context) {
 func CpoReimbursementGenPdf(c *gin.Context) {
 	reimbursementId := c.Param("reimbursement_id")
 
-	type Reimbursement struct {
-		Id              int    `json:"id" db:"id"`
-		MspName         string `json:"msp_name" db:"msp_name"`
-		CpoName         string `json:"cpo_name" db:"cpo_name"`
-		Amount          int    `json:"amount" db:"amount"`
-		Currency        string `json:"currency" db:"currency"`
-		Timestamp       int    `json:"timestamp" db:"timestamp"`
-		Status          string `json:"status" db:"status"`
-		ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
-		CdrRecords      string `json:"cdr_records" db:"cdr_records"`
-		ServerAddr      string `json:"server_addr" db:"server_addr"`
-		TxNumber      string `json:"txs_number" db:"txs_number"`
-	}
-	var reimb Reimbursement
+	var reimb tools.Reimbursement
 
 	err := tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE reimbursement_id = ? LIMIT 1", reimbursementId).StructScan(&reimb)
 	if err != nil {
@@ -485,7 +447,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToPerson}}", "Milton Keynes", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToCode}}", "MK15 8HG", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDueDate}}", "02 August 2018 ", 1)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{description}}", "Sum of Tokens received through Share&Charge network ", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{description}}", "Sum of Tokens received through Share&Charge Network ", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{quantity}}", strconv.Itoa(reimb.Amount), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{unit}}", "Tokens", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{price}}", "£ 0,01", 1)

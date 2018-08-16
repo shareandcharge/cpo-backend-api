@@ -12,7 +12,7 @@ type CouchDB struct {
 	Db   *couchdb.Database
 }
 
-//gets a couchdb connection
+//gets a CouchDb connection
 func Database(host string, port int) (*CouchDB, error) {
 
 	conn, err := couchdb.NewConnection(host, port, time.Duration(1000*time.Millisecond))

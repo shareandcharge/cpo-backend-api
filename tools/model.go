@@ -139,3 +139,18 @@ type TxTransaction struct {
 	Value            string      `json:"value" db:"x_value"`
 	Timestamp        uint64      `json:"timestamp" db:"timestamp"`
 }
+
+type Reimbursement struct {
+	Index           int    `json:"index"`
+	Id              int    `json:"id" db:"id"`
+	MspName         string `json:"msp_name" db:"msp_name"`
+	CpoName         string `json:"cpo_name" db:"cpo_name"`
+	Amount          int    `json:"amount" db:"amount"`
+	Currency        string `json:"currency" db:"currency"`
+	Timestamp       int    `json:"timestamp" db:"timestamp"`
+	Status          string `json:"status" db:"status"`
+	ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
+	CdrRecords      string `json:"cdr_records" db:"cdr_records"`
+	ServerAddr      string `json:"server_addr" db:"server_addr"`
+	TxNumber      string `json:"txs_number" db:"txs_number"`
+}

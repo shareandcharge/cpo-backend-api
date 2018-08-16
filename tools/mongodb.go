@@ -1,7 +1,6 @@
 package tools
 
 //This class connects to the Charge & Fuel Mobile Application to get a list of the drivers
-
 import (
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
