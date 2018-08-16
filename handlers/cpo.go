@@ -197,7 +197,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	}
 
 	//get the external ip of the server
-	externalIp := "http://" + string(tools.GetExternalIp()) + ":9090/api/v1"
+	externalIp := "http://" + string(tools.GetExternalIp()) + ":9090"
 
 	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, cdr_records, txs_number, server_addr)" +
 		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s',%d,'%s')"

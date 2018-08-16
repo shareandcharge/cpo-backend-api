@@ -179,7 +179,7 @@ func GetSha1Hash(payload interface{}) string {
 // wkhtmltopdf needs to be installed
 func GeneratePdf(fromFile string, toFile string) error {
 
-	cmd := exec.Command("wkhtmltopdf", fromFile, toFile)
+	cmd := exec.Command("html-pdf", fromFile, toFile)
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
