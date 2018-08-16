@@ -293,13 +293,11 @@ func CpoPaymentCDR(c *gin.Context) {
 		tools.ErrorCheck(err, "cpo.go", false)
 
 		if count == 0 {
-			log.Info("we have an unprocessed transaction hash " + cdr.TransactionHash)
 
+			//todo: this should be removed once filtering is fixed
 			if cdr.TokenContract == tokenAddress {
-
 				//get the location name & address
 				body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + cdr.ScID)
-
 				if body != nil {
 
 					var loc tools.Location
@@ -315,9 +313,6 @@ func CpoPaymentCDR(c *gin.Context) {
 				}
 
 				cdrsOutput = append(cdrsOutput, cdr)
-
-			} else {
-				log.Warn("tx has another contract than the one requested")
 			}
 		} else {
 			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in some reimbursement")
