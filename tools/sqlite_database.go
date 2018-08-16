@@ -24,7 +24,7 @@ type CPO struct {
 var DB *sqlx.DB
 
 func Connect(dbName string) {
-	DB := sqlx.MustConnect("sqlite3", dbName)
+	DB = sqlx.MustConnect("sqlite3", dbName)
 
 	//some benchmark should be done here
 	DB.SetMaxOpenConns(300)
