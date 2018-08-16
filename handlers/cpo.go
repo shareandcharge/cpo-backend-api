@@ -475,7 +475,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw := string(b)
 
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromName}}", cpo.Name, 2)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", cpo.Address1+" "+cpo.Address2, 2)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", cpo.Address1+" "+cpo.Address2 + " " + cpo.Town, 2)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", time.Now().Format(time.RFC822), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceNumber}}", randInt1, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{clientReference}}", "S&C"+randInt2, 1)
@@ -496,7 +496,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{totalAmount}}", "£ "+strconv.Itoa(int(float64(reimb.Amount)*float64(1.20))), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromPhone}}", "0014 882 739 2282", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromMail}}", cpo.MailAddr, 1)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromWebsite}}", "http://yourwebiste.com", 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromWebsite}}", cpo.Website, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromBankName}}", "UNICREDIT", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromSortCode}}", "12312", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAccountNumber}}", "123 345 532", 1)
