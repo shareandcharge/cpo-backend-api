@@ -301,7 +301,7 @@ func CpoPaymentCDR(c *gin.Context) {
 				body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + cdr.ScID)
 
 				if body != nil {
-					log.Info("Body %s", string(body))
+
 					var loc tools.Location
 					err := json.Unmarshal(body, &loc)
 					if err != nil {
