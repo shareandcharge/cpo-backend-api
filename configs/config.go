@@ -1,24 +1,24 @@
 package configs
 
 import (
-	"github.com/motionwerkGmbH/cpo-backend-api/tools"
-	"fmt"
-	"github.com/spf13/viper"
-	"os"
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/motionwerkGmbH/cpo-backend-api/tools"
+	"github.com/spf13/viper"
+	"io/ioutil"
+	"os"
 )
 
-func Load() (*viper.Viper) {
+func Load() *viper.Viper {
 	// Configs
 	Config, err := tools.ReadConfig("api_config", map[string]interface{}{
-		"port":     9090,
-		"hostname": "localhost",
+		"port":        9090,
+		"hostname":    "localhost",
 		"environment": "debug",
 		"cpo": map[string]string{
 			"wallet_address": "0x5c9b043d100a8947e614bbfdd8c6077bc7c456d0",
-			"wallet_seed": "distance hover flock tomorrow fault rain decline magic teach impact cart drum",
+			"wallet_seed":    "distance hover flock tomorrow fault rain decline magic teach impact cart drum",
 		},
 	})
 	if err != nil {
@@ -27,9 +27,8 @@ func Load() (*viper.Viper) {
 	return Config
 }
 
-
 //updates the seed in ~/.sharecharge/config.json. Attention, the username is ubuntu. This will not work locally, unless have linux & the username "Ubuntu" :)
-func UpdateBaseAccountSeedInSCConfig(seed string){
+func UpdateBaseAccountSeedInSCConfig(seed string) {
 
 	type ConfigStruct struct {
 		TokenAddress  string `json:"tokenAddress"`
@@ -54,7 +53,6 @@ func UpdateBaseAccountSeedInSCConfig(seed string){
 	log.Printf("%s", byteValue)
 	defer jsonFile.Close()
 
-
 	config := ConfigStruct{}
 	err = json.Unmarshal(byteValue, &config)
 	tools.ErrorCheck(err, "config.go", false)
@@ -65,13 +63,9 @@ func UpdateBaseAccountSeedInSCConfig(seed string){
 	newconfigBytes, err := json.Marshal(config)
 	tools.ErrorCheck(err, "config.go", false)
 
-
 	err = ioutil.WriteFile("/home/ubuntu/.sharecharge/config.json", newconfigBytes, 644)
 	tools.ErrorCheck(err, "config.go", false)
 
 	log.Println("Successfully updated the /home/ubuntu/.sharecharge/config.json")
-
-
-
 
 }

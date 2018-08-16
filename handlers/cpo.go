@@ -196,7 +196,6 @@ func CpoGetAllReimbursements(c *gin.Context) {
 	config := configs.Load()
 	cpoWallet := config.GetString("cpo.wallet_address")
 
-
 	var reimb []tools.Reimbursement
 
 	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ? AND status = ?", cpoWallet, status)
@@ -268,7 +267,6 @@ func CpoPaymentCDR(c *gin.Context) {
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
 
-
 	body := tools.GETRequest("http://localhost:3000/api/cdr/info") //+ ?tokenContract= tokenAddress
 
 	var cdrs []tools.CDR
@@ -303,7 +301,7 @@ func CpoPaymentCDR(c *gin.Context) {
 					err := json.Unmarshal(body, &locations)
 					if err != nil {
 						log.Warnf(err.Error())
-					}else{
+					} else {
 						log.Info(">>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<")
 						log.Info(locations)
 						log.Info(">>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<")
@@ -414,7 +412,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw := string(b)
 
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromName}}", cpo.Name, 2)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", cpo.Address1+" "+cpo.Address2 + " " + cpo.Town, 2)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", cpo.Address1+" "+cpo.Address2+" "+cpo.Town, 2)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", time.Now().Format(time.RFC822), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceNumber}}", randInt1, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{clientReference}}", "S&C"+randInt2, 1)
@@ -441,13 +439,12 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAccountNumber}}", "123 345 532", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{vatNumber}}", "321ADF23", 1)
 
-
 	//write it to a file
 	ioutil.WriteFile("static/invoice_"+reimbursementId+".html", []byte(htmlTemplateRaw), 0644)
 	time.Sleep(time.Second * 1)
 
 	//convert it to pdf
-	log.Info("trying to convert it to pdf -> static/invoice_"+reimbursementId+".html")
+	log.Info("trying to convert it to pdf -> static/invoice_" + reimbursementId + ".html")
 	err = tools.GeneratePdf("static/invoice_"+reimbursementId+".html", "static/invoice_"+reimbursementId+".pdf")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
