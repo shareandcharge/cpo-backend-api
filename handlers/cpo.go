@@ -115,22 +115,9 @@ func CpoCreateReimbursement(c *gin.Context) {
 
 	// get the history
 
-	type CDR struct {
-		EvseID           string `json:"evseId"`
-		ScID             string `json:"scId"`
-		Controller       string `json:"controller"`
-		Start            string `json:"start"`
-		End              string `json:"end"`
-		FinalPrice       string `json:"finalPrice"`
-		TokenContract    string `json:"tokenContract"`
-		ChargingContract string `json:"chargingContract"`
-		TransactionHash  string `json:"transactionHash"`
-		Currency         string `json:"currency"`
-	}
-
 	body := tools.GETRequest("http://localhost:3000/api/cdr/info")
 
-	var cdrs []CDR
+	var cdrs []tools.CDR
 	err := json.Unmarshal(body, &cdrs)
 	if err != nil {
 		log.Panic(err)
@@ -138,7 +125,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 		return
 	}
 
-	var cdrsOutput []CDR
+	var cdrsOutput []tools.CDR
 
 	for _, cdr := range cdrs {
 
@@ -253,8 +240,16 @@ func CpoSetReimbursementStatus(c *gin.Context) {
 		return
 	}
 
+	//if we set it as complete, transfer the coins to the MSP
 	if reimbursementStatus == "complete" {
-		_, err := tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/10", nil)
+
+		var reimb tools.Reimbursement
+		err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
+		tools.ErrorCheck(err, "cpo.go", false)
+
+		log.Warnf("should send now to the msp the ammount %d, modifty the code please", reimb.Amount)
+
+		_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/10", nil)
 		if err != nil {
 			log.Panic(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -273,26 +268,10 @@ func CpoPaymentCDR(c *gin.Context) {
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
 
-	type CDR struct {
-		EvseID           string `json:"evseId"`
-		ScID             string `json:"scId"`
-		LocationName     string `json:"location_name"`
-		LocationAddress  string `json:"location_address"`
-		Controller       string `json:"controller"`
-		Start            string `json:"start"`
-		End              string `json:"end"`
-		FinalPrice       string `json:"finalPrice"`
-		TokenContract    string `json:"tokenContract"`
-		Tariff           string `json:"tariff"`
-		ChargedUnits     string `json:"chargedUnits"`
-		ChargingContract string `json:"chargingContract"`
-		TransactionHash  string `json:"transactionHash"`
-		Currency         string `json:"currency"`
-	}
 
 	body := tools.GETRequest("http://localhost:3000/api/cdr/info") //+ ?tokenContract= tokenAddress
 
-	var cdrs []CDR
+	var cdrs []tools.CDR
 	err := json.Unmarshal(body, &cdrs)
 	if err != nil {
 		log.Panic(err)
@@ -300,7 +279,7 @@ func CpoPaymentCDR(c *gin.Context) {
 		return
 	}
 
-	var cdrsOutput []CDR
+	var cdrsOutput []tools.CDR
 
 	for _, cdr := range cdrs {
 
@@ -407,9 +386,7 @@ func CpoGetSeed(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"seed": cpo.Seed})
 }
 
-//=================================
 //========= PDF Generation ========
-//=================================
 
 func CpoReimbursementGenPdf(c *gin.Context) {
 	reimbursementId := c.Param("reimbursement_id")

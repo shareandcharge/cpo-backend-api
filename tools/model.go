@@ -154,3 +154,21 @@ type Reimbursement struct {
 	ServerAddr      string `json:"server_addr" db:"server_addr"`
 	TxNumber      string `json:"txs_number" db:"txs_number"`
 }
+
+
+type CDR struct {
+	EvseID           string `json:"evseId"`
+	ScID             string `json:"scId"`
+	LocationName     string `json:"location_name"`
+	LocationAddress  string `json:"location_address"`
+	Controller       string `json:"controller"`
+	Start            string `json:"start"`
+	End              string `json:"end"`
+	FinalPrice       string `json:"finalPrice"`
+	TokenContract    string `json:"tokenContract"`
+	Tariff           string `json:"tariff"`
+	ChargedUnits     string `json:"chargedUnits"`
+	ChargingContract string `json:"chargingContract"`
+	TransactionHash  string `json:"transactionHash"`
+	Currency         string `json:"currency"`
+}
