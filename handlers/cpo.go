@@ -343,15 +343,6 @@ func CpoGenerateWallet(c *gin.Context) {
 	}
 	var walletInfo WalletInfo
 
-	//Leave this commented code please
-	//body := tools.GETRequest("http://localhost:3000/api/wallet/create")
-	//log.Printf("<- %s", string(body))
-	//err := json.Unmarshal(body, &walletInfo)
-	//if err != nil {
-	//	log.Panic(err)
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
-	//	return
-	//}
 
 	config := configs.Load()
 	walletInfo.Addr = config.GetString("cpo.wallet_address")
@@ -363,10 +354,6 @@ func CpoGenerateWallet(c *gin.Context) {
 	command := fmt.Sprintf(query, walletInfo.Addr, walletInfo.Seed)
 	tools.DB.MustExec(command)
 
-
-	//update the ~/.sharecharge/config.json (NOT USED, delete in the future probably!)
-
-	//configs.UpdateBaseAccountSeedInSCConfig(walletInfo.Seed)
 
 	c.JSON(http.StatusOK, walletInfo)
 }
@@ -487,7 +474,7 @@ func CpoGetLocations(c *gin.Context) {
 
 }
 
-//uploads new location
+//uploads new locations
 func CpoPostLocations(c *gin.Context) {
 	var stations []tools.Location
 
@@ -504,6 +491,32 @@ func CpoPostLocations(c *gin.Context) {
 	}
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/store/locations", jsonValue)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+
+}
+
+//uploads 1 location
+func CpoPostLocation(c *gin.Context) {
+	var stations tools.Location
+
+	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	jsonValue, err := json.Marshal(stations)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = tools.POSTRequest("http://localhost:3000/api/store/location", jsonValue)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
@@ -539,31 +552,7 @@ func CpoPutLocation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
-//uploads 1 location
-func CpoPostLocation(c *gin.Context) {
-	var stations tools.Location
 
-	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	jsonValue, err := json.Marshal(stations)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	_, err = tools.POSTRequest("http://localhost:3000/api/store/location", jsonValue)
-	if err != nil {
-		log.Panic(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
-
-}
 
 //deletes a location
 func CpoDeleteLocation(c *gin.Context) {

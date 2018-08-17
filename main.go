@@ -40,7 +40,7 @@ func main() {
 	tools.MySQLConnect("blockchain")
 
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	log.Println("~~~~~~~~~~ CPO BACKEND IS RUNNING v: 0.1 ~~~~~~~~~~~~~~~")
+	log.Println("~~~~~~~~~~ CPO BACKEND IS RUNNING v: 0.2 ~~~~~~~~~~~~~~~")
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 	// Serve 'em...
