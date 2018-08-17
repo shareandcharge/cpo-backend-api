@@ -364,8 +364,8 @@ func CpoGenerateWallet(c *gin.Context) {
 	command := fmt.Sprintf(query, walletInfo.Addr, walletInfo.Seed)
 	tools.DB.MustExec(command)
 
-	//update the ~/.sharecharge/config.json
-	configs.UpdateBaseAccountSeedInSCConfig(walletInfo.Seed)
+	//update the ~/.sharecharge/config.json (NOT USED, delete in the future probably!)
+	//configs.UpdateBaseAccountSeedInSCConfig(walletInfo.Seed)
 
 	c.JSON(http.StatusOK, walletInfo)
 }
