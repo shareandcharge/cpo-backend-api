@@ -1,7 +1,7 @@
 package tools
 
 import (
-		"bytes"
+	"bytes"
 	"context"
 	"crypto/sha1"
 	"encoding/json"
@@ -204,7 +204,6 @@ func GeneratePdf(fromFile string, toFile string) error {
 
 	return nil
 }
-
 
 // return the external ip
 func GetExternalIp() []byte {

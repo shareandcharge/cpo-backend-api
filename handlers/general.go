@@ -139,6 +139,7 @@ func TokenMint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
+
 // this will TRUNCATE the database.
 func Reinit(c *gin.Context) {
 
@@ -159,12 +160,7 @@ func Reinit(c *gin.Context) {
 		);
 `
 
-	_, err := tools.DB.Exec(schema)
-	if err != nil {
-		log.Panic(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
-	}
+	tools.DB.MustExec(schema)
 
 	c.JSON(http.StatusOK, gin.H{"status": "database truncated."})
 }

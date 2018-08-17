@@ -279,41 +279,40 @@ func CpoPaymentCDR(c *gin.Context) {
 
 	var cdrsOutput []tools.CDR
 
+	if len(cdrs) == 0 {
+		c.JSON(http.StatusOK, []string{})
+		return
+	}
+
 	for _, cdr := range cdrs {
 
 		cdr.Currency = "Charge & Fuel Token"
-		//
-		count := 0
-		row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'")
-		row.Scan(&count)
+
+		var count int
+		err = tools.MDB.QueryRowx("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'").StructScan(&count)
+		tools.ErrorCheck(err, "cpo.go", false)
 
 		if count == 0 {
-			log.Info("we have an unprocessed transaction hash " + cdr.TransactionHash)
 
-			//TODO: removeme when fixing filtering by token contract is fixed
+			//todo: this should be removed once filtering is fixed
 			if cdr.TokenContract == tokenAddress {
-
 				//get the location name & address
-				body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + fmt.Sprintf("0x%x", cdr.EvseID))
+				body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + cdr.ScID)
 				if body != nil {
-					log.Info("Body %s", string(body))
-					var locations []tools.XLocation
-					err := json.Unmarshal(body, &locations)
+
+					var loc tools.Location
+					err := json.Unmarshal(body, &loc)
 					if err != nil {
 						log.Warnf(err.Error())
 					} else {
-						log.Info(">>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<")
-						log.Info(locations)
-						log.Info(">>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<")
+						log.Info(loc)
+						cdr.LocationName = loc.Name
+						cdr.LocationAddress = loc.City + ", " + loc.Address + ", " + loc.Country
 					}
-
 					cdrsOutput = append(cdrsOutput, cdr)
 				}
 
 				cdrsOutput = append(cdrsOutput, cdr)
-
-			} else {
-				log.Warn("tx has another contract than the one requested")
 			}
 		} else {
 			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in some reimbursement")
