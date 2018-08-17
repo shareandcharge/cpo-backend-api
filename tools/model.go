@@ -15,7 +15,7 @@ type Location struct {
 	Name        string `json:"name"`
 	Address     string `json:"address"`
 	City        string `json:"city"`
-	PostalCode  string `json:"postal_code"`
+	PostalCode  string `json:"postal_code,omitempty"`
 	Country     string `json:"country"`
 	Coordinates struct {
 		Latitude  string `json:"latitude"`
@@ -23,8 +23,8 @@ type Location struct {
 	} `json:"coordinates"`
 	Evses []Evse `json:"evses"`
 	Operator struct {
-		Name string `json:"name"`
-	} `json:"operator"`
+		Name string `json:"name,omitempty"`
+	} `json:"operator,omitempty"`
 	LastUpdated time.Time `json:"last_updated"`
 }
 
@@ -33,20 +33,20 @@ type Evse struct {
 	EvseID         string        `json:"evse_id"`
 	Status         string        `json:"status"`
 	StatusSchedule []interface{} `json:"status_schedule,omitempty"`
-	Capabilities   []string      `json:"capabilities"`
+	Capabilities   []string      `json:"capabilities,omitempty"`
 	Connectors     []struct {
 		ID          string    `json:"id"`
-		Standard    string    `json:"standard"`
-		Format      string    `json:"format"`
-		PowerType   string    `json:"power_type"`
-		Voltage     int       `json:"voltage"`
-		Amperage    int       `json:"amperage"`
+		Standard    string    `json:"standard,omitempty"`
+		Format      string    `json:"format,omitempty"`
+		PowerType   string    `json:"power_type,omitempty"`
+		Voltage     int       `json:"voltage,omitempty"`
+		Amperage    int       `json:"amperage,omitempty"`
 		TariffID    string    `json:"tariff_id"`
-		LastUpdated time.Time `json:"last_updated"`
+		LastUpdated time.Time `json:"last_updated,omitempty"`
 	} `json:"connectors"`
-	PhysicalReference string    `json:"physical_reference"`
-	FloorLevel        string    `json:"floor_level"`
-	LastUpdated       time.Time `json:"last_updated"`
+	PhysicalReference string    `json:"physical_reference,omitempty"`
+	FloorLevel        string    `json:"floor_level,omitempty"`
+	LastUpdated       time.Time `json:"last_updated,omitempty"`
 }
 
 
