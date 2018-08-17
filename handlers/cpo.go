@@ -528,7 +528,7 @@ func CpoPostLocation(c *gin.Context) {
 
 //uploads 1 location
 func CpoPutLocation(c *gin.Context) {
-	var stations tools.XLocation
+	var stations tools.Location
 	scId := c.Param("scid")
 
 	if err := c.MustBindWith(&stations, binding.JSON); err == nil {
@@ -559,7 +559,7 @@ func CpoDeleteLocation(c *gin.Context) {
 
 	locationid := c.Param("locationid")
 
-	_, err := tools.DELETERequest("http://localhost:3000/api/store/locations/" + locationid)
+	_, err := tools.DELETERequest("http://localhost:3000/api/store/location/" + locationid)
 	if err != nil {
 		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
