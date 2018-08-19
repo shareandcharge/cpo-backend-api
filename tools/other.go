@@ -189,7 +189,7 @@ func GeneratePdf(fromFile string, toFile string) error {
 	scanner := bufio.NewScanner(cmdReader)
 	go func() {
 		for scanner.Scan() {
-			log.Printf("%s\n", scanner.Text())
+			log.Printf("everything looks good -> %s\n", scanner.Text())
 		}
 	}()
 
