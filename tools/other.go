@@ -180,7 +180,7 @@ func GetSha1Hash(payload interface{}) string {
 func GeneratePdf(fromFile string, toFile string) error {
 
 
-	cmd := exec.Command("google-chrome-stable  --headless --disable-gpu --virtual-time-budget=1000 --print-to-pdf=out.pdf " + fromFile)
+	cmd := exec.Command("google-chrome-stable  --headless --disable-gpu --virtual-time-budget=1000 --print-to-pdf=/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/static/out.pdf /home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/" + fromFile)
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
