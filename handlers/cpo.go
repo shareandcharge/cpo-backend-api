@@ -343,7 +343,6 @@ func CpoGenerateWallet(c *gin.Context) {
 	}
 	var walletInfo WalletInfo
 
-
 	config := configs.Load()
 	walletInfo.Addr = config.GetString("cpo.wallet_address")
 	walletInfo.Seed = config.GetString("cpo.wallet_seed")
@@ -353,7 +352,6 @@ func CpoGenerateWallet(c *gin.Context) {
 	query := "UPDATE cpo SET wallet='%s', seed='%s' WHERE cpo_id = 1"
 	command := fmt.Sprintf(query, walletInfo.Addr, walletInfo.Seed)
 	tools.DB.MustExec(command)
-
 
 	c.JSON(http.StatusOK, walletInfo)
 }
@@ -439,7 +437,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"redirect": "http://{{server_addr}}:{{server_port}}/static/invoice_" + reimbursementId + ".pdf"})
+	c.JSON(http.StatusOK, gin.H{"pdf_location": reimb.ServerAddr + "/static/invoice_" + reimbursementId + ".pdf"})
 }
 
 //=================================
@@ -551,8 +549,6 @@ func CpoPutLocation(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
-
-
 
 //deletes a location
 func CpoDeleteLocation(c *gin.Context) {
