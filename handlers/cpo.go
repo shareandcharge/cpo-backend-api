@@ -432,7 +432,7 @@ func CpoReimbursementGenPdf(c *gin.Context) {
 	time.Sleep(time.Second * 1)
 
 	//convert it to pdf
-	log.Info("trying to convert it to pdf -> static/invoice_" + reimbursementId + ".html")
+	log.Info("Trying to convert it to pdf using chrome headless -> static/invoice_" + reimbursementId + ".html")
 	err = tools.GeneratePdf("static/invoice_"+reimbursementId+".html", "static/invoice_"+reimbursementId+".pdf")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

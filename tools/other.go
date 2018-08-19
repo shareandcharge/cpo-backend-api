@@ -176,10 +176,11 @@ func GetSha1Hash(payload interface{}) string {
 	return fmt.Sprintf("%x", algorithm.Sum(nil))
 }
 
-// wkhtmltopdf needs to be installed
+// google-chrome-stable needs to be installed
 func GeneratePdf(fromFile string, toFile string) error {
 
-	cmd := exec.Command("html-pdf", fromFile, toFile)
+
+	cmd := exec.Command("google-chrome-stable  --headless --disable-gpu --virtual-time-budget=1000 --print-to-pdf=out.pdf " + fromFile)
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
