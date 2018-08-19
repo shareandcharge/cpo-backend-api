@@ -179,14 +179,39 @@ func GetSha1Hash(payload interface{}) string {
 // google-chrome-stable needs to be installed
 func GeneratePdf(fromFile string, toFile string) error {
 
-	cmd := exec.Command("/usr/bin/google-chrome-stable", " --headless", "--disable-gpu", "--virtual-time-budget=1000",
-		"--print-to-pdf=/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/"+toFile, "/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/"+fromFile)
+	//test if google-chrome-stable is installed
+
+	cmd := exec.Command("/usr/bin/google-chrome-stable", "-version")
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
 	}
-
 	scanner := bufio.NewScanner(cmdReader)
+	go func() {
+		for scanner.Scan() {
+			log.Printf("%s\n", scanner.Text())
+		}
+	}()
+
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		return err
+	}
+
+	// ======= CORE =========
+	cmd = exec.Command("/usr/bin/google-chrome-stable", "--headless", "--disable-gpu", "--virtual-time-budget=1000",
+		"--print-to-pdf=/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/"+toFile, "/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/"+fromFile)
+	cmdReader, err = cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	scanner = bufio.NewScanner(cmdReader)
 	go func() {
 		for scanner.Scan() {
 			log.Printf("%s\n", scanner.Text())
