@@ -46,6 +46,26 @@ into that directory run: git clone git@github.com:motionwerkGmbH/cpo-backend-api
 6. Create a config file from the example: ``` cp api_config.example.json api_config.json
 7. Install all the dependencies of this app with: go get ./...  (it will take ~1 min)
 
+
+#### Pdf Generation
+
+Google-Chrome-Stable that will run in headless mode needs to be installed. 
+
+```
+sudo apt-get install -y libappindicator1 fonts-liberation dbus-x11 xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic xfonts-scalable
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i --force-depends google-chrome-stable_current_amd64.deb
+sudo apt-get -f install
+```
+
+Test if it works, upload a html file into /tmp and run:
+
+```
+google-chrome-stable --headless --disable-gpu --print-to-pdf your_file.html
+```
+
+
+
 ## Configure Share & Charge Core Client
 
 TODO:// update this section of the readme
