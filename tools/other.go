@@ -179,8 +179,8 @@ func GetSha1Hash(payload interface{}) string {
 // google-chrome-stable needs to be installed
 func GeneratePdf(fromFile string, toFile string) error {
 
-
-	cmd := exec.Command("/usr/bin/google-chrome-stable",  "-version")
+	cmd := exec.Command("/usr/bin/google-chrome-stable", " --headless", "--disable-gpu", "--virtual-time-budget=1000",
+		"--print-to-pdf=/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/"+toFile, "/home/ubuntu/go/src/github.com/motionwerkGmbH/cpo-backend-api/"+fromFile)
 	cmdReader, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
