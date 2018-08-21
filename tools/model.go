@@ -12,7 +12,10 @@ type Location struct {
 	Type        string `json:"type"`
 	Name        string `json:"name"`
 	Address     string `json:"address"`
-	Directions  string `json:"directions,omitempty"`
+	Directions struct {
+		Language string `json:"language"`
+		Text     string `json:"text"`
+	} `json:"directions,omitempty"`
 	City        string `json:"city"`
 	PostalCode  string `json:"postal_code,omitempty"`
 	Country     string `json:"country"`
@@ -24,7 +27,7 @@ type Location struct {
 	Operator struct {
 		Name string `json:"name,omitempty"`
 	} `json:"operator,omitempty"`
-	LastUpdated time.Time `json:"last_updated"`
+	LastUpdated time.Time `json:"last_updated,omitempty"`
 }
 
 type Evse struct {
