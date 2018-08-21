@@ -173,7 +173,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	externalIp := "http://" + string(tools.GetExternalIp()) + ":9090"
 
 	query := "INSERT INTO reimbursements ( msp_name, cpo_name, amount, currency, status, reimbursement_id, timestamp, cdr_records, server_addr, txs_number, token_address)" +
-		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s',%d,'%s', '%s')"
+		"  VALUES ('%s','%s',%d,'%s','%s','%s',%d,'%s','%s', %d, '%s')"
 	command := fmt.Sprintf(query, mspAddress, cpoWallet, totalAmount, "Charge&Fuel Token", "pending", tools.GetSha1Hash(cdrsOutput), time.Time.Unix(time.Now()), string(cdrsOutputBytes), externalIp, len(cdrsOutput), tokenContract)
 	_, err = tools.MDB.Exec(command)
 	if err != nil {
