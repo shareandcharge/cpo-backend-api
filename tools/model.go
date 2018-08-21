@@ -2,12 +2,10 @@ package tools
 
 import "time"
 
-
 type XLocation struct {
 	ScID     string   `json:"scId"`
 	Location Location `json:"data"`
 }
-
 
 type Location struct {
 	ID          string `json:"id"`
@@ -21,7 +19,7 @@ type Location struct {
 		Latitude  string `json:"latitude"`
 		Longitude string `json:"longitude"`
 	} `json:"coordinates"`
-	Evses []Evse `json:"evses"`
+	Evses    []Evse `json:"evses"`
 	Operator struct {
 		Name string `json:"name,omitempty"`
 	} `json:"operator,omitempty"`
@@ -49,8 +47,6 @@ type Evse struct {
 	LastUpdated       time.Time `json:"last_updated,omitempty"`
 }
 
-
-
 type Tariff struct {
 	ID       string `json:"id"`
 	Currency string `json:"currency"`
@@ -65,18 +61,18 @@ type Tariff struct {
 }
 
 type TxReceiptResponse struct {
-	BlockHash         string `json:"blockHash" db:"blockHash"`
-	BlockNumber       int    `json:"blockNumber" db:"blockNumber"`
+	BlockHash         string      `json:"blockHash" db:"blockHash"`
+	BlockNumber       int         `json:"blockNumber" db:"blockNumber"`
 	ContractAddress   interface{} `json:"contractAddress" db:"contractAddress"`
-	CumulativeGasUsed string `json:"cumulativeGasUsed" db:"cumulativeGasUsed"`
-	GasUsed           string `json:"gasUsed" db:"gasUsed"`
-	LogsNumber        string `json:"logs" db:"logs_number"`
-	LogsBloom         string `json:"logsBloom" db:"logsBloom"`
+	CumulativeGasUsed string      `json:"cumulativeGasUsed" db:"cumulativeGasUsed"`
+	GasUsed           string      `json:"gasUsed" db:"gasUsed"`
+	LogsNumber        string      `json:"logs" db:"logs_number"`
+	LogsBloom         string      `json:"logsBloom" db:"logsBloom"`
 	Root              interface{} `json:"root" db:"root"`
-	Status            string `json:"status" db:"status"`
-	TransactionHash   string `json:"transactionHash" db:"transactionHash"`
-	TransactionIndex  string `json:"transactionIndex" db:"transactionIndex"`
-	Timestamp         uint64 `json:"timestamp" db:"timestamp"`
+	Status            string      `json:"status" db:"status"`
+	TransactionHash   string      `json:"transactionHash" db:"transactionHash"`
+	TransactionIndex  string      `json:"transactionIndex" db:"transactionIndex"`
+	Timestamp         uint64      `json:"timestamp" db:"timestamp"`
 }
 
 type TxLog struct {
@@ -155,9 +151,9 @@ type Reimbursement struct {
 	ReimbursementId string `json:"reimbursement_id" db:"reimbursement_id"`
 	CdrRecords      string `json:"cdr_records" db:"cdr_records"`
 	ServerAddr      string `json:"server_addr" db:"server_addr"`
-	TxNumber      string `json:"txs_number" db:"txs_number"`
+	TxNumber        string `json:"txs_number" db:"txs_number"`
+	TokenAddress    string `json:"token_address" db:"token_address"`
 }
-
 
 type CDR struct {
 	EvseID           string `json:"evseId"`
