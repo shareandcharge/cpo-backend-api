@@ -357,8 +357,9 @@ func CpoPaymentCDR(c *gin.Context) {
 		cdr.Currency = "Charge & Fuel Token"
 
 		var count int
-		err = tools.MDB.QueryRowx("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'").StructScan(&count)
+		err = tools.MDB.QueryRowx("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'").Scan(&count)
 		tools.ErrorCheck(err, "cpo.go", false)
+
 
 		if count == 0 {
 
