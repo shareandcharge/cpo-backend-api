@@ -19,10 +19,3 @@ func Init() {
 	TopicsMap["transferToken"] = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
 }
 
-func AddressToName(addr string) string {
-	Init()
-	if val, ok := AddressMap[addr]; ok {
-		return val
-	}
-	return addr
-}
