@@ -28,6 +28,9 @@ func InitializeRoutes() {
 		//shows the history of an wallet
 		v1.GET("/wallet/:addr/history/evcoin", handlers.GetWalletHistoryEVCoin)
 
+		//view CDRs
+		v1.GET("/view_cdrs/:reimbursement_id", handlers.ViewCDRs)
+
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~ CPO ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		//gets all the info about an cpo

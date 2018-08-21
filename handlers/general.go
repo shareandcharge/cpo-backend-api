@@ -7,6 +7,8 @@ import (
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"net/http"
 	"strconv"
+	"bytes"
+	"encoding/csv"
 )
 
 func Index(c *gin.Context) {
@@ -163,4 +165,51 @@ func Reinit(c *gin.Context) {
 	tools.DB.MustExec(schema)
 
 	c.JSON(http.StatusOK, gin.H{"status": "database truncated."})
+}
+
+
+
+//shows the CDR records of a reimbursement
+func ViewCDRs(c *gin.Context) {
+
+	reimbursementId := c.Param("reimbursement_id")
+
+
+
+	type Reimbursement struct {
+		CdrRecords string `json:"cdr_records" db:"cdr_records"`
+	}
+	var reimbursement Reimbursement
+
+	err := tools.MDB.QueryRowx("SELECT cdr_records FROM reimbursements WHERE reimbursement_id = ?", reimbursementId).StructScan(&reimbursement)
+	tools.ErrorCheck(err, "cpo.go", false)
+
+	if reimbursement.CdrRecords == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "no reimbursements found"})
+		return
+	}
+
+	var cdrs []tools.CDR
+	err = json.Unmarshal([]byte(reimbursement.CdrRecords), &cdrs)
+	if err != nil {
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+
+
+	b := &bytes.Buffer{} // creates IO Writer
+	wr := csv.NewWriter(b) // creates a csv writer that uses the io buffer.
+
+
+	wr.Write([]string{"locationName", "locationAddress", "evseId", "scId","controller","start","end","finalPrice","tokenContract","tariff","chargedUnits","chargingContract","transactionHash","currency"})
+	for _, cdr := range cdrs {
+		wr.Write([]string{cdr.LocationName, cdr.LocationAddress, cdr.EvseID, cdr.ScID, cdr.Controller, cdr.Start, cdr.End, cdr.FinalPrice, cdr.TokenContract, cdr.Tariff, cdr.ChargedUnits, cdr.ChargingContract, cdr.TransactionHash, cdr.Currency})
+	}
+	wr.Flush()
+
+	c.Header("Content-Description", "File Transfer")
+	c.Header("Content-Disposition", "attachment; filename=cdrs_"+reimbursementId+".csv")
+	c.Data(http.StatusOK, "text/csv", b.Bytes())
+
 }
