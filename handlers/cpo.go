@@ -493,8 +493,8 @@ func CpoGetLocations(c *gin.Context) {
 	var locations []tools.XLocation
 	err := json.Unmarshal(body, &locations)
 	if err != nil {
-		log.Panic(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		log.Error(err)
+		c.JSON(http.StatusOK, []string{})
 		return
 	}
 
@@ -615,7 +615,7 @@ func CpoGetTariffs(c *gin.Context) {
 	err := json.Unmarshal(body, &tariffs)
 	if err != nil {
 		log.Warn(err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "there aren't any tariffs registered with this CPO"})
+		c.JSON(http.StatusOK, []string{})
 		return
 	}
 
