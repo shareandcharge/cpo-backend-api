@@ -133,6 +133,15 @@ stdout_logfile_backups=1
 ~~~~
 
 
+### Serving the CPO Frontend though nginx
+
+~~~~
+sudo apt-get install nginx
+sudo nano /etc/nginx/sites-enabled/default
+
+add >  root /home/ubuntu/motionwerk/cpo_frontend/dist/;
+~~~~
+
 #### Licence Mozilla Public License Version 2.0
 
 why this license ? see https://christoph-conrads.name/why-i-chose-the-mozilla-public-license-2-0/
