@@ -53,9 +53,11 @@ Google-Chrome-Stable that will run in headless mode needs to be installed.
 
 ```
 sudo apt-get install -y libappindicator1 fonts-liberation dbus-x11 xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic xfonts-scalable
+cd /tmp
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo dpkg -i --force-depends google-chrome-stable_current_amd64.deb
+sudo dpkg -i --force-depends google-chrome-stable_current_amd64.deb  (don't mind the errors)
 sudo apt-get -f install
+google-chrome-stable -version
 ```
 
 Test if it works, upload a html file into /tmp and run:
@@ -91,7 +93,13 @@ go run *.go
 
 1. I want to run it in the background
 
-Create the file /var/log/backend.log and give it appropriate permissions
+~~~~
+sudo touch /var/log/backend.log 
+sudo touch /var/log/coreclient.log 
+sudo chown ubuntu:ubuntu /var/log/backend.log
+sudo chown ubuntu:ubuntu /var/log/coreclient.log
+~~~~
+
 Supervisor. Here's a config file:
 
 ~~~~
@@ -108,6 +116,31 @@ stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=1
 ~~~~
 
+~~~~
+[program:coreclient]
+user=ubuntu
+numprocs=1
+command=npm run start
+directory=/home/ubuntu/motionwerk/sharecharge-core-client/
+autostart=true
+autorestart=true
+startsecs=10
+startretries=3
+redirect_stderr=true
+stdout_logfile=/var/log/coreclient.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=1
+~~~~
+
+
+### Serving the CPO Frontend though nginx
+
+~~~~
+sudo apt-get install nginx
+sudo nano /etc/nginx/sites-enabled/default
+
+add >  root /home/ubuntu/motionwerk/cpo_frontend/dist/;
+~~~~
 
 #### Licence Mozilla Public License Version 2.0
 
