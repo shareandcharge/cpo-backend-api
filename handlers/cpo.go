@@ -499,7 +499,7 @@ func CpoGetLocations(c *gin.Context) {
 	}
 
 	if len(locations) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "there aren't any locations registered with this CPO"})
+		c.JSON(http.StatusOK, []string{})
 		return
 	}
 
@@ -620,7 +620,7 @@ func CpoGetTariffs(c *gin.Context) {
 	}
 
 	if len(tariffs) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "there aren't any tariffs registered with this CPO"})
+		c.JSON(http.StatusOK, []string{})
 		return
 	}
 
