@@ -95,8 +95,13 @@ func CpoPaymentWallet(c *gin.Context) {
 	}
 	var walletRecords []WalletRecord
 
-	//TODO: fix the total transactions count
-	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365", TotalTransactions: 1337, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0x682F10b5e35bA3157E644D9e7c7F3C107EB46305"}
+	//get the total amount of transactions
+
+	txCount := 0
+	row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM transactions WHERE to_addr = '" + cpoWallet + "'")
+	row.Scan(&txCount)
+
+	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365", TotalTransactions: txCount, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0x682F10b5e35bA3157E644D9e7c7F3C107EB46305"}
 
 	walletRecords = append(walletRecords, record)
 
@@ -332,7 +337,6 @@ func CpoSetReimbursementStatus(c *gin.Context) {
 func CpoSendTokensToMsp(c *gin.Context) {
 
 	reimbursementId := c.Param("reimbursement_id")
-	reimbursementStatus := c.Param("status")
 
 	rows, err := tools.MDB.Query("SELECT id FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
 	tools.ErrorCheck(err, "cpo.go", false)
@@ -344,36 +348,22 @@ func CpoSendTokensToMsp(c *gin.Context) {
 		return
 	}
 
-	query := "UPDATE reimbursements SET status='%s' WHERE reimbursement_id = '%s'"
-	command := fmt.Sprintf(query, reimbursementStatus, reimbursementId)
-	_, err = tools.MDB.Exec(command)
+	var reimb tools.Reimbursement
+	err = tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
+	tools.ErrorCheck(err, "cpo.go", false)
+
+	log.Warnf("sending now to CPO (hardcoded address)", reimb.Amount)
+
+	_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/"+strconv.Itoa(reimb.Amount), nil)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		log.Panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 
-	//if we set it as complete, transfer the coins to the MSP
-	if reimbursementStatus == "complete" {
-
-		var reimb tools.Reimbursement
-		err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
-		tools.ErrorCheck(err, "cpo.go", false)
-
-		log.Warnf("sending now to CPO (hardcoded token)", reimb.Amount)
-
-		_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/" + strconv.Itoa(reimb.Amount), nil)
-		if err != nil {
-			log.Panic(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": reimbursementStatus + " and 10 tokens transferred to the MSP address"})
+	c.JSON(http.StatusOK, gin.H{"status": reimbursementId + " sent " + strconv.Itoa(reimb.Amount) + " tokens transferred to the MSP address"})
 
 }
-
-
 
 // the records for the particular token
 func CpoPaymentCDR(c *gin.Context) {
@@ -406,7 +396,6 @@ func CpoPaymentCDR(c *gin.Context) {
 		var count int
 		err = tools.MDB.QueryRowx("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'").Scan(&count)
 		tools.ErrorCheck(err, "cpo.go", false)
-
 
 		if count == 0 {
 

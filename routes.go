@@ -93,7 +93,7 @@ func InitializeRoutes() {
 		v1.PUT("/cpo/payment/reimbursement/:reimbursement_id/:status", handlers.CpoSetReimbursementStatus)
 
 		//sets the reimbursement as completed
-		v1.PUT("/cpo/payment/reimbursement/:reimbursement_id/send_tokens_to_msp", handlers.CpoSendTokensToMsp)
+		v1.POST("/cpo/payment/send_tokens_to_msp/:reimbursement_id", handlers.CpoSendTokensToMsp)
 
 	}
 
