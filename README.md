@@ -53,6 +53,7 @@ Google-Chrome-Stable that will run in headless mode needs to be installed.
 
 ```
 sudo apt-get install -y libappindicator1 fonts-liberation dbus-x11 xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic xfonts-scalable
+cd /tmp
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i --force-depends google-chrome-stable_current_amd64.deb
 sudo apt-get -f install
