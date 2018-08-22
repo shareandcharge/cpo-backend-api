@@ -378,7 +378,6 @@ func CpoPaymentCDR(c *gin.Context) {
 						cdr.LocationName = loc.Name
 						cdr.LocationAddress = loc.City + ", " + loc.Address + ", " + loc.Country
 					}
-					cdrsOutput = append(cdrsOutput, cdr)
 				}
 
 				cdrsOutput = append(cdrsOutput, cdr)
