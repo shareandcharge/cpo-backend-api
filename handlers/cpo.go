@@ -349,10 +349,11 @@ func CpoSendTokensToMsp(c *gin.Context) {
 	}
 
 	var reimb tools.Reimbursement
-	err = tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
+	err = tools.MDB.QueryRowx( "SELECT * FROM reimbursements WHERE reimbursement_id =  \"" + reimbursementId +"\"").StructScan(&reimb)
 	tools.ErrorCheck(err, "cpo.go", false)
 
-	log.Warnf("sending now to CPO (hardcoded address)", reimb.Amount)
+	log.Info(reimb)
+	log.Warnf("sending now to CPO (hardcoded address) %d", reimb.Amount)
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/"+strconv.Itoa(reimb.Amount), nil)
 	if err != nil {
