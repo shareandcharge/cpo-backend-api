@@ -91,7 +91,13 @@ go run *.go
 
 1. I want to run it in the background
 
-Create the file /var/log/backend.log and give it appropriate permissions
+~~~~
+sudo touch /var/log/backend.log 
+sudo touch /var/log/coreclient.log 
+sudo chown ubuntu:ubuntu /var/log/backend.log
+sudo chown ubuntu:ubuntu /var/log/coreclient.log
+~~~~
+
 Supervisor. Here's a config file:
 
 ~~~~
@@ -104,6 +110,22 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=/var/log/backend.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=1
+~~~~
+
+~~~~
+[program:coreclient]
+user=ubuntu
+numprocs=1
+command=npm run start
+directory=/home/ubuntu/motionwerk/sharecharge-core-client/
+autostart=true
+autorestart=true
+startsecs=10
+startretries=3
+redirect_stderr=true
+stdout_logfile=/var/log/coreclient.log
 stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=1
 ~~~~
