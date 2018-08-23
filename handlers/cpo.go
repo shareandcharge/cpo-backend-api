@@ -454,6 +454,8 @@ func CpoPaymentCDR(c *gin.Context) {
 							}
 						}
 
+						cU, _ := strconv.Atoi(cdr.ChargedUnits)
+						cdr.ChargedUnits = fmt.Sprintf("%d ", cU/1000)
 						cdrsOutput = append(cdrsOutput, cdr)
 
 					}
