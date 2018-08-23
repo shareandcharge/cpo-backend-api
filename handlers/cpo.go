@@ -58,16 +58,6 @@ func CpoCreate(c *gin.Context) {
 //returns the info for the CPO
 func CpoInfo(c *gin.Context) {
 
-	//is there a CPO ?
-	count := 0
-	row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM cpo")
-	row.Scan(&count)
-
-	if count == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "we couldn't find any CPO registered in the database."})
-		return
-	}
-
 	rows, _ := tools.DB.Query("SELECT cpo_id FROM cpo")
 	defer rows.Close()
 
