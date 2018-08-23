@@ -118,8 +118,21 @@ func CpoCreateReimbursement(c *gin.Context) {
 	config := configs.Load()
 	cpoWallet := config.GetString("cpo.wallet_address")
 
-	// get the history
+	//get all ScIDs belonging to the cpo address
+	locationBody := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoWallet)
+	var locations []tools.XLocation
+	err0 := json.Unmarshal(locationBody, &locations)
+	if err0 != nil {
+		log.Panic(err0)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+	var scIds []string
+	for _, location := range locations {
+		scIds = append(scIds, location.ScID)
+	}
 
+	// get the history
 	body := tools.GETRequest("http://localhost:3000/api/cdr/info")
 
 	var cdrs []tools.CDR
@@ -146,14 +159,31 @@ func CpoCreateReimbursement(c *gin.Context) {
 
 			if count == 0 {
 				log.Info("we have an unprocessed transaction: " + cdr.TransactionHash)
-				cdrsOutput = append(cdrsOutput, cdr)
-			} else {
-				log.Warn("transaction with hash " + cdr.TransactionHash + " already present in a reimbursement")
-			}
-		} else {
-			log.Warnf("tx doesn't have the required token contract")
-		}
 
+				isMyLocation := false
+				for _, loc := range scIds {
+					isMyLocation = loc == cdr.ScID
+					if isMyLocation {
+
+						//get the location name & address
+						body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoWallet + "/" + cdr.ScID)
+						if body != nil {
+
+							var loc tools.Location
+							err := json.Unmarshal(body, &loc)
+							if err != nil {
+								log.Warnf(err.Error())
+							} else {
+								log.Info(loc)
+								cdr.LocationName = loc.Name
+								cdr.LocationAddress = loc.City + ", " + loc.Address + ", " + loc.Country
+							}
+						}
+						cdrsOutput = append(cdrsOutput, cdr)
+					}
+				}
+			}
+		}
 	}
 
 	if len(cdrsOutput) == 0 {
@@ -312,24 +342,7 @@ func CpoSetReimbursementStatus(c *gin.Context) {
 		return
 	}
 
-	//if we set it as complete, transfer the coins to the MSP
-	if reimbursementStatus == "complete" {
-
-		var reimb tools.Reimbursement
-		err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE reimbursement_id = ?", reimbursementId)
-		tools.ErrorCheck(err, "cpo.go", false)
-
-		log.Warnf("should send now to the msp the ammount %d, modifty the code please", reimb.Amount)
-
-		_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/10", nil)
-		if err != nil {
-			log.Panic(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": reimbursementStatus + " and 10 tokens transferred to the MSP address"})
+	c.JSON(http.StatusOK, gin.H{"status": reimbursementStatus})
 
 }
 
@@ -387,8 +400,6 @@ func CpoPaymentCDR(c *gin.Context) {
 	for _, location := range locations {
 		scIds = append(scIds, location.ScID)
 	}
-
-	log.Println(scIds)
 
 	body := tools.GETRequest("http://localhost:3000/api/cdr/info") //+ ?tokenContract= tokenAddress
 
