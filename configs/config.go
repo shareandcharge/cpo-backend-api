@@ -1,13 +1,9 @@
 package configs
 
 import (
-	"encoding/json"
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
 	"github.com/spf13/viper"
-	"io/ioutil"
-	"os"
 )
 
 func Load() *viper.Viper {
@@ -22,50 +18,7 @@ func Load() *viper.Viper {
 		},
 	})
 	if err != nil {
-		panic(fmt.Errorf("Error when reading config: %v\n", err))
+		log.Error("Error when reading config: %v\n", err)
 	}
 	return Config
-}
-
-//updates the seed in ~/.sharecharge/config.json. Attention, the username is ubuntu. This will not work locally, unless have linux & the username "Ubuntu" :)
-func UpdateBaseAccountSeedInSCConfig(seed string) {
-
-	type ConfigStruct struct {
-		TokenAddress  string `json:"tokenAddress"`
-		LocationsPath string `json:"locationsPath"`
-		TariffsPath   string `json:"tariffsPath"`
-		BridgePath    string `json:"bridgePath"`
-		Seed          string `json:"seed"`
-		Stage         string `json:"stage"`
-		GasPrice      int    `json:"gasPrice"`
-		EthProvider   string `json:"ethProvider"`
-		IpfsProvider  struct {
-			Host     string `json:"host"`
-			Port     string `json:"port"`
-			Protocol string `json:"protocol"`
-		} `json:"ipfsProvider"`
-	}
-
-	//load the config file
-	jsonFile, err := os.Open("/home/ubuntu/.sharecharge/config.json")
-	tools.ErrorCheck(err, "config.go", false)
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	log.Printf("%s", byteValue)
-	defer jsonFile.Close()
-
-	config := ConfigStruct{}
-	err = json.Unmarshal(byteValue, &config)
-	tools.ErrorCheck(err, "config.go", false)
-
-	// this is the core of the function
-	config.Seed = seed
-
-	newconfigBytes, err := json.Marshal(config)
-	tools.ErrorCheck(err, "config.go", false)
-
-	err = ioutil.WriteFile("/home/ubuntu/.sharecharge/config.json", newconfigBytes, 644)
-	tools.ErrorCheck(err, "config.go", false)
-
-	log.Println("Successfully updated the /home/ubuntu/.sharecharge/config.json")
-
 }

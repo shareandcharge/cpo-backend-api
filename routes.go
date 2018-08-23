@@ -39,9 +39,6 @@ func InitializeRoutes() {
 		//creates in the database a new cpo
 		v1.POST("/cpo", handlers.CpoCreate)
 
-		//generate a new wallet for the cpo
-		v1.POST("/cpo/wallet/generate", handlers.CpoGenerateWallet)
-
 		//displays the mnemonic seed for the cpo
 		v1.GET("/cpo/wallet/seed", handlers.CpoGetSeed)
 

@@ -10,7 +10,7 @@ import (
 
 var MDB *sqlx.DB
 
-func MySQLConnect(dbName string) {
+func MySQLConnect() {
 	MDB = sqlx.MustConnect("mysql", "andy:hardpassword1@(18.197.172.83:3306)/blockchain")
 
 	//some benchmark should be done here

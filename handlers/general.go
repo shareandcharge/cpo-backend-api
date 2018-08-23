@@ -67,7 +67,6 @@ func GetWalletHistoryEVCoin(c *gin.Context) {
 			tools.ErrorCheck(err, "cpo.go", false)
 			calculatedGas := tools.HexToUInt(txResponse.GasUsed) * tools.HexToUInt(tx.GasPrice)
 
-
 			if calculatedGas > 1000000000 {
 				histories = append(histories, History{Block: tx.BlockNumber, FromAddr: tx.From, ToAddr: tx.To, Amount: calculatedGas, Currency: "wei", CreatedAt: tx.Timestamp, TransactionHash: tx.Hash})
 			}
@@ -95,7 +94,7 @@ func TokenInfo(c *gin.Context) {
 	//var tokenInfo TokenInfo  //TODO: check this one
 	err := json.Unmarshal(body, &tokenInfo)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
 		return
 	}
@@ -138,13 +137,12 @@ func TokenMint(c *gin.Context) {
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/token/mint", jsonValue)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
-
 
 // this will TRUNCATE the database.
 func Reinit(c *gin.Context) {
@@ -171,14 +169,10 @@ func Reinit(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "database truncated."})
 }
 
-
-
 //shows the CDR records of a reimbursement
 func ViewCDRs(c *gin.Context) {
 
 	reimbursementId := c.Param("reimbursement_id")
-
-
 
 	type Reimbursement struct {
 		CdrRecords string `json:"cdr_records" db:"cdr_records"`
@@ -196,17 +190,15 @@ func ViewCDRs(c *gin.Context) {
 	var cdrs []tools.CDR
 	err = json.Unmarshal([]byte(reimbursement.CdrRecords), &cdrs)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
 		return
 	}
 
-
-	b := &bytes.Buffer{} // creates IO Writer
+	b := &bytes.Buffer{}   // creates IO Writer
 	wr := csv.NewWriter(b) // creates a csv writer that uses the io buffer.
 
-
-	wr.Write([]string{"locationName", "locationAddress", "evseId", "scId","controller","start","end","finalPrice","tokenContract","tariff","chargedUnits","chargingContract","transactionHash","currency"})
+	wr.Write([]string{"locationName", "locationAddress", "evseId", "scId", "controller", "start", "end", "finalPrice", "tokenContract", "tariff", "chargedUnits", "chargingContract", "transactionHash", "currency"})
 	for _, cdr := range cdrs {
 		wr.Write([]string{cdr.LocationName, cdr.LocationAddress, cdr.EvseID, cdr.ScID, cdr.Controller, cdr.Start, cdr.End, cdr.FinalPrice, cdr.TokenContract, cdr.Tariff, cdr.ChargedUnits, cdr.ChargingContract, cdr.TransactionHash, cdr.Currency})
 	}

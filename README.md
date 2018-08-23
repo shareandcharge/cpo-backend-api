@@ -35,8 +35,9 @@ test it: ~/go/src/github.com/golang/example/hello$ go run hello.go
 create the directory 
 
 ~~~~
+go get -u github.com/gin-gonic/gin
 cd ~
-mkdir go src github.com motionwerkGmbH
+make the dirs: ~/go/src/github.com/motionwerkGmbH
 ~~~~
 
 into that directory run: git clone git@github.com:motionwerkGmbH/cpo-backend-api.git (remember to have this command work, you need to add your ssh key into github)

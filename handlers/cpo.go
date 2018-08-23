@@ -47,9 +47,13 @@ func CpoCreate(c *gin.Context) {
 		return
 	}
 
+	config := configs.Load()
+	addr := config.GetString("cpo.wallet_address")
+	seed := config.GetString("cpo.wallet_seed")
+
 	//if not, insert a new one with ID = 1, unique.
 	query := "INSERT INTO cpo (cpo_id, wallet, seed, name, address_1, address_2, town, postcode, mail_address, website, vat_number) VALUES (%d, '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s')"
-	command := fmt.Sprintf(query, 1, "", "", cpoInfo.Name, cpoInfo.Address1, cpoInfo.Address2, cpoInfo.Town, cpoInfo.Postcode, cpoInfo.MailAddress, cpoInfo.Website, cpoInfo.VatNumber)
+	command := fmt.Sprintf(query, 1, addr, seed, cpoInfo.Name, cpoInfo.Address1, cpoInfo.Address2, cpoInfo.Town, cpoInfo.Postcode, cpoInfo.MailAddress, cpoInfo.Website, cpoInfo.VatNumber)
 	tools.DB.MustExec(command)
 
 	c.JSON(http.StatusOK, gin.H{"status": "created ok"})
@@ -123,7 +127,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	var locations []tools.XLocation
 	err0 := json.Unmarshal(locationBody, &locations)
 	if err0 != nil {
-		log.Panic(err0)
+		log.Error(err0)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
 		return
 	}
@@ -138,7 +142,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	var cdrs []tools.CDR
 	err := json.Unmarshal(body, &cdrs)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
 		return
 	}
@@ -373,7 +377,7 @@ func CpoSendTokensToMsp(c *gin.Context) {
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/"+strconv.Itoa(reimb.Amount), nil)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
@@ -393,7 +397,7 @@ func CpoPaymentCDR(c *gin.Context) {
 	var locations []tools.XLocation
 	err0 := json.Unmarshal(locationBody, &locations)
 	if err0 != nil {
-		log.Panic(err0)
+		log.Error(err0)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
 		return
 	}
@@ -409,7 +413,7 @@ func CpoPaymentCDR(c *gin.Context) {
 	var cdrs []tools.CDR
 	err := json.Unmarshal(body, &cdrs)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
 		return
 	}
@@ -482,28 +486,6 @@ func CpoPaymentCDR(c *gin.Context) {
 
 }
 
-//generates a new wallet for the cpo
-func CpoGenerateWallet(c *gin.Context) {
-
-	type WalletInfo struct {
-		Seed string `json:"seed"`
-		Addr string `json:"address"`
-	}
-	var walletInfo WalletInfo
-
-	config := configs.Load()
-	walletInfo.Addr = config.GetString("cpo.wallet_address")
-	walletInfo.Seed = config.GetString("cpo.wallet_seed")
-
-	//update the db for CPO
-
-	query := "UPDATE cpo SET wallet='%s', seed='%s' WHERE cpo_id = 1"
-	command := fmt.Sprintf(query, walletInfo.Addr, walletInfo.Seed)
-	tools.DB.MustExec(command)
-
-	c.JSON(http.StatusOK, walletInfo)
-}
-
 //returns the info for the CPO
 func CpoGetSeed(c *gin.Context) {
 
@@ -568,7 +550,7 @@ func CpoPostLocations(c *gin.Context) {
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/store/locations", jsonValue)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
@@ -594,7 +576,7 @@ func CpoPostLocation(c *gin.Context) {
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/store/location", jsonValue)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
@@ -621,7 +603,7 @@ func CpoPutLocation(c *gin.Context) {
 
 	_, err = tools.PUTRequest("http://localhost:3000/api/store/location/"+scId, jsonValue)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
@@ -635,7 +617,7 @@ func CpoDeleteLocation(c *gin.Context) {
 
 	_, err := tools.DELETERequest("http://localhost:3000/api/store/location/" + locationid)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
@@ -689,7 +671,7 @@ func CpoPutTariff(c *gin.Context) {
 
 	_, err = tools.PUTRequest("http://localhost:3000/api/store/tariffs", jsonValue)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
@@ -714,7 +696,7 @@ func CpoPostTariff(c *gin.Context) {
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/store/tariffs?raw=true", jsonValue)
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
@@ -727,7 +709,7 @@ func CpoDeleteTariffs(c *gin.Context) {
 
 	_, err := tools.DELETERequest("http://localhost:3000/api/store/tariffs")
 	if err != nil {
-		log.Panic(err)
+		log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}

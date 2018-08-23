@@ -61,7 +61,7 @@ func POSTRequest(url string, payload []byte) ([]byte, error) {
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(payload))
 	if err != nil {
-		log.Panicf("%v", err)
+		log.Error("%v", err)
 		return nil, err
 	}
 
@@ -79,14 +79,14 @@ func PUTRequest(url string, payload []byte) ([]byte, error) {
 
 	req, err := http.NewRequest("PUT", url, body)
 	if err != nil {
-		log.Panicf("%v", err)
+		log.Error("%v", err)
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Panicf("%v", err)
+		log.Errorf("%v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -103,14 +103,14 @@ func DELETERequest(url string) ([]byte, error) {
 
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
-		log.Panicf("%v", err)
+		log.Errorf("%v", err)
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Panicf("%v", err)
+		log.Errorf("%v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -135,24 +135,6 @@ func ErrorCheck(err error, where string, kill bool) {
 }
 
 //convert hex to int
-func HexToInt(number string) int64 {
-	if number[0:2] == "0x" {
-		number = number[2:]
-	}
-	i, err := strconv.ParseInt(number, 16, 0)
-	if err != nil {
-		panic(err)
-	}
-	return i
-}
-
-//convert int to hex
-func UIntToHex(number uint64) string {
-	return "0x" + strconv.FormatUint(number, 16)
-
-}
-
-//convert hex to int
 func HexToUInt(hexStr string) uint64 {
 	// remove 0x suffix if found in the input string
 	cleaned := strings.Replace(hexStr, "0x", "", -1)
@@ -167,7 +149,7 @@ func GetSha1Hash(payload interface{}) string {
 
 	out, err := json.Marshal(payload)
 	if err != nil {
-		panic(err)
+		log.Error(err)
 		return ""
 	}
 
@@ -235,7 +217,7 @@ func GeneratePdf(fromFile string, toFile string) error {
 func GetExternalIp() []byte {
 	req, err := http.NewRequest("GET", "http://ipecho.net/plain", nil)
 	if err != nil {
-		log.Warnf("%v", err)
+		log.Errorf("%v", err)
 		return nil
 	}
 
@@ -247,7 +229,7 @@ func GetExternalIp() []byte {
 	client := http.DefaultClient
 	res, err := client.Do(req)
 	if err != nil {
-		log.Warnf("%v", err)
+		log.Errorf("%v", err)
 		return nil
 	}
 
