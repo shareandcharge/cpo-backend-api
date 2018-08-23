@@ -179,6 +179,9 @@ func CpoCreateReimbursement(c *gin.Context) {
 								cdr.LocationAddress = loc.City + ", " + loc.Address + ", " + loc.Country
 							}
 						}
+
+						cU, _ := strconv.Atoi(cdr.ChargedUnits)
+						cdr.ChargedUnits = fmt.Sprintf("%d ", cU/1000)
 						cdrsOutput = append(cdrsOutput, cdr)
 					}
 				}
