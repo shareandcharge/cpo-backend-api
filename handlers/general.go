@@ -67,7 +67,7 @@ func GetWalletHistoryEVCoin(c *gin.Context) {
 			tools.ErrorCheck(err, "cpo.go", false)
 			calculatedGas := tools.HexToUInt(txResponse.GasUsed) * tools.HexToUInt(tx.GasPrice)
 			//fake it
-			calculatedGas = calculatedGas * 1000
+			calculatedGas = calculatedGas * 10
 			log.Info("calculated gas is: %d" , calculatedGas)
 			if calculatedGas > 1000000000 {
 				histories = append(histories, History{Block: tx.BlockNumber, FromAddr: tx.From, ToAddr: tx.To, Amount: calculatedGas, Currency: "wei", CreatedAt: tx.Timestamp, TransactionHash: tx.Hash})
