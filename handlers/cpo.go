@@ -349,7 +349,7 @@ func CpoSendTokensToMsp(c *gin.Context) {
 	}
 
 	var reimb tools.Reimbursement
-	err = tools.MDB.QueryRowx( "SELECT * FROM reimbursements WHERE reimbursement_id =  \"" + reimbursementId +"\"").StructScan(&reimb)
+	err = tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE reimbursement_id =  \"" + reimbursementId + "\"").StructScan(&reimb)
 	tools.ErrorCheck(err, "cpo.go", false)
 
 	log.Info(reimb)
@@ -372,6 +372,23 @@ func CpoPaymentCDR(c *gin.Context) {
 	tokenAddress := c.Param("token")
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
+
+	locationBody := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress)
+	var locations []tools.XLocation
+	err0 := json.Unmarshal(locationBody, &locations)
+	if err0 != nil {
+		log.Panic(err0)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+
+	var scIds []string
+
+	for _, location := range locations {
+		scIds = append(scIds, location.ScID)
+	}
+
+	log.Println(scIds)
 
 	body := tools.GETRequest("http://localhost:3000/api/cdr/info") //+ ?tokenContract= tokenAddress
 
@@ -402,22 +419,32 @@ func CpoPaymentCDR(c *gin.Context) {
 
 			//todo: this should be removed once filtering is fixed
 			if cdr.TokenContract == tokenAddress {
-				//get the location name & address
-				body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + cdr.ScID)
-				if body != nil {
 
-					var loc tools.Location
-					err := json.Unmarshal(body, &loc)
-					if err != nil {
-						log.Warnf(err.Error())
-					} else {
-						log.Info(loc)
-						cdr.LocationName = loc.Name
-						cdr.LocationAddress = loc.City + ", " + loc.Address + ", " + loc.Country
+				isMyLocation := false
+				for _, loc := range scIds {
+					isMyLocation = loc == cdr.ScID
+					if isMyLocation {
+
+						//get the location name & address
+						body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + cdr.ScID)
+						if body != nil {
+
+							var loc tools.Location
+							err := json.Unmarshal(body, &loc)
+							if err != nil {
+								log.Warnf(err.Error())
+							} else {
+								log.Info(loc)
+								cdr.LocationName = loc.Name
+								cdr.LocationAddress = loc.City + ", " + loc.Address + ", " + loc.Country
+							}
+						}
+
+						cdrsOutput = append(cdrsOutput, cdr)
+
 					}
 				}
 
-				cdrsOutput = append(cdrsOutput, cdr)
 			}
 		} else {
 			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in some reimbursement")
