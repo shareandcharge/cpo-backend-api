@@ -249,7 +249,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromName}}", cpo.Name, 2)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", cpo.Address1+" "+cpo.Address2+" "+cpo.Town, 2)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", time.Now().Format(time.RFC1123Z), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", time.Now().Add(time.Hour * 1).Format(time.RFC1123Z), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceNumber}}", randInt1, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{clientReference}}", "S&C"+randInt2, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{purchaseOrder}}", "S&C"+randInt3, 1)
