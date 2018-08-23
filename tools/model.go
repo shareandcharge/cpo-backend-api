@@ -13,8 +13,8 @@ type Location struct {
 	Name        string `json:"name"`
 	Address     string `json:"address"`
 	Directions struct {
-		Language string `json:"language"`
-		Text     string `json:"text"`
+		Language string `json:"language,omitempty"`
+		Text     string `json:"text,omitempty"`
 	} `json:"directions,omitempty"`
 	City        string `json:"city"`
 	PostalCode  string `json:"postal_code,omitempty"`
