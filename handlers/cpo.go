@@ -100,12 +100,18 @@ func CpoPaymentWallet(c *gin.Context) {
 	var walletRecords []WalletRecord
 
 	//get the total amount of transactions
-
-	txCount := 0
-	row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cpo_name = '" + cpoWallet + "'")
-	row.Scan(&txCount)
-
-	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365", TotalTransactions: txCount, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0x682F10b5e35bA3157E644D9e7c7F3C107EB46305"}
+	var reimb []tools.Reimbursement
+	err := tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE cpo_address = ?", cpoWallet).StructScan(&reimb)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+	sumTx := 0
+	for _, xReimb := range reimb {
+		aux, _ := strconv.Atoi(xReimb.TxNumber)
+		sumTx = sumTx +  aux
+	}
+	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365", TotalTransactions: sumTx, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0x682F10b5e35bA3157E644D9e7c7F3C107EB46305"}
 
 	walletRecords = append(walletRecords, record)
 
