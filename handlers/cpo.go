@@ -101,7 +101,7 @@ func CpoPaymentWallet(c *gin.Context) {
 
 	//get the total amount of transactions
 	var reimb []tools.Reimbursement
-	err := tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE cpo_address = ?", cpoWallet).StructScan(&reimb)
+	err := tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE cpo_name = ?", cpoWallet).StructScan(&reimb)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
