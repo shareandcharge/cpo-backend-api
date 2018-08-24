@@ -102,7 +102,7 @@ func CpoPaymentWallet(c *gin.Context) {
 	//get the total amount of transactions
 
 	txCount := 0
-	row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM transaction_logs WHERE address = '" + cpoWallet + "'")
+	row := tools.MDB.QueryRow("SELECT COUNT(*) as count FROM reimbursements WHERE cpo_name = '" + cpoWallet + "'")
 	row.Scan(&txCount)
 
 	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365", TotalTransactions: txCount, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0x682F10b5e35bA3157E644D9e7c7F3C107EB46305"}
