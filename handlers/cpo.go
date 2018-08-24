@@ -101,11 +101,9 @@ func CpoPaymentWallet(c *gin.Context) {
 
 	//get the total amount of transactions
 	var reimb []tools.Reimbursement
-	err := tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE cpo_name = ?", cpoWallet).StructScan(&reimb)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
-		return
-	}
+	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ?", cpoWallet)
+	tools.ErrorCheck(err, "cpo.go", false)
+
 	sumTx := 0
 	for _, xReimb := range reimb {
 		aux, _ := strconv.Atoi(xReimb.TxNumber)
