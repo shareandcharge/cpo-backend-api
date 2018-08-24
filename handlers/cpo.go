@@ -109,7 +109,7 @@ func CpoPaymentWallet(c *gin.Context) {
 		aux, _ := strconv.Atoi(xReimb.TxNumber)
 		sumTx = sumTx +  aux
 	}
-	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365", TotalTransactions: sumTx, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0x682F10b5e35bA3157E644D9e7c7F3C107EB46305"}
+	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28", TotalTransactions: sumTx, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28"}
 
 	walletRecords = append(walletRecords, record)
 

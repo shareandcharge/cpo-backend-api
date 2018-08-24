@@ -9,7 +9,7 @@ func Init() {
 	AddressMap["0x6b0c56d1ad5144b4d37fa6e27dc9afd5c2435c3b"] = "Faucet"
 	AddressMap["0x7b0f2b531c018d4269a95561cfb4e038a7e3c8dc"] = "CPO 1"
 	AddressMap["0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365"] = "MSP"
-	AddressMap["0x682F10b5e35bA3157E644D9e7c7F3C107EB46305"] = "Charge & Fuel Token"
+	AddressMap["0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28"] = "Charge & Fuel Token"
 	AddressMap["0xde969c804eb613653c35e6e39f39b5de78630c1a"] = "Charging Contract"
 	AddressMap["0x365e93e0b38877f0d1066b01aa8da8b2cb102bc6"] = "External Storage"
 
