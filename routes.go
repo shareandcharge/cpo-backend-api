@@ -86,7 +86,7 @@ func InitializeRoutes() {
 		//lists all reimbursements filtered by
 		v1.GET("/cpo/payment/reimbursements/:status", handlers.CpoGetAllReimbursements)
 
-		//sets the reimbursement as completed (TODO: don't use it!)
+		//sets the reimbursement as completed (TODO: don't use it!, delete it)
 		v1.PUT("/cpo/payment/reimbursement/:reimbursement_id/:status", handlers.CpoSetReimbursementStatus)
 
 		//sets the reimbursement as completed

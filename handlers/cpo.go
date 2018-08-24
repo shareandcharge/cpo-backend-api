@@ -372,6 +372,18 @@ func CpoSendTokensToMsp(c *gin.Context) {
 	err = tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE reimbursement_id =  \"" + reimbursementId + "\"").StructScan(&reimb)
 	tools.ErrorCheck(err, "cpo.go", false)
 
+	//get current token balance of the account
+	config := configs.Load()
+	cpoWallet := config.GetString("cpo.wallet_address")
+	body := tools.GETRequest("http://localhost:3000/api/token/balance/" + cpoWallet)
+	tokenBalanceFloat, _ := strconv.ParseFloat(string(body), 64)
+
+	if tokenBalanceFloat < float64(reimb.Amount) {
+		log.Error(err)
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": fmt.Sprintf("you are trying to send %d while you have only %f", reimb.Amount, tokenBalanceFloat)})
+		return
+	}
+
 	log.Info(reimb)
 	log.Warnf("sending now to CPO (hardcoded address) %d", reimb.Amount)
 
