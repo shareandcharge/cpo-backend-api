@@ -353,6 +353,38 @@ func CpoSetReimbursementStatus(c *gin.Context) {
 		return
 	}
 
+	if reimbursementStatus == "complete" {
+		reimbursementId := c.Param("reimbursement_id")
+
+		var reimb tools.Reimbursement
+		err = tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE reimbursement_id =  \"" + reimbursementId + "\"").StructScan(&reimb)
+		tools.ErrorCheck(err, "cpo.go", false)
+
+		//get current token balance of the account
+		config := configs.Load()
+		cpoWallet := config.GetString("cpo.wallet_address")
+		body := tools.GETRequest("http://localhost:3000/api/token/balance/" + cpoWallet)
+		tokenBalanceFloat, _ := strconv.ParseFloat(string(body), 64)
+
+		if tokenBalanceFloat < float64(reimb.Amount) {
+			log.Error(err)
+			c.JSON(http.StatusNotAcceptable, gin.H{"error": fmt.Sprintf("you are trying to send %d while you have only %f", reimb.Amount, tokenBalanceFloat)})
+			return
+		}
+
+		log.Info(reimb)
+		log.Warnf("sending now to CPO (hardcoded address) %d", reimb.Amount)
+
+		_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/"+strconv.Itoa(reimb.Amount), nil)
+		if err != nil {
+			log.Error(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"status": reimbursementId + " sent " + strconv.Itoa(reimb.Amount) + " tokens transferred to the MSP address"})
+	}
+
 	c.JSON(http.StatusOK, gin.H{"status": reimbursementStatus})
 
 }
