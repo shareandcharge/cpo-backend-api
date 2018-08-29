@@ -121,8 +121,7 @@ stdout_logfile_backups=1
 [program:coreclient]
 user=ubuntu
 numprocs=1
-command=npm run start
-directory=/home/ubuntu/motionwerk/sharecharge-core-client/
+command=/usr/local/bin/sc-cc start --api
 autostart=true
 autorestart=true
 startsecs=10
@@ -131,6 +130,7 @@ redirect_stderr=true
 stdout_logfile=/var/log/coreclient.log
 stdout_logfile_maxbytes=10MB
 stdout_logfile_backups=1
+environment=HOME=/home/ubuntu
 ~~~~
 
 
