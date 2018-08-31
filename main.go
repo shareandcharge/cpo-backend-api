@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"github.com/gin-contrib/cors"
 )
 
 var router *gin.Engine
@@ -27,7 +28,7 @@ func main() {
 	router.Use(gin.Recovery())
 
 	// allow all origins
-	//router.Use(cors.Default())
+	router.Use(cors.Default())
 
 	InitializeRoutes()
 
