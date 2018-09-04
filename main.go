@@ -40,15 +40,15 @@ func main() {
 	tools.MySQLConnect()
 
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	log.Println("~~~~~~~~~~ CPO BACKEND IS RUNNING v: 0.21 ~~~~~~~~~~~~~~")
+	log.Println("~~~~~~~~~~ CPO BACKEND IS RUNNING v: 0.22 ~~~~~~~~~~~~~~")
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 	// Serve 'em...
 	server := &http.Server{
 		Addr:           Config.GetString("hostname") + ":" + strconv.Itoa(Config.GetInt("port")),
 		Handler:        router,
-		ReadTimeout:    60 * time.Second,
-		WriteTimeout:   60 * time.Second,
+		ReadTimeout:    200 * time.Second,
+		WriteTimeout:   200 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 	server.SetKeepAlivesEnabled(true)

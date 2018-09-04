@@ -441,6 +441,7 @@ func CpoPaymentCDR(c *gin.Context) {
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
 
+	log.Info("loading all cpo's locations, this might take some time...")
 	locationBody := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress)
 	var locations []tools.XLocation
 	err0 := json.Unmarshal(locationBody, &locations)
@@ -456,6 +457,7 @@ func CpoPaymentCDR(c *gin.Context) {
 		scIds = append(scIds, location.ScID)
 	}
 
+	log.Info("loading all cdrs, this might take some time...")
 	body := tools.GETRequest("http://localhost:3000/api/cdr/info") //+ ?tokenContract= tokenAddress
 
 	var cdrs []tools.CDR
@@ -482,15 +484,14 @@ func CpoPaymentCDR(c *gin.Context) {
 		tools.ErrorCheck(err, "cpo.go", false)
 
 		if count == 0 {
-
+			log.Info("seems we have an unprocessed tx.")
 			//todo: this should be removed once filtering is fixed
 			if cdr.TokenContract == tokenAddress {
-
+				log.Info("seems we have an unprocessed tx. that maches our token contract")
 				isMyLocation := false
 				for _, loc := range scIds {
 					isMyLocation = loc == cdr.ScID
 					if isMyLocation {
-
 						//get the location name & address
 						body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress + "/" + cdr.ScID)
 						if body != nil {
@@ -506,13 +507,11 @@ func CpoPaymentCDR(c *gin.Context) {
 							}
 						}
 
-						cU, _ := strconv.Atoi(cdr.ChargedUnits)
-						cdr.ChargedUnits = fmt.Sprintf("%d ", cU/1000)
+						cU, _ := strconv.ParseFloat(cdr.ChargedUnits, 64)
+						cdr.ChargedUnits = fmt.Sprintf("%.3f", cU / float64(1000))
 						cdrsOutput = append(cdrsOutput, cdr)
-
 					}
 				}
-
 			}
 		} else {
 			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in some reimbursement")
