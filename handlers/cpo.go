@@ -100,15 +100,88 @@ func CpoPaymentWallet(c *gin.Context) {
 	var walletRecords []WalletRecord
 
 	//get the total amount of transactions
-	var reimb []tools.Reimbursement
-	err := tools.MDB.Select(&reimb, "SELECT * FROM reimbursements WHERE cpo_name = ?", cpoWallet)
-	tools.ErrorCheck(err, "cpo.go", false)
 
-	sumTx := 0
-	for _, xReimb := range reimb {
-		aux, _ := strconv.Atoi(xReimb.TxNumber)
-		sumTx = sumTx +  aux
+	//-------- BEGIN HIStORY -------------
+	log.Info("loading all cpo's locations, this might take some time...")
+	locationBody := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoWallet)
+	var locations []tools.XLocation
+	err0 := json.Unmarshal(locationBody, &locations)
+	if err0 != nil {
+		log.Error(err0)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
 	}
+
+	var scIds []string
+
+	for _, location := range locations {
+		scIds = append(scIds, location.ScID)
+	}
+
+	log.Info("loading all cdrs, this might take some time...")
+	body = tools.GETRequest("http://localhost:3000/api/cdr/info") //+ ?tokenContract= tokenAddress
+
+	var cdrs []tools.CDR
+	err := json.Unmarshal(body, &cdrs)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ops! it's our fault. This error should never happen."})
+		return
+	}
+
+	var cdrsOutput []tools.CDR
+
+	if len(cdrs) == 0 {
+		c.JSON(http.StatusOK, []string{})
+		return
+	}
+
+	for _, cdr := range cdrs {
+
+		cdr.Currency = "Charge & Fuel Token"
+
+		var count int
+		err = tools.MDB.QueryRowx("SELECT COUNT(*) as count FROM reimbursements WHERE cdr_records LIKE '%" + cdr.TransactionHash + "%'").Scan(&count)
+		tools.ErrorCheck(err, "cpo.go", false)
+
+		if count == 0 {
+			log.Info("seems we have an unprocessed tx.")
+			//todo: this should be removed once filtering is fixed
+			if cdr.TokenContract == "0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28" {
+				log.Info("seems we have an unprocessed tx. that maches our token contract")
+				isMyLocation := false
+				for _, loc := range scIds {
+					isMyLocation = loc == cdr.ScID
+					if isMyLocation {
+						//get the location name & address
+						body = tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoWallet + "/" + cdr.ScID)
+						if body != nil {
+
+							var loc tools.Location
+							err := json.Unmarshal(body, &loc)
+							if err != nil {
+								log.Warnf(err.Error())
+							} else {
+								log.Info(loc)
+								cdr.LocationName = loc.Name
+								cdr.LocationAddress = loc.City + ", " + loc.Address + ", " + loc.Country
+							}
+						}
+
+						cU, _ := strconv.ParseFloat(cdr.ChargedUnits, 64)
+						cdr.ChargedUnits = fmt.Sprintf("%.3f", cU / 1000)
+						cdrsOutput = append(cdrsOutput, cdr)
+					}
+				}
+			}
+		} else {
+			log.Warn("transaction with hash " + cdr.TransactionHash + " already present in some reimbursement")
+		}
+	}
+
+	//------------ END HISTORY
+
+	sumTx := len(cdrsOutput)
 	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28", TotalTransactions: sumTx, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28"}
 
 	walletRecords = append(walletRecords, record)
@@ -508,7 +581,7 @@ func CpoPaymentCDR(c *gin.Context) {
 						}
 
 						cU, _ := strconv.ParseFloat(cdr.ChargedUnits, 64)
-						cdr.ChargedUnits = fmt.Sprintf("%.3f", cU / float64(1000))
+						cdr.ChargedUnits = fmt.Sprintf("%.3f", cU / 1000)
 						cdrsOutput = append(cdrsOutput, cdr)
 					}
 				}
