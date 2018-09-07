@@ -124,7 +124,7 @@ func TokenMint(c *gin.Context) {
 
 	amountFloat, _ := strconv.ParseFloat(string(amount), 64)
 	if amountFloat == 0 {
-		c.JSON(http.StatusNotAcceptable, gin.H{"error": "the amount is incorrect"})
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": "the amount for minting is incorrect"})
 		return
 	}
 
