@@ -40,7 +40,7 @@ func main() {
 	tools.MySQLConnect()
 
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	log.Println("~~~~~~~~~~ CPO BACKEND IS RUNNING v: 0.22 ~~~~~~~~~~~~~~")
+	log.Println("~~~~~~~ CPO BACKEND IS RUNNING v: 0.22 DEV Branch ~~~~~~~")
 	log.Println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 	// Serve 'em...
