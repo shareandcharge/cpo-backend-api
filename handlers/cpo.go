@@ -373,9 +373,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	}
 
 	//send the tokens to the MSP
-	config := configs.Load()
-	cpoWallet := config.GetString("cpo.wallet_address")
-	body := tools.GETRequest("http://localhost:3000/api/token/balance/" + cpoWallet)
+	body = tools.GETRequest("http://localhost:3000/api/token/balance/" + cpoWallet)
 	tokenBalanceFloat, _ := strconv.ParseFloat(string(body), 64)
 
 	if tokenBalanceFloat < float64(reimb.Amount) {
