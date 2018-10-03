@@ -3,17 +3,18 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"math/rand"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
-	"math/rand"
-	"io/ioutil"
 )
 
 func CpoCreate(c *gin.Context) {
@@ -147,7 +148,7 @@ func CpoPaymentWallet(c *gin.Context) {
 		if count == 0 {
 			log.Info("seems we have an unprocessed tx.")
 			//todo: this should be removed once filtering is fixed
-			if cdr.TokenContract == "0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28" {
+			if cdr.TokenContract == "0xb54871d8Ed9FC748659E5e3bA5933F90AAa297A3" {
 				log.Info("seems we have an unprocessed tx. that maches our token contract")
 				isMyLocation := false
 				for _, loc := range scIds {
@@ -169,7 +170,7 @@ func CpoPaymentWallet(c *gin.Context) {
 						}
 
 						cU, _ := strconv.ParseFloat(cdr.ChargedUnits, 64)
-						cdr.ChargedUnits = fmt.Sprintf("%.3f", cU / 1000)
+						cdr.ChargedUnits = fmt.Sprintf("%.3f", cU/1000)
 						cdrsOutput = append(cdrsOutput, cdr)
 					}
 				}
@@ -182,7 +183,7 @@ func CpoPaymentWallet(c *gin.Context) {
 	//------------ END HISTORY
 
 	sumTx := len(cdrsOutput)
-	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28", TotalTransactions: sumTx, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0xAcD218713094a5F78Ea6d8D439DA22B5FCdb1A28"}
+	record := WalletRecord{MspName: "Charge & Fuel", MspAddress: "0xb58424a5381ae7e3ffd919da1c9f7b21d3ab42d5", TotalTransactions: sumTx, Amount: balanceFloat, Currency: "Charge & Fuel Token", TokenAddr: "0xb54871d8Ed9FC748659E5e3bA5933F90AAa297A3"}
 
 	walletRecords = append(walletRecords, record)
 
@@ -333,7 +334,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromName}}", cpo.Name, 2)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceFromAddress}}", cpo.Address1+" "+cpo.Address2+" "+cpo.Town, 2)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", time.Now().Add(time.Hour * 1).Format(time.RFC1123), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDate}}", time.Now().Add(time.Hour*1).Format(time.RFC1123), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceNumber}}", randInt1, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{clientReference}}", "S&C"+randInt2, 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{purchaseOrder}}", "S&C"+randInt3, 1)
@@ -341,7 +342,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToAddress}}", "Services (UKJ) Limited", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToPerson}}", "Milton Keynes", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceToCode}}", "MK15 8HG", 1)
-	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDueDate}}", time.Now().Add(time.Hour * 24 * 7 * time.Duration(2)).Format(time.RFC1123), 1)
+	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{invoiceDueDate}}", time.Now().Add(time.Hour*24*7*time.Duration(2)).Format(time.RFC1123), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{description}}", "Sum of Tokens received through Share&Charge Network ", 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{quantity}}", strconv.Itoa(reimb.Amount), 1)
 	htmlTemplateRaw = strings.Replace(htmlTemplateRaw, "{{unit}}", "Tokens", 1)
@@ -368,6 +369,28 @@ func CpoCreateReimbursement(c *gin.Context) {
 	err = tools.GeneratePdf("static/invoice_"+reimbursementId+".html", "static/invoice_"+reimbursementId+".pdf")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	//send the tokens to the MSP
+	config := configs.Load()
+	cpoWallet := config.GetString("cpo.wallet_address")
+	body := tools.GETRequest("http://localhost:3000/api/token/balance/" + cpoWallet)
+	tokenBalanceFloat, _ := strconv.ParseFloat(string(body), 64)
+
+	if tokenBalanceFloat < float64(reimb.Amount) {
+		log.Error(err)
+		c.JSON(http.StatusNotAcceptable, gin.H{"error": fmt.Sprintf("you are trying to send %d while you have only %f", reimb.Amount, tokenBalanceFloat)})
+		return
+	}
+
+	log.Info(reimb)
+	log.Warnf("sending now to CPO (hardcoded address) %d", reimb.Amount)
+
+	_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xb54871d8Ed9FC748659E5e3bA5933F90AAa297A3/"+strconv.Itoa(reimb.Amount), nil)
+	if err != nil {
+		log.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
 
@@ -424,38 +447,6 @@ func CpoSetReimbursementStatus(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
-	}
-
-	if reimbursementStatus == "complete" {
-		reimbursementId := c.Param("reimbursement_id")
-
-		var reimb tools.Reimbursement
-		err = tools.MDB.QueryRowx("SELECT * FROM reimbursements WHERE reimbursement_id =  \"" + reimbursementId + "\"").StructScan(&reimb)
-		tools.ErrorCheck(err, "cpo.go", false)
-
-		//get current token balance of the account
-		config := configs.Load()
-		cpoWallet := config.GetString("cpo.wallet_address")
-		body := tools.GETRequest("http://localhost:3000/api/token/balance/" + cpoWallet)
-		tokenBalanceFloat, _ := strconv.ParseFloat(string(body), 64)
-
-		if tokenBalanceFloat < float64(reimb.Amount) {
-			log.Error(err)
-			c.JSON(http.StatusNotAcceptable, gin.H{"error": fmt.Sprintf("you are trying to send %d while you have only %f", reimb.Amount, tokenBalanceFloat)})
-			return
-		}
-
-		log.Info(reimb)
-		log.Warnf("sending now to CPO (hardcoded address) %d", reimb.Amount)
-
-		_, err = tools.POSTRequest("http://localhost:3000/api/token/transfer/0xf60b71a4d360a42ec9d4e7977d8d9928fd7c8365/"+strconv.Itoa(reimb.Amount), nil)
-		if err != nil {
-			log.Error(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"status": reimbursementId + " sent " + strconv.Itoa(reimb.Amount) + " tokens transferred to the MSP address"})
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": reimbursementStatus})
@@ -581,7 +572,7 @@ func CpoPaymentCDR(c *gin.Context) {
 						}
 
 						cU, _ := strconv.ParseFloat(cdr.ChargedUnits, 64)
-						cdr.ChargedUnits = fmt.Sprintf("%.3f", cU / 1000)
+						cdr.ChargedUnits = fmt.Sprintf("%.3f", cU/1000)
 						cdrsOutput = append(cdrsOutput, cdr)
 					}
 				}
