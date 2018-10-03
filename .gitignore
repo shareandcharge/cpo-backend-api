@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 api_config.json
+*.code-workspace
 
 # C extensions
 *.so
