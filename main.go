@@ -1,16 +1,17 @@
 package main
 
 import (
+	"net/http"
+	"strconv"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
-		"github.com/gin-gonic/contrib/static"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/motionwerkGmbH/cpo-backend-api/configs"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
-	"net/http"
-	"strconv"
-	"time"
-	"github.com/gin-contrib/cors"
 )
 
 var router *gin.Engine
