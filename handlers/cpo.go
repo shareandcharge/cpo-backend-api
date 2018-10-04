@@ -819,8 +819,8 @@ func CpoDeleteTariffs(c *gin.Context) {
 	_, err := tools.DELETERequest("http://localhost:3000/api/store/tariffs")
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-		return
+		//c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		//return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
 
