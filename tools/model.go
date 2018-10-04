@@ -79,7 +79,7 @@ type Tariff []struct {
 			StepSize int     `json:"step_size"`
 		} `json:"price_components"`
 	} `json:"elements"`
-	LastUpdated time.Time `json:"last_updated"`
+	LastUpdated string `json:"last_updated"`
 }
 
 type TxReceiptResponse struct {
