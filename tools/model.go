@@ -51,10 +51,28 @@ type Evse struct {
 	LastUpdated       time.Time `json:"last_updated,omitempty"`
 }
 
-type Tariff struct {
-	ID       string `json:"id"`
-	Currency string `json:"currency"`
-	Elements []struct {
+// type Tariff struct {
+// 	ID       string `json:"id"`
+// 	Currency string `json:"currency"`
+// 	Elements []struct {
+// 		PriceComponents []struct {
+// 			Type     string  `json:"type"`
+// 			Price    float64 `json:"price"`
+// 			StepSize int     `json:"step_size"`
+// 		} `json:"price_components"`
+// 	} `json:"elements"`
+// 	LastUpdated time.Time `json:"last_updated"`
+// }
+
+type Tariff []struct {
+	ID            string `json:"id"`
+	Currency      string `json:"currency"`
+	TariffAltText []struct {
+		Language string `json:"language"`
+		Text     string `json:"text"`
+	} `json:"tariff_alt_text,omitempty"`
+	TariffAltUrl string `json:"tariff_alt_url,omitempty"`
+	Elements     []struct {
 		PriceComponents []struct {
 			Type     string  `json:"type"`
 			Price    float64 `json:"price"`
