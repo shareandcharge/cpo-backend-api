@@ -1,14 +1,15 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/motionwerkGmbH/cpo-backend-api/tools"
-	"net/http"
-	"strconv"
-	"bytes"
-	"encoding/csv"
 )
 
 func Index(c *gin.Context) {

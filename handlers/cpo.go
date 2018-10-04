@@ -37,7 +37,7 @@ func CpoCreate(c *gin.Context) {
 		return
 	}
 
-	//check if there is already an CPO registered
+	// check if there is already an CPO registered
 	rows, err := tools.DB.Query("SELECT cpo_id FROM cpo")
 	tools.ErrorCheck(err, "cpo.go", true)
 	defer rows.Close()

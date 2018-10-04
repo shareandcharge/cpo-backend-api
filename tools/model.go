@@ -8,10 +8,10 @@ type XLocation struct {
 }
 
 type Location struct {
-	ID          string `json:"id"`
-	Type        string `json:"type"`
-	Name        string `json:"name"`
-	Address     string `json:"address"`
+	ID         string `json:"id"`
+	Type       string `json:"type"`
+	Name       string `json:"name"`
+	Address    string `json:"address"`
 	Directions struct {
 		Language string `json:"language,omitempty"`
 		Text     string `json:"text,omitempty"`
