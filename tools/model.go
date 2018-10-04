@@ -13,11 +13,11 @@ type Location struct {
 	Name       string `json:"name"`
 	Address    string `json:"address"`
 	Directions struct {
-		Language string `json:"language,omitempty"`
-		Text     string `json:"text,omitempty"`
-	} `json:"directions,omitempty"`
+		Language string `json:"language"`
+		Text     string `json:"text"`
+	} `json:"directions"`
 	City        string `json:"city"`
-	PostalCode  string `json:"postal_code,omitempty"`
+	PostalCode  string `json:"postal_code"`
 	Country     string `json:"country"`
 	Coordinates struct {
 		Latitude  string `json:"latitude"`
@@ -27,7 +27,7 @@ type Location struct {
 	Operator struct {
 		Name string `json:"name,omitempty"`
 	} `json:"operator,omitempty"`
-	LastUpdated time.Time `json:"last_updated,omitempty"`
+	LastUpdated string `json:"last_updated"`
 }
 
 type Evse struct {
