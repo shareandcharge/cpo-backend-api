@@ -70,8 +70,8 @@ type Tariff []struct {
 	TariffAltText []struct {
 		Language string `json:"language"`
 		Text     string `json:"text"`
-	} `json:"tariff_alt_text,omitempty"`
-	TariffAltUrl string `json:"tariff_alt_url,omitempty"`
+	} `json:"tariff_alt_text"`
+	TariffAltUrl string `json:"tariff_alt_url"`
 	Elements     []struct {
 		PriceComponents []struct {
 			Type     string  `json:"type"`
