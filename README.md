@@ -6,6 +6,7 @@ For any questions, please ask :)
 
 I suggest you to use POSTMAN. Please ask me (Andy) for the latest POSTMAN collections
 
+Please use Go 1.10+ for this and not 1.11 as it breas the marshaling of the empty json fields. 
 
 ## Install Guide :sun_with_face:
 
