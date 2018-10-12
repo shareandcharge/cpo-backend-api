@@ -2,9 +2,16 @@ package tools
 
 import "time"
 
-type XLocation struct {
-	ScID     string   `json:"scId"`
-	Location Location `json:"data"`
+// type XLocation struct {
+// 	ScID     Location   `json:",string"`
+// }
+
+type XLocation map[string]Location
+
+// support old style location hash for dashboard compatibility
+type XLocationLegacy struct {
+	ScID		string
+	Location	Location
 }
 
 type Location struct {
@@ -61,20 +68,35 @@ type Evse struct {
 // 	LastUpdated time.Time `json:"last_updated"`
 // }
 
-type Tariff []struct {
+type XTariff map[string]Tariff
+
+type Tariff struct {
 	ID            string `json:"id"`
 	Currency      string `json:"currency"`
 	TariffAltText []struct {
 		Language string `json:"language"`
 		Text     string `json:"text"`
-	} `json:"tariff_alt_text"`
-	TariffAltUrl string `json:"tariff_alt_url"`
+	} `json:"tariff_alt_text,omitempty"`
+	TariffAltUrl string `json:"tariff_alt_url,omitempty"`
 	Elements     []struct {
 		PriceComponents []struct {
 			Type     string  `json:"type"`
 			Price    float64 `json:"price"`
-			StepSize int     `json:"step_size"`
+			StepSize float64     `json:"step_size,omitempty"`
 		} `json:"price_components"`
+		Restrictions struct {
+			StartTime 		string 		`json:"start_time,omitempty"`
+			EndTime 		string 		`json:"end_time,omitempty"`
+			StartDate 		string 		`json:"start_date,omitempty"`
+			EndDate 		string 		`json:"end_date,omitempty"`
+			MinKwh			string 		`json:"min_kwh,omitempty"`
+			MaxKwh 			string 		`json:"max_kwh,omitempty"`
+			MinPower 		string 		`json:"min_power,omitempty"`
+			MaxPower 		string 		`json:"max_power,omitempty"`
+			MinDuration 	string 		`json:"min_duration,omitempty"`
+			MaxDuration 	string 		`json:"max_duration,omitempty"`
+			DayOfWeek 		[]string 	`json:"day_of_week,omitempty"`
+		} `json:"restrictions,omitempty"`
 	} `json:"elements"`
 	LastUpdated string `json:"last_updated"`
 }

@@ -105,7 +105,7 @@ func CpoPaymentWallet(c *gin.Context) {
 	//-------- BEGIN HIStORY -------------
 	log.Info("loading all cpo's locations, this might take some time...")
 	locationBody := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoWallet)
-	var locations []tools.XLocation
+	var locations tools.XLocation
 	err0 := json.Unmarshal(locationBody, &locations)
 	if err0 != nil {
 		log.Error(err0)
@@ -115,8 +115,8 @@ func CpoPaymentWallet(c *gin.Context) {
 
 	var scIds []string
 
-	for _, location := range locations {
-		scIds = append(scIds, location.ScID)
+	for scId, _ := range locations {
+		scIds = append(scIds, scId)
 	}
 
 	log.Info("loading all cdrs, this might take some time...")
@@ -202,7 +202,7 @@ func CpoCreateReimbursement(c *gin.Context) {
 
 	//get all ScIDs belonging to the cpo address
 	locationBody := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoWallet)
-	var locations []tools.XLocation
+	var locations tools.XLocation
 	err0 := json.Unmarshal(locationBody, &locations)
 	if err0 != nil {
 		log.Error(err0)
@@ -210,8 +210,8 @@ func CpoCreateReimbursement(c *gin.Context) {
 		return
 	}
 	var scIds []string
-	for _, location := range locations {
-		scIds = append(scIds, location.ScID)
+	for scId, _ := range locations {
+		scIds = append(scIds, scId)
 	}
 
 	// get the history
@@ -505,7 +505,7 @@ func CpoPaymentCDR(c *gin.Context) {
 
 	log.Info("loading all cpo's locations, this might take some time...")
 	locationBody := tools.GETRequest("http://localhost:3000/api/store/locations/" + cpoAddress)
-	var locations []tools.XLocation
+	var locations tools.XLocation
 	err0 := json.Unmarshal(locationBody, &locations)
 	if err0 != nil {
 		log.Error(err0)
@@ -515,8 +515,8 @@ func CpoPaymentCDR(c *gin.Context) {
 
 	var scIds []string
 
-	for _, location := range locations {
-		scIds = append(scIds, location.ScID)
+	for scId, _ := range locations {
+		scIds = append(scIds, scId)
 	}
 
 	log.Info("loading all cdrs, this might take some time...")
@@ -624,7 +624,7 @@ func CpoGetLocations(c *gin.Context) {
 		return
 	}
 
-	var locations []tools.XLocation
+	var locations tools.XLocation
 	err := json.Unmarshal(body, &locations)
 	if err != nil {
 		log.Error(err)
@@ -637,7 +637,16 @@ func CpoGetLocations(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, locations)
+	var locationsLegacy []tools.XLocationLegacy
+
+	for scId, location := range locations {
+		var entry tools.XLocationLegacy
+		entry.ScID = scId
+		entry.Location = location
+		locationsLegacy = append(locationsLegacy, entry);
+	}
+
+	c.JSON(http.StatusOK, locationsLegacy)
 
 }
 
@@ -743,9 +752,9 @@ func CpoGetTariffs(c *gin.Context) {
 
 	config := configs.Load()
 	cpoAddress := config.GetString("cpo.wallet_address")
-	body := tools.GETRequest("http://localhost:3000/api/store/tariffs/" + cpoAddress + "?raw=true")
+	body := tools.GETRequest("http://localhost:3000/api/store/tariffs/" + cpoAddress)
 
-	var tariffs []tools.Tariff
+	var tariffs tools.XTariff
 	err := json.Unmarshal(body, &tariffs)
 	if err != nil {
 		log.Warn(err)
@@ -758,7 +767,13 @@ func CpoGetTariffs(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, tariffs)
+	var tariffsLegacy []tools.Tariff
+
+	for _, tariff := range tariffs {
+		tariffsLegacy = append(tariffsLegacy, tariff)
+	}
+
+	c.JSON(http.StatusOK, tariffsLegacy)
 
 }
 
