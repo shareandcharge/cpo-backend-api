@@ -637,12 +637,10 @@ func CpoGetLocations(c *gin.Context) {
 		return
 	}
 
-	var locationsLegacy []tools.XLocationLegacy
+	var locationsLegacy []map[string]interface{}
 
 	for scId, location := range locations {
-		var entry tools.XLocationLegacy
-		entry.ScID = scId
-		entry.Location = location
+		entry := map[string]interface{}{"data":location,"scId":scId}
 		locationsLegacy = append(locationsLegacy, entry);
 	}
 

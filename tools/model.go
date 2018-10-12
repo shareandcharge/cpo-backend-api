@@ -8,12 +8,6 @@ import "time"
 
 type XLocation map[string]Location
 
-// support old style location hash for dashboard compatibility
-type XLocationLegacy struct {
-	ScID		string
-	Location	Location
-}
-
 type Location struct {
 	ID          string `json:"id"`
 	Type        string `json:"type"`
