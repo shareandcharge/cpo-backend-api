@@ -692,7 +692,7 @@ func CpoPostLocation(c *gin.Context) {
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/store/location", jsonValue)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
@@ -719,7 +719,7 @@ func CpoPutLocation(c *gin.Context) {
 	_, err = tools.PUTRequest("http://localhost:3000/api/store/location/"+scId, jsonValue)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
@@ -733,7 +733,7 @@ func CpoDeleteLocation(c *gin.Context) {
 	_, err := tools.DELETERequest("http://localhost:3000/api/store/location/" + locationid)
 	if err != nil {
 		log.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
