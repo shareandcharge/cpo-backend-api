@@ -692,8 +692,7 @@ func CpoPostLocation(c *gin.Context) {
 
 	_, err = tools.POSTRequest("http://localhost:3000/api/store/location", jsonValue)
 	if err != nil {
-		log.Error(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
