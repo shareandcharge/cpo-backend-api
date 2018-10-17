@@ -38,6 +38,7 @@ type Evse struct {
 	Connectors []struct {
 		ID          string    `json:"id"`
 		Standard    string    `json:"standard"`
+		Format		string	  `json:"format"`
 		PowerType   string    `json:"power_type"`
 		Voltage     int       `json:"voltage"`
 		Amperage    int       `json:"amperage"`
