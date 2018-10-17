@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha1"
 	"encoding/json"
+	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -67,7 +68,11 @@ func POSTRequest(url string, payload []byte) ([]byte, error) {
 
 	if contents, err := ioutil.ReadAll(resp.Body); err == nil {
 		log.Info("POST Request Returned >>> " + string(contents))
-		return contents, nil
+		if resp.StatusCode != 200 {
+			return nil, errors.New(string(contents))
+		} else {
+			return contents, nil
+		}
 	}
 	return nil, err
 }
