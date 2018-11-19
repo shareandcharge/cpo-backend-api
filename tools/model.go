@@ -53,7 +53,7 @@ type Evse struct {
 
 type Hours struct {
 	RegularHours []struct {
-		Weekday 		string `json:"weekday"`
+		Weekday 		int `json:"weekday"`
 		PeriodBegin 	string `json:"period_begin"`
 		PeriodEnd		string `json:"period_end"`
 	} `json:"regular_hours,omitempty"`
