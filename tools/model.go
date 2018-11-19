@@ -9,31 +9,32 @@ import "time"
 type XLocation map[string]Location
 
 type Location struct {
-	ID          string `json:"id"`
-	Type        string `json:"type"`
-	Name        string `json:"name"`
-	Address     string `json:"address"`
-	City        string `json:"city"`
-	PostalCode  string `json:"postal_code"`
-	Country     string `json:"country"`
-	Coordinates struct {
-		Latitude  string `json:"latitude"`
-		Longitude string `json:"longitude"`
+	ID          	string `json:"id"`
+	Type        	string `json:"type"`
+	Name        	string `json:"name,omitempty"`
+	Address     	string `json:"address"`
+	City        	string `json:"city"`
+	PostalCode  	string `json:"postal_code"`
+	Country     	string `json:"country"`
+	Coordinates 	struct {
+		Latitude  		string `json:"latitude"`
+		Longitude 		string `json:"longitude"`
 	} `json:"coordinates"`
-	Evses      []Evse `json:"evses"`
-	Directions []struct {
-		Language string `json:"language"`
-		Text     string `json:"text"`
-	} `json:"directions"`
-	Operator struct {
-		Name string `json:"name"`
-	} `json:"operator"`
-	LastUpdated time.Time `json:"last_updated"`
+	Evses      		[]Evse `json:"evses"`
+	Directions 		[]struct {
+		Language 		string `json:"language"`
+		Text     		string `json:"text"`
+	} `json:"directions,omitempty"`
+	Operator 		struct {
+		Name 			string `json:"name"`
+	} `json:"operator,omitempty"`
+	OpeningTimes 	Hours `json:"opening_times,omitempty"`
+	LastUpdated 	time.Time `json:"last_updated"`
 }
 
 type Evse struct {
 	UID        string `json:"uid"`
-	EvseID     string `json:"evse_id"`
+	EvseID     string `json:"evse_id,omitempty"`
 	Status     string `json:"status"`
 	Connectors []struct {
 		ID          string    `json:"id"`
@@ -48,6 +49,23 @@ type Evse struct {
 	FloorLevel        string    `json:"floor_level"`
 	PhysicalReference string    `json:"physical_reference"`
 	LastUpdated       time.Time `json:"last_updated"`
+}
+
+type Hours struct {
+	RegularHours []struct {
+		Weekday 		string `json:"weekday"`
+		PeriodBegin 	string `json:"period_begin"`
+		PeriodEnd		string `json:"period_end"`
+	} `json:"regular_hours,omitempty"`
+	Twentyfourseven bool `json:"twentyfourseven"`
+	ExceptionalOpenings []struct {
+		PeriodBegin 	time.Time `json:"period_begin"`
+		PeriodEnd		time.Time `json:"period_end"`
+	} `json:"exceptional_openings"`
+	ExceptionalClosings []struct {
+		PeriodBegin 	time.Time `json:"period_begin"`
+		PeriodEnd		time.Time `json:"period_end"`
+	} `json:"exceptional_closings"`
 }
 
 // type Tariff struct {
