@@ -61,11 +61,11 @@ type Hours struct {
 	ExceptionalOpenings []struct {
 		PeriodBegin 	time.Time `json:"period_begin"`
 		PeriodEnd		time.Time `json:"period_end"`
-	} `json:"exceptional_openings"`
+	} `json:"exceptional_openings,omitempty"`
 	ExceptionalClosings []struct {
 		PeriodBegin 	time.Time `json:"period_begin"`
 		PeriodEnd		time.Time `json:"period_end"`
-	} `json:"exceptional_closings"`
+	} `json:"exceptional_closings,omitempty"`
 }
 
 // type Tariff struct {
